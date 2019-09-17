@@ -115,7 +115,7 @@ public class JobFactory {
     }
 
     //删除某个任务
-    public String DeleteJob(JobConfig jobConfigBase) throws SchedulerException {
+    public String DeleteJob(JobConfig jobConfigBase) {
         try {
             JobKey jobKey = new JobKey(jobConfigBase.getJobName(), jobConfigBase.getJobGroup());
             JobDetail jobDetail = scheduler.getJobDetail(jobKey);
@@ -157,7 +157,7 @@ public class JobFactory {
     }
 
     //修改任务
-    public String ModifyJob(JobConfig jobConfig) throws SchedulerException {
+    public String ModifyJob(JobConfig jobConfig) {
         try {
             BaseTriggerConfig baseTriggerConfig = getTriggerConfig(jobConfig);
             TriggerKey triggerKey = TriggerKey.triggerKey(jobConfig.getJobName(), jobConfig.getJobGroup());

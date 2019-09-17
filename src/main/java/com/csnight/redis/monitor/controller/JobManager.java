@@ -2,18 +2,20 @@ package com.csnight.redis.monitor.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.csnight.redis.monitor.quartz.JobFactory;
-import com.csnight.redis.monitor.quartz.JobInstance;
 import com.csnight.redis.monitor.quartz.config.JobConfig;
+import com.csnight.redis.monitor.quartz.jobs.JobInstance;
 import com.csnight.redis.monitor.utils.GUID;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class JobManager {
-    @Autowired
-    private JobFactory jobUtil;
+    private final JobFactory jobFactory;
+
+    public JobManager(JobFactory jobFactory) {
+        this.jobFactory = jobFactory;
+    }
 
     //添加一个job
     @RequestMapping(value = "/addJob", method = RequestMethod.GET)
@@ -31,7 +33,7 @@ public class JobManager {
         jobConfigBase.setTriggerConfig(jsonObject.toJSONString());
         jobConfigBase.setTriggerType(0);
 
-        return jobUtil.AddJob(jobConfigBase, JobInstance.class);
+        return jobFactory.AddJob(jobConfigBase, JobInstance.class);
     }
 
     @RequestMapping(value = "/delJob", method = RequestMethod.GET)
@@ -48,6 +50,6 @@ public class JobManager {
         jsonObject.put("expression", "0/3 * * * * ?");
         jobConfigBase.setTriggerConfig(jsonObject.toJSONString());
         jobConfigBase.setTriggerType(1);
-        jobUtil.ModifyJob(jobConfigBase);
+        jobFactory.ModifyJob(jobConfigBase);
     }
 }

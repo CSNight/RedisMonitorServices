@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.quartz;
+package com.csnight.redis.monitor.quartz.jobs;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
