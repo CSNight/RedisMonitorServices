@@ -48,9 +48,9 @@ public class JobFactory {
 
     }
 
-    public String GetJobState(String jobName, String jobGroup) {
+    public String GetJobState(String identify, String triggerGroup) {
         try {
-            TriggerKey triggerKey = new TriggerKey(jobName, jobGroup);
+            TriggerKey triggerKey = new TriggerKey(identify, triggerGroup);
             return scheduler.getTriggerState(triggerKey).name();
         } catch (Exception ex) {
             _log.error(ex.getMessage());
@@ -134,6 +134,7 @@ public class JobFactory {
 
     }
 
+    //删除所有任务
     public String DeleteAllJob() {
         try {
             // 获取有所的组
@@ -160,7 +161,7 @@ public class JobFactory {
     public String ModifyJob(JobConfig jobConfig) {
         try {
             BaseTriggerConfig baseTriggerConfig = getTriggerConfig(jobConfig);
-            TriggerKey triggerKey = TriggerKey.triggerKey(jobConfig.getJobName(), jobConfig.getJobGroup());
+            TriggerKey triggerKey = TriggerKey.triggerKey(baseTriggerConfig.getIdentity(), baseTriggerConfig.getTriggerGroup());
             JobKey jobKey = new JobKey(jobConfig.getJobName(), jobConfig.getJobGroup());
             if (scheduler.checkExists(jobKey) && scheduler.checkExists(triggerKey)) {
                 Trigger trigger = baseTriggerConfig.getTrigger();

@@ -1,6 +1,5 @@
 package com.csnight.redis.monitor.quartz.config;
 
-import com.csnight.redis.monitor.utils.GUID;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
@@ -12,7 +11,7 @@ public class CronTriggerConfig implements BaseTriggerConfig {
     private String description = "";
     private String identity = "";
     private Date startAt = new Date();
-    private String jobGroup = "";
+    private String triggerGroup = "";
     private String expression = "";
     private String strategy = "";
 
@@ -48,12 +47,13 @@ public class CronTriggerConfig implements BaseTriggerConfig {
         this.startAt = startAt;
     }
 
-    public String getJobGroup() {
-        return jobGroup;
+    @Override
+    public String getTriggerGroup() {
+        return triggerGroup;
     }
 
-    public void setJobGroup(String jobGroup) {
-        this.jobGroup = jobGroup;
+    public void setTriggerGroup(String triggerGroup) {
+        this.triggerGroup = triggerGroup;
     }
 
     public String getExpression() {
@@ -76,7 +76,7 @@ public class CronTriggerConfig implements BaseTriggerConfig {
     public Trigger getTrigger() {
         TriggerBuilder t = TriggerBuilder.newTrigger()
                 .withDescription(description)
-                .withIdentity(identity, jobGroup)
+                .withIdentity(identity, triggerGroup)
                 .startAt(startAt);
 
         if (expression.equals("")) {

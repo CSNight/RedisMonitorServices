@@ -12,7 +12,7 @@ public class SimpleBaseTriggerConfig implements BaseTriggerConfig {
     private String description = "";
     private String identity = "";
     private Date startAt = new Date();
-    private String jobGroup = "";
+    private String triggerGroup = "";
     private int interval = 1;
     private DateBuilder.IntervalUnit unit = DateBuilder.IntervalUnit.SECOND;
     private int repeatCount = -1;
@@ -82,19 +82,20 @@ public class SimpleBaseTriggerConfig implements BaseTriggerConfig {
         this.startAt = startAt;
     }
 
-    public String getJobGroup() {
-        return jobGroup;
+    @Override
+    public String getTriggerGroup() {
+        return triggerGroup;
     }
 
-    public void setJobGroup(String jobGroup) {
-        this.jobGroup = jobGroup;
+    public void setTriggerGroup(String triggerGroup) {
+        this.triggerGroup = triggerGroup;
     }
 
     @Override
     public Trigger getTrigger() {
         TriggerBuilder t = TriggerBuilder.newTrigger()
                 .withDescription(description)
-                .withIdentity(identity, jobGroup)
+                .withIdentity(identity, triggerGroup)
                 .startAt(startAt);
         SimpleScheduleBuilder simpleScheduleBuilder = null;
         switch (unit) {

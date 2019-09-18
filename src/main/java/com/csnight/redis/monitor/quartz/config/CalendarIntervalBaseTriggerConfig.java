@@ -8,11 +8,11 @@ import org.quartz.TriggerBuilder;
 import java.util.Date;
 
 public class CalendarIntervalBaseTriggerConfig implements BaseTriggerConfig {
-    private TriggerType triggerType = TriggerType.DailyTimeIntervalTrigger;
+    private TriggerType triggerType = TriggerType.CalendarIntervalTrigger;
     private String description = "";
     private String identity = "";
     private Date startAt = new Date();
-    private String jobGroup = "";
+    private String triggerGroup = "";
     private DateBuilder.IntervalUnit unit = DateBuilder.IntervalUnit.SECOND;
     private int interval = 1;
     private String strategy = "";
@@ -49,12 +49,12 @@ public class CalendarIntervalBaseTriggerConfig implements BaseTriggerConfig {
         this.startAt = startAt;
     }
 
-    public String getJobGroup() {
-        return jobGroup;
+    public String getTriggerGroup() {
+        return triggerGroup;
     }
 
-    public void setJobGroup(String jobGroup) {
-        this.jobGroup = jobGroup;
+    public void setTriggerGroup(String triggerGroup) {
+        this.triggerGroup = triggerGroup;
     }
 
     public DateBuilder.IntervalUnit getUnit() {
@@ -85,7 +85,7 @@ public class CalendarIntervalBaseTriggerConfig implements BaseTriggerConfig {
     public Trigger getTrigger() {
         TriggerBuilder t = TriggerBuilder.newTrigger()
                 .withDescription(description)
-                .withIdentity(identity, jobGroup)
+                .withIdentity(identity, triggerGroup)
                 .startAt(startAt);
         CalendarIntervalScheduleBuilder builder = CalendarIntervalScheduleBuilder.calendarIntervalSchedule().withInterval(interval, unit);
         switch (strategy) {

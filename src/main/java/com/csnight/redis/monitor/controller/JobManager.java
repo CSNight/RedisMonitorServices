@@ -27,7 +27,7 @@ public class JobManager {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("identity", jobConfigBase.getJobName());
         jsonObject.put("description", "");
-        jsonObject.put("jobGroup", "ssss");
+        jsonObject.put("triggerGroup", "ssss");
         jsonObject.put("strategy", "");
         jsonObject.put("expression", "0/1 * * * * ?");
         jobConfigBase.setTriggerConfig(jsonObject.toJSONString());

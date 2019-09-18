@@ -12,7 +12,7 @@ public class DailyTimeIntervalBaseTriggerConfig implements BaseTriggerConfig {
     private String description = "";
     private String identity = "";
     private Date startAt = new Date();
-    private String jobGroup = "";
+    private String triggerGroup = "";
     private DateBuilder.IntervalUnit unit = DateBuilder.IntervalUnit.SECOND;
     private int interval = 1;
     private String strategy = "";
@@ -49,12 +49,13 @@ public class DailyTimeIntervalBaseTriggerConfig implements BaseTriggerConfig {
         this.startAt = startAt;
     }
 
-    public String getJobGroup() {
-        return jobGroup;
+    @Override
+    public String getTriggerGroup() {
+        return triggerGroup;
     }
 
-    public void setJobGroup(String jobGroup) {
-        this.jobGroup = jobGroup;
+    public void setTriggerGroup(String triggerGroup) {
+        this.triggerGroup = triggerGroup;
     }
 
     public DateBuilder.IntervalUnit getUnit() {
@@ -85,7 +86,7 @@ public class DailyTimeIntervalBaseTriggerConfig implements BaseTriggerConfig {
     public Trigger getTrigger() {
         TriggerBuilder t = TriggerBuilder.newTrigger()
                 .withDescription(description)
-                .withIdentity(identity, jobGroup)
+                .withIdentity(identity, triggerGroup)
                 .startAt(startAt);
         DailyTimeIntervalScheduleBuilder builder = DailyTimeIntervalScheduleBuilder.dailyTimeIntervalSchedule().withInterval(interval, unit);
         switch (strategy) {
