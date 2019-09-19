@@ -1,3 +1,11 @@
+truncate table rms_log_rps;
+truncate table rms_log_rcs;
+truncate table rms_log_rks;
+truncate table rms_log_ros;
+truncate table rms_job_relation;
+truncate table rms_jobs;
+truncate table rms_instance;
+
 drop table if exists rms_log_rps;
 drop table if exists rms_log_rcs;
 drop table if exists rms_log_rks;

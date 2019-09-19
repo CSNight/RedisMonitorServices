@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register new User</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<h1 >注册</h1>
+<form action="/" th:action="@{/register}" th:object="${user}" method="POST" enctype="utf8">
+    <!--<div class="error" th:if="${#fields.hasErrors()}">输入错误！</div>-->
+    <div>
+        <label>用户名</label>
+        <input th:field="*{name}"/>
+        <p class="error" th:each="error: ${#fields.errors('name')}"
+           th:text="${error}">Validation error</p>
+    </div>
+    <div>
+        <label>email</label>
+        <input type="email" th:field="*{email}"/>
+        <p class="error" th:each="error : ${#fields.errors('email')}"
+           th:text="${error}">Validation error</p>
+    </div>
+    <div>
+        <label >password</label>
+        <input type="password" th:field="*{passWd}"/>
+        <p class="error" th:each="error : ${#fields.errors('passWd')}"
+           th:text="${error}">Validation error</p>
+    </div>
+    <div>
+        <label>confirm</label>
+        <input type="password" th:field="*{matchPassWd}"/>
+        <p class="error" th:errors="*{matchPassWd}"></p>
+    </div>
+    <button type="submit" >submit</button>
+</form>
+
+<a th:href="@{/login}">login</a>
+<p><a th:href="@{/}">返回首页</a>
+</p>
+</body>
+</html>
