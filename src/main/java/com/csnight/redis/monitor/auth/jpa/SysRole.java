@@ -1,6 +1,8 @@
 package com.csnight.redis.monitor.auth.jpa;
 
 
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -9,23 +11,23 @@ import java.util.List;
 public class SysRole {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GenericGenerator(name = "jpa-uuid", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(generator = "jpa-uuid")
     @Column(name = "id")
-    private Long id;
-    @Column(length = 25)
+    private String id;
+
+    @Column(name = "name ", length = 25)
     private String name;
-    //懒加载 不会查询role表
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
-    private List<SysUser> users;
+
     //急加载 会查询role表
     @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
     private List<SysPermission> Permission;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -37,13 +39,6 @@ public class SysRole {
         this.name = name;
     }
 
-    public List<SysUser> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<SysUser> users) {
-        this.users = users;
-    }
 
     public List<SysPermission> getPermission() {
         return Permission;

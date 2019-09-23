@@ -22,7 +22,7 @@
 
 
 <form th:action="@{/sign}" method="post" action="/sign">
-    <p th:if="${param.error}">
+    <p th:if="${param.error}" th:text="${session.SPRING_SECURITY_LAST_EXCEPTION.message}">
         <span style="color:red">Invalid username and password.</span>
     </p>
     <table>

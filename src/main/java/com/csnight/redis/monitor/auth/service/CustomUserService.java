@@ -1,10 +1,10 @@
-package com.csnight.redis.monitor.auth.config;
+package com.csnight.redis.monitor.auth.service;
 
-import com.csnight.redis.monitor.auth.impl.SysUserMapper;
+import com.csnight.redis.monitor.auth.repos.SysUserRepository;
 import com.csnight.redis.monitor.auth.jpa.SysPermission;
 import com.csnight.redis.monitor.auth.jpa.SysRole;
 import com.csnight.redis.monitor.auth.jpa.SysUser;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -18,9 +18,9 @@ import java.util.List;
 
 @Service
 public class CustomUserService implements UserDetailsService {
-    private final SysUserMapper userMapper;
+    private final SysUserRepository userMapper;
 
-    public CustomUserService(SysUserMapper userMapper) {
+    public CustomUserService(SysUserRepository userMapper) {
         this.userMapper = userMapper;
     }
 

@@ -1,5 +1,7 @@
 package com.csnight.redis.monitor.auth.jpa;
 
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,12 +14,14 @@ import java.util.List;
 
 @Entity
 @Table(name = "sys_user")
+@DynamicUpdate(value = true)
 public class SysUser implements UserDetails {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", length = 50, unique = true)
+    @GenericGenerator(name = "jpa-uuid", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(generator = "jpa-uuid")
+    @Column(name = "id", length = 50)
     private String id;
 
     @Column(name = "username", length = 200, unique = true)
@@ -49,11 +53,13 @@ public class SysUser implements UserDetails {
     @Column(name = "login_times")
     private int login_times;
 
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "sys_role_user",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
+            inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")}
+    )
     private List<SysRole> roles;
 
     @Override
@@ -95,7 +101,7 @@ public class SysUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return this.getEnabled();
     }
 
 
