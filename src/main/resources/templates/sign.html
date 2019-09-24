@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<!--xmlns:sec="http://www.thymeleaf.org/extras/spring-security" >-->
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+
+</head>
+<body>
+<h1>登录</h1>
+<div class="error" th:if="${loginError}">
+    <p>用户名或密码错误</p>
+</div>
+
+<div th:if="${param.logout}">
+    <label>
+        You have been logged out.
+    </label>
+</div>
+
+
+<form th:action="@{/sign}" method="post" action="/sign">
+    <p th:if="${param.error}" th:text="${session.SPRING_SECURITY_LAST_EXCEPTION.message}">
+        <span style="color:red">Invalid username and password.</span>
+    </p>
+    <table>
+        <tr>
+            <td><label>用户名: <input autofocus="autofocus" type="text" name="username"/></label></td>
+        </tr>
+        <tr>
+            <td><label>密码: <input type="password" id="password" name="password"/></label></td>
+        </tr>
+        <tr>
+            <td><label>记住我: <input type="checkbox" name="remember-me"/></label></td>
+        </tr>
+        <tr>
+            <td>
+                <button type="submit">Login</button>
+            </td>
+        </tr>
+    </table>
+
+</form>
+
+<a th:href="@{/register}">注册</a>
+<br>
+<br>
+<a th:href="@{/}">返回首页</a>
+
+</body>
+</html>

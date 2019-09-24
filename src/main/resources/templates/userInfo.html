@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+<head>
+    <meta charset="UTF-8">
+    <title>UserInfo</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div>
+    <p>登录的用户是：<em th:text="${name}"></em></p>
+    <p>现在是时间是：<strong th:text="${date}"></strong></p>
+</div>
+<div sec:authorize="hasRole('ROLE_ADMIN')">
+    这部分内容只展示给Admin用户。
+</div>
+<div sec:authorize="hasRole('ROLE_USER')">
+    这部分内容只展示给User用户。
+</div>
+
+<div>
+    <p>登录的用户名 : <strong class="reg" sec:authentication="name"></strong>
+    </p>
+    登录成功的用户角色 :
+    <em class="reg" sec:authentication="principal.authorities"></em>
+</div>
+
+<div>
+    <p sec:authorize="isAuthenticated()">
+        <a th:href="@{/logout}">Logout (<span sec:authentication="principal.username"/>)</a>
+    </p>
+
+    <p>
+        <a th:href="@{/}">返回首页</a>
+    </p>
+</div>
+
+</body>
+</html>

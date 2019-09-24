@@ -1,0 +1,41 @@
+body{
+    width: 40em;
+    margin: 0 auto;
+}
+
+.error{
+    color: red;
+}
+
+a{
+    text-align: center;
+    text-decoration: none;
+}
+
+.reg{
+    color: #4d9d44;
+}
+
+div{
+    margin: 10px 0;
+}
+
+.title{
+}
+
+.title ul {
+    list-style-type: none;
+    padding: 0 6px 0 6px;
+}
+
+.title li {
+    display: inline;
+}
+
+
+.list{
+    font-weight: bold;
+}
+.list li{
+    padding: 6px;
+}

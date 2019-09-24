@@ -14,7 +14,6 @@ public class SpringContextEvent implements ApplicationListener {
     @Override
     public void onApplicationEvent(ApplicationEvent applicationEvent) {
         if (applicationEvent instanceof ApplicationStartedEvent) {
-
             System.out.println("Start Complete!");
         } else if (applicationEvent instanceof ContextClosedEvent) {
             ReflectUtils.getBean(JobFactory.class).DeleteAllJob();

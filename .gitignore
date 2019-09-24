@@ -29,7 +29,4 @@ build/
 
 ### VS Code ###
 .vscode/
-src/main/java/com/csnight/redis/monitor/db/
-src/main/resources/static/
-src/main/resources/templates/
 src/test/
