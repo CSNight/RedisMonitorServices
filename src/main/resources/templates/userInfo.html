@@ -29,7 +29,7 @@
 
 <div>
     <p sec:authorize="isAuthenticated()">
-        <a th:href="@{/logout}">Logout (<span sec:authentication="principal.username"/>)</a>
+        <a th:href="@{/auth/logout}">Logout (<span sec:authentication="principal.username"/>)</a>
     </p>
 
     <p>

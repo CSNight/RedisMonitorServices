@@ -12,11 +12,11 @@ import java.io.IOException;
 @Component
 public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
     public LoginFailureHandler() {
-        this.setDefaultFailureUrl("/sign?error=true");
+        this.setDefaultFailureUrl("/auth/failed");
     }
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
-        response.sendRedirect("/login?error=true");
+        super.onAuthenticationFailure(request, response, e);
     }
 }

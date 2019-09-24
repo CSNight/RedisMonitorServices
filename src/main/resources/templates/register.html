@@ -7,7 +7,7 @@
 </head>
 <body>
 <h1>注册</h1>
-<form action="/" th:action="@{/register}" th:object="${user}" method="POST" enctype="utf8">
+<form action="/" th:action="@{/auth/register}" th:object="${user}" method="POST" enctype="utf8">
     <!--<div class="error" th:if="${#fields.hasErrors()}">输入错误！</div>-->
     <div>
         <label for="username">用户名</label>
@@ -35,7 +35,7 @@
     <button type="submit">submit</button>
 </form>
 
-<a th:href="@{/sign}">login</a>
+<a th:href="@{/auth/sign}">login</a>
 <p><a th:href="@{/}">返回首页</a>
 </p>
 </body>

@@ -34,7 +34,7 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
         sysUser.setLogin_times(sysUser.getLogin_times() + 1);
         sysUser.setLast_login(new Date());
         sysUserRepository.save(sysUser);
-        super.setDefaultTargetUrl("/userInfo");
+        super.setDefaultTargetUrl("/auth/userInfo");
         super.setAlwaysUseDefaultTargetUrl(true);
         SavedRequest savedRequest = requestCache.getRequest(request, response);
         if (savedRequest == null) {

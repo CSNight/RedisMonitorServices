@@ -21,13 +21,13 @@
 <div class="title">
     <ul>
         <li sec:authorize="!isAuthenticated()">
-            <a href="#" th:href="@{/sign}">Login</a>
+            <a href="#" th:href="@{/auth/sign}">Login</a>
         </li>
         <li sec:authorize="isAnonymous()">
-            <a href="#" th:href="@{/register}">Register</a>
+            <a href="#" th:href="@{/auth/register}">Register</a>
         </li>
         <li sec:authorize="isAuthenticated()">
-            <a href="#" th:href="@{/logout}">Sign Out</a>
+            <a href="#" th:href="@{/auth/logout}">Sign Out</a>
         </li>
     </ul>
 </div>

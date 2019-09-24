@@ -1,15 +1,14 @@
 package com.csnight.redis.monitor.controller;
 
-import com.csnight.redis.monitor.auth.service.SignUpUserService;
 import com.csnight.redis.monitor.auth.jpa.SysUser;
 import com.csnight.redis.monitor.auth.jpa.UserDto;
+import com.csnight.redis.monitor.auth.service.SignUpUserService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +17,7 @@ import javax.validation.Valid;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-@Controller
+@Controller(value = "/auth")
 public class LoginController {
     private final SignUpUserService signUpUserService;
 
@@ -26,24 +25,24 @@ public class LoginController {
         this.signUpUserService = signUpUserService;
     }
 
-    @GetMapping("/sign")
+    @GetMapping("/auth/sign")
     public String sign() {
         return "sign";
     }
 
-    @GetMapping("/register")
+    @GetMapping("/auth/register")
     public String createUser(Model model) {
-        model.addAttribute("user",new UserDto());
+        model.addAttribute("user", new UserDto());
         return "register";
     }
 
-    @PostMapping("/sign.html?error")
+    @GetMapping("/auth/failed")
     public String loginError(Model model) {
         model.addAttribute("loginError", true);
         return "sign";
     }
 
-    @GetMapping("/userInfo")
+    @GetMapping("/auth/userInfo")
     public String userInfo(Model model) {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String name = userDetails.getUsername();
@@ -53,7 +52,7 @@ public class LoginController {
         return "userInfo";
     }
 
-    @PostMapping("/register")
+    @PostMapping("/auth/register")
     public String createUser(@ModelAttribute("user") @Valid UserDto userDto, BindingResult result, Model model) {
 
         if (result.hasErrors()) {
@@ -62,7 +61,7 @@ public class LoginController {
         }
         //check name 是否已使用
         if (signUpUserService.checkUserByName(userDto.getUsername())) {
-            result.rejectValue("name", "error.user", "name已使用");
+            result.rejectValue("username", "error.user", "name已使用");
             return "register";
         }
         //check email 是否已注册。
@@ -80,10 +79,10 @@ public class LoginController {
             createUserAccount(userDto);
         } catch (DataIntegrityViolationException e) {
             result.rejectValue("email", "error.user", "Email already exists.");
-            result.rejectValue("name", "error.user", "Name already exists");
+            result.rejectValue("username", "error.user", "Name already exists");
         }
 
-        return "redirect:/userInfo";
+        return "redirect:/auth/userInfo";
 
     }
 

@@ -47,10 +47,10 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().authorizeRequests().antMatchers("/static/**", "/css/**").permitAll() //访问允许静态文件
-                .antMatchers("/", "/register").permitAll().anyRequest().authenticated()
-                .and().formLogin().loginPage("/sign").successHandler(loginSuccessHandler)
-                .failureUrl("/sign.html?error=true")//指定登录页和登录失败页
-                .and().logout().logoutSuccessUrl("/sign").addLogoutHandler(signOutHandler).permitAll()
+                .antMatchers("/", "/auth/register", "/auth/failed").permitAll().anyRequest().authenticated()
+                .and().formLogin().loginPage("/auth/sign").successHandler(loginSuccessHandler)
+                .failureHandler(loginFailureHandler)//指定登录页和登录失败页
+                .and().logout().logoutUrl("/auth/logout").logoutSuccessUrl("/auth/sign").addLogoutHandler(signOutHandler).permitAll()
                 .and().rememberMe().tokenRepository(tokenRepository()).tokenValiditySeconds(60);
     }
 
