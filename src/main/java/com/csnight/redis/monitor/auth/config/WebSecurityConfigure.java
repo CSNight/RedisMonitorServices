@@ -20,18 +20,22 @@ import javax.sql.DataSource;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private AuthenticationFailureHandler loginFailureHandler;
-    @Autowired
-    private AuthenticationSuccessHandler loginSuccessHandler;
-    @Autowired
-    private SignOutHandler signOutHandler;
+    private final AuthenticationFailureHandler loginFailureHandler;
+    private final AuthenticationSuccessHandler loginSuccessHandler;
+    private final SignOutHandler signOutHandler;
     private final DataSource dataSource;
     private final SysUserRepository sysUserRepository;
 
-    public WebSecurityConfigure(DataSource dataSource, SysUserRepository sysUserRepository) {
+    public WebSecurityConfigure(DataSource dataSource,
+                                SysUserRepository sysUserRepository,
+                                AuthenticationFailureHandler loginFailureHandler,
+                                AuthenticationSuccessHandler loginSuccessHandler,
+                                SignOutHandler signOutHandler) {
         this.dataSource = dataSource;
         this.sysUserRepository = sysUserRepository;
+        this.loginFailureHandler = loginFailureHandler;
+        this.loginSuccessHandler = loginSuccessHandler;
+        this.signOutHandler = signOutHandler;
     }
 
     @Bean
@@ -47,10 +51,10 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().authorizeRequests().antMatchers("/static/**", "/css/**").permitAll() //访问允许静态文件
-                .antMatchers("/", "/register").permitAll().anyRequest().authenticated()
-                .and().formLogin().loginPage("/sign").successHandler(loginSuccessHandler)
-                .failureUrl("/sign.html?error=true")//指定登录页和登录失败页
-                .and().logout().logoutSuccessUrl("/sign").addLogoutHandler(signOutHandler).permitAll()
+                .antMatchers("/","/auth/failed", "/auth/register").permitAll().anyRequest().authenticated()
+                .and().formLogin().loginPage("/auth/sign").successHandler(loginSuccessHandler)
+                .failureHandler(loginFailureHandler)//指定登录页和登录失败页
+                .and().logout().logoutUrl("/auth/logout").logoutSuccessUrl("/auth/sign").addLogoutHandler(signOutHandler).permitAll()
                 .and().rememberMe().tokenRepository(tokenRepository()).tokenValiditySeconds(60);
     }
 

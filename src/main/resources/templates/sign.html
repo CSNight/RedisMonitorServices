@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<!--xmlns:sec="http://www.thymeleaf.org/extras/spring-security" >-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="UTF-8">
@@ -10,7 +11,7 @@
 </head>
 <body>
 <h1>登录</h1>
-<div class="error" th:if="${loginError}">
+<div class="error" th:if="${loginError}" th:text="${#session.getAttribute('SPRING_SECURITY_LAST_EXCEPTION')}">
     <p>用户名或密码错误</p>
 </div>
 
@@ -21,8 +22,8 @@
 </div>
 
 
-<form th:action="@{/sign}" method="post" action="/sign">
-    <p th:if="${param.error}" th:text="${session.SPRING_SECURITY_LAST_EXCEPTION.message}">
+<form th:action="@{/auth/sign}" method="post" action="/auth/sign">
+    <p th:if="${param.error}" th:text="${#session.getAttribute('SPRING_SECURITY_LAST_EXCEPTION')}">
         <span style="color:red">Invalid username and password.</span>
     </p>
     <table>
@@ -44,7 +45,7 @@
 
 </form>
 
-<a th:href="@{/register}">注册</a>
+<a th:href="@{/auth/register}">注册</a>
 <br>
 <br>
 <a th:href="@{/}">返回首页</a>
