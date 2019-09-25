@@ -4,8 +4,6 @@ import com.csnight.redis.monitor.auth.jpa.SysPermission;
 import com.csnight.redis.monitor.auth.jpa.SysRole;
 import com.csnight.redis.monitor.auth.jpa.SysUser;
 import com.csnight.redis.monitor.auth.repos.SysUserRepository;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -26,13 +24,10 @@ public class CustomUserService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws AuthenticationException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         SysUser user = userMapper.findByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("用户不存在");
-        }
-        if (!user.isEnabled()) {
-            throw new DisabledException("账户已锁定");
         }
         List<GrantedAuthority> simpleGrantedAuthorities = createAuthorities(user.getRoles());
         return new User(username, user.getPassword(), user.isEnabled(), user.isAccountNonExpired(),

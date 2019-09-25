@@ -50,7 +50,7 @@ public class SignUpUserService {
         return user != null;
     }
 
-    public SysUser registerNewAccount(UserDto userDto) {
+    public void registerNewAccount(UserDto userDto) {
         SysUser sysUser = new SysUser();
         sysUser.setUsername(userDto.getUsername());
         sysUser.setEmail(userDto.getEmail());
@@ -58,9 +58,9 @@ public class SignUpUserService {
         sysUser.setEnabled(true);
         sysUser.setLogin_times(0);
         sysUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        sysUser.setRoles(Collections.singletonList(sysRoleRepository.findByName("ROLE_ADMIN")));
+        sysUser.setRoles(Collections.singletonList(sysRoleRepository.findByName("ROLE_USER")));
         sysUser.setCreate_time(new Date());
         sysUser.setLast_login(new Date());
-        return save(sysUser);
+        save(sysUser);
     }
 }

@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.auth.config;
+package com.csnight.redis.monitor.auth.handler;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.DefaultRedirectStrategy;
