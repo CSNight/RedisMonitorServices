@@ -1,17 +1,24 @@
 package com.csnight.redis.monitor.controller;
 
-import com.csnight.redis.monitor.auth.service.SignUpUserService;
-import com.csnight.redis.monitor.auth.jpa.SysUser;
 import com.csnight.redis.monitor.auth.jpa.UserDto;
+import com.csnight.redis.monitor.auth.service.SignUpUserService;
+import com.csnight.redis.monitor.utils.VerifyCodeUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -31,7 +38,7 @@ public class LoginController {
 
     @GetMapping("/register")
     public String createUser(Model model) {
-        model.addAttribute("user",new UserDto());
+        model.addAttribute("user", new UserDto());
         return "register";
     }
 
@@ -78,15 +85,29 @@ public class LoginController {
             result.rejectValue("email", "error.user", "Email已注册");
             result.rejectValue("username", "error.user", "用户已存在");
         }
-
         return "redirect:/auth/user_info";
-
     }
 
-    private SysUser createUserAccount(UserDto userDto) {
-        SysUser registered = null;
-        registered = signUpUserService.registerNewAccount(userDto);
-        return registered;
+    @GetMapping("/code")
+    public void getAuthImage(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setHeader("Pragma", "No-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setDateHeader("Expires", 0);
+        response.setContentType("image/jpeg");
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        // 生成随机字串
+        String verifyCode = VerifyCodeUtils.generateVerifyCode(4);
+        // 存入会话session
+        HttpSession session = request.getSession(true);
+        session.setAttribute("ValCode", verifyCode.toLowerCase());
+        // 生成图片
+        int w = 100, h = 46;
+        VerifyCodeUtils.outputImage(w, h, response.getOutputStream(),
+                verifyCode);
+    }
+
+    private void createUserAccount(UserDto userDto) {
+        signUpUserService.registerNewAccount(userDto);
     }
 
     private boolean checkPassWordUniform(String passWd, String matchPassWd) {

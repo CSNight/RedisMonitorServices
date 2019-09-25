@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.auth.config;
+package com.csnight.redis.monitor.auth.handler;
 
 import com.csnight.redis.monitor.auth.jpa.SysUser;
 import com.csnight.redis.monitor.auth.repos.SysUserRepository;

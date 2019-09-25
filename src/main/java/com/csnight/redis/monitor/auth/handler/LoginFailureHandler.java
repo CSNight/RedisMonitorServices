@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.auth.config;
+package com.csnight.redis.monitor.auth.handler;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -12,11 +12,11 @@ import java.io.IOException;
 @Component
 public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
     public LoginFailureHandler() {
-        this.setDefaultFailureUrl("/auth/failed");
+        this.setDefaultFailureUrl("/auth/failed?error=true");
     }
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
-        super.onAuthenticationFailure(request,response,e);
+        super.onAuthenticationFailure(request, response, e);
     }
 }

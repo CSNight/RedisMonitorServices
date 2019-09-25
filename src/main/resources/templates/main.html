@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <style>
+        a:link, a:visited {
+            color: white;
+            background-color: #4d9d44;
+            padding: 6px;
+            text-align: center;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<h1>Hello Spring Security!</h1>
+<div class="title">
+    <ul>
+        <li sec:authorize="!isAuthenticated()">
+            <a href="#" th:href="@{/auth/sign}">Login</a>
+        </li>
+        <li sec:authorize="isAnonymous()">
+            <a href="#" th:href="@{/auth/register}">Register</a>
+        </li>
+        <li sec:authorize="isAuthenticated()">
+            <a href="#" th:href="@{/auth/logout}">Sign Out</a>
+        </li>
+    </ul>
+</div>
+
+<div style="color: #4d9d44" sec:authorize="isAuthenticated()">
+    此文字只展示给登录用户！
+</div>
+<div>
+    <ul class="list">
+        <li>SpringBoot 2.1.0</li>
+        <li>Spring Security 5.1</li>
+        <li>Thymeleaf 3.0.11</li>
+        <li>thymeleaf-extras-springsecurity 5</li>
+    </ul>
+</div>
+</body>
+</html>

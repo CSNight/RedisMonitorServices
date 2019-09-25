@@ -1,47 +1,189 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+      xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="UTF-8">
-    <title>Index</title>
-    <link rel="stylesheet" th:href="@{/css/app.css}">
-    <style>
-        a:link, a:visited {
-            color: white;
-            background-color: #4d9d44;
-            padding: 6px;
-            text-align: center;
-            text-decoration: none;
-        }
-    </style>
+    <meta charset="utf-8">
+    <title></title>
+    <link href="/img/brand/favicon.png" rel="icon" type="image/png">
+    <link href="/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link type="text/css" href="/css/argon.css" rel="stylesheet">
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/popper/popper.min.js"></script>
+    <script src="/vendor/bootstrap/bootstrap.min.js"></script>
+    <script src="/js/argon.js?v=1.1.0"></script>
 </head>
 <body>
-<h1>Hello Spring Security!</h1>
-<div class="title">
-    <ul>
-        <li sec:authorize="!isAuthenticated()">
-            <a href="#" th:href="@{/auth/sign}">Login</a>
-        </li>
-        <li sec:authorize="isAnonymous()">
-            <a href="#" th:href="@{/auth/register}">Register</a>
-        </li>
-        <li sec:authorize="isAuthenticated()">
-            <a href="#" th:href="@{/auth/logout}">Sign Out</a>
-        </li>
-    </ul>
-</div>
-
-<div style="color: #4d9d44" sec:authorize="isAuthenticated()">
-    此文字只展示给登录用户！
-</div>
-<div>
-    <ul class="list">
-        <li>SpringBoot 2.1.0</li>
-        <li>Spring Security 5.1</li>
-        <li>Thymeleaf 3.0.11</li>
-        <li>thymeleaf-extras-springsecurity 5</li>
-    </ul>
-</div>
+<header class="header-global">
+    <nav id="navbar-main" class="navbar navbar-main navbar-expand-lg navbar-transparent navbar-light">
+        <div class="container">
+            <a class="navbar-brand mr-lg-5" th:href="@{/}">
+                <img src="/img/brand/white.png" alt="brand">
+            </a>
+        </div>
+    </nav>
+</header>
+<main>
+    <div class="position-relative">
+        <!-- shape Hero -->
+        <section class="section section-lg section-shaped pb-250">
+            <div class="shape shape-style-1 shape-default"></div>
+            <div class="container py-lg-md d-flex">
+                <div class="col px-0">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <h1 class="display-3  text-white">A beautiful Design
+                                System<span>completed with examples</span></h1>
+                            <p class="lead  text-white">The design system comes with four pre-built pages to help you
+                                get started faster. You can change the text and images and you're good to go.</p>
+                            <div class="btn-wrapper">
+                                <a href="https://demos.creative-tim.com/argon-design-system/docs/components/alerts.html"
+                                   class="btn btn-info btn-icon mb-3 mb-sm-0">
+                                    <span class="btn-inner--icon"><i class="fa fa-code"></i></span>
+                                    <span class="btn-inner--text">Components</span>
+                                </a>
+                                <a href="https://www.creative-tim.com/product/argon-design-system"
+                                   class="btn btn-white btn-icon mb-3 mb-sm-0">
+                                    <span class="btn-inner--icon"><i class="ni ni-cloud-download-95"></i></span>
+                                    <span class="btn-inner--text">Download HTML</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- SVG separator -->
+            <div class="separator separator-bottom separator-skew">
+                <svg x="0" y="0" viewBox="0 0 2560 100" preserveAspectRatio="none" version="1.1"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <polygon class="fill-white" points="2560 0 2560 100 0 100"></polygon>
+                </svg>
+            </div>
+        </section>
+        <!-- 1st Hero Variation -->
+    </div>
+    <section class="section section-lg pt-lg-0 mt--200">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="row row-grid">
+                        <div class="col-lg-4">
+                            <div class="card card-lift--hover shadow border-0">
+                                <div class="card-body py-5">
+                                    <div class="icon icon-shape icon-shape-primary rounded-circle mb-4">
+                                        <i class="ni ni-check-bold"></i>
+                                    </div>
+                                    <h6 class="text-primary text-uppercase">Download Argon</h6>
+                                    <p class="description mt-3">Argon is a great free UI package based on Bootstrap 4
+                                        that includes the most important components and features.</p>
+                                    <div>
+                                        <span class="badge badge-pill badge-primary">design</span>
+                                        <span class="badge badge-pill badge-primary">system</span>
+                                        <span class="badge badge-pill badge-primary">creative</span>
+                                    </div>
+                                    <a href="#" class="btn btn-primary mt-4">Learn more</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card card-lift--hover shadow border-0">
+                                <div class="card-body py-5">
+                                    <div class="icon icon-shape icon-shape-success rounded-circle mb-4">
+                                        <i class="ni ni-istanbul"></i>
+                                    </div>
+                                    <h6 class="text-success text-uppercase">Build Something</h6>
+                                    <p class="description mt-3">Argon is a great free UI package based on Bootstrap 4
+                                        that includes the most important components and features.</p>
+                                    <div>
+                                        <span class="badge badge-pill badge-success">business</span>
+                                        <span class="badge badge-pill badge-success">vision</span>
+                                        <span class="badge badge-pill badge-success">success</span>
+                                    </div>
+                                    <a href="#" class="btn btn-success mt-4">Learn more</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card card-lift--hover shadow border-0">
+                                <div class="card-body py-5">
+                                    <div class="icon icon-shape icon-shape-warning rounded-circle mb-4">
+                                        <i class="ni ni-planet"></i>
+                                    </div>
+                                    <h6 class="text-warning text-uppercase">Prepare Launch</h6>
+                                    <p class="description mt-3">Argon is a great free UI package based on Bootstrap 4
+                                        that includes the most important components and features.</p>
+                                    <div>
+                                        <span class="badge badge-pill badge-warning">marketing</span>
+                                        <span class="badge badge-pill badge-warning">product</span>
+                                        <span class="badge badge-pill badge-warning">launch</span>
+                                    </div>
+                                    <a href="#" class="btn btn-warning mt-4">Learn more</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<footer class="footer has-cards">
+    <div class="container">
+        <div class="row row-grid align-items-center my-md">
+            <div class="col-lg-6">
+                <h3 class="text-primary font-weight-light mb-2">Thank you for supporting us!</h3>
+                <h4 class="mb-0 font-weight-light">Let's get in touch on any of these platforms.</h4>
+            </div>
+            <div class="col-lg-6 text-lg-center btn-wrapper">
+                <a target="_blank" href="https://twitter.com/creativetim"
+                   class="btn btn-neutral btn-icon-only btn-twitter btn-round btn-lg" data-toggle="tooltip"
+                   data-original-title="Follow us">
+                    <i class="fa fa-twitter"></i>
+                </a>
+                <a target="_blank" href="https://www.facebook.com/creativetim"
+                   class="btn btn-neutral btn-icon-only btn-facebook btn-round btn-lg" data-toggle="tooltip"
+                   data-original-title="Like us">
+                    <i class="fa fa-facebook-square"></i>
+                </a>
+                <a target="_blank" href="https://dribbble.com/creativetim"
+                   class="btn btn-neutral btn-icon-only btn-dribbble btn-lg btn-round" data-toggle="tooltip"
+                   data-original-title="Follow us">
+                    <i class="fa fa-dribbble"></i>
+                </a>
+                <a target="_blank" href="https://github.com/creativetimofficial"
+                   class="btn btn-neutral btn-icon-only btn-github btn-round btn-lg" data-toggle="tooltip"
+                   data-original-title="Star on Github">
+                    <i class="fa fa-github"></i>
+                </a>
+            </div>
+        </div>
+        <hr>
+        <div class="row align-items-center justify-content-md-between">
+            <div class="col-md-6">
+                <div class="copyright">
+                    &copy; 2019 <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a>.
+                </div>
+            </div>
+            <div class="col-md-6">
+                <ul class="nav nav-footer justify-content-end">
+                    <li class="nav-item">
+                        <a href="https://www.creative-tim.com" class="nav-link" target="_blank">Creative Tim</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="https://www.creative-tim.com/presentation" class="nav-link" target="_blank">About
+                            Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="http://blog.creative-tim.com" class="nav-link" target="_blank">Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="https://github.com/creativetimofficial/argon-design-system/blob/master/LICENSE.md"
+                           class="nav-link" target="_blank">MIT License</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
 </body>
+
 </html>
