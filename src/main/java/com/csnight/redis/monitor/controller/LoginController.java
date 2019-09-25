@@ -66,16 +66,25 @@ public class LoginController {
         //check name 是否已使用
         if (signUpUserService.checkUserByName(userDto.getUsername())) {
             result.rejectValue("username", "error.user", "用户已存在");
+            userDto.setPassword("");
+            userDto.setMatch_password("");
+            userDto.setUsername("");
+            model.addAttribute("user", userDto);
             return "register";
         }
         //check email 是否已注册。
         if (signUpUserService.checkUserByEmail(userDto.getEmail())) {
+            userDto.setPassword("");
+            userDto.setMatch_password("");
+            userDto.setEmail("");
             result.rejectValue("email", "error.user", "Email已注册");
             return "register";
         }
         //check password equal
         if (!checkPassWordUniform(userDto.getPassword(), userDto.getMatch_password())) {
-            result.rejectValue("password", "error.user", "两次输入密码不一致");
+            userDto.setPassword("");
+            userDto.setMatch_password("");
+            result.rejectValue("match_password", "error.user", "两次输入密码不一致");
             return "register";
         }
 

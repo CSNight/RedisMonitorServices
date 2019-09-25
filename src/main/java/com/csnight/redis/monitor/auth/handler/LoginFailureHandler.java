@@ -12,7 +12,7 @@ import java.io.IOException;
 @Component
 public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
     public LoginFailureHandler() {
-        this.setDefaultFailureUrl("/auth/failed?error=true");
+        this.setDefaultFailureUrl("/auth/failed");
     }
 
     @Override
