@@ -1,7 +1,7 @@
 package com.csnight.redis.monitor.auth.config;
 
 import com.csnight.redis.monitor.auth.handler.SignOutHandler;
-import com.csnight.redis.monitor.auth.handler.ValidationCodeHandler;
+import com.csnight.redis.monitor.auth.handler.ValidationHandler;
 import com.csnight.redis.monitor.auth.repos.SysUserRepository;
 import com.csnight.redis.monitor.auth.service.CustomUserService;
 import org.springframework.context.annotation.Bean;
@@ -28,20 +28,20 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
     private final SignOutHandler signOutHandler;
     private final DataSource dataSource;
     private final SysUserRepository sysUserRepository;
-    private final ValidationCodeHandler validationCodeHandler;
+    private final ValidationHandler validationHandler;
 
     public WebSecurityConfigure(DataSource dataSource,
                                 SysUserRepository sysUserRepository,
                                 AuthenticationFailureHandler loginFailureHandler,
                                 AuthenticationSuccessHandler loginSuccessHandler,
                                 SignOutHandler signOutHandler,
-                                ValidationCodeHandler validationCodeHandler) {
+                                ValidationHandler validationHandler) {
         this.dataSource = dataSource;
         this.sysUserRepository = sysUserRepository;
         this.loginFailureHandler = loginFailureHandler;
         this.loginSuccessHandler = loginSuccessHandler;
         this.signOutHandler = signOutHandler;
-        this.validationCodeHandler = validationCodeHandler;
+        this.validationHandler = validationHandler;
     }
 
     @Bean
@@ -72,11 +72,11 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 "/auth/register",
                 "/auth/code").permitAll() //访问允许静态文件
                 .anyRequest().authenticated()
-                .and().addFilterBefore(validationCodeHandler, UsernamePasswordAuthenticationFilter.class)
+                .and().addFilterBefore(validationHandler, UsernamePasswordAuthenticationFilter.class)
                 .formLogin().loginPage("/auth/sign").successHandler(loginSuccessHandler)
                 .failureHandler(loginFailureHandler).and().exceptionHandling().accessDeniedPage("/403")//指定登录页和登录失败页
                 .and().logout().logoutUrl("/auth/logout").logoutSuccessUrl("/auth/sign").addLogoutHandler(signOutHandler).permitAll()
-                .and().rememberMe().tokenRepository(tokenRepository()).tokenValiditySeconds(60);
+                .and().rememberMe().tokenRepository(tokenRepository()).tokenValiditySeconds(60 * 60 * 24 * 7);
     }
 
     private PersistentTokenRepository tokenRepository() {

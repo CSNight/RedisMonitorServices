@@ -5,8 +5,6 @@ import com.csnight.redis.monitor.auth.repos.SysUserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
@@ -14,12 +12,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Component
 public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
     private SysUserRepository sysUserRepository;
-    private RequestCache requestCache = new HttpSessionRequestCache();
+    private Map<String, String> LoginUserList = new HashMap<>();
+
+    public Map<String, String> getLoginUserList() {
+        return LoginUserList;
+    }
 
     public LoginSuccessHandler(SysUserRepository sysUserRepository) {
         this.sysUserRepository = sysUserRepository;
@@ -32,6 +36,7 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
         sysUser.setLogin_times(sysUser.getLogin_times() + 1);
         sysUser.setLast_login(new Date());
         sysUserRepository.save(sysUser);
+        LoginUserList.put(sysUser.getUsername(), request.getSession().getId());
         super.setDefaultTargetUrl("/auth/user_info");
         super.onAuthenticationSuccess(request, response, authentication);
     }

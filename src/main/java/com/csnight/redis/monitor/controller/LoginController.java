@@ -1,5 +1,6 @@
 package com.csnight.redis.monitor.controller;
 
+import com.csnight.redis.monitor.auth.jpa.SysUser;
 import com.csnight.redis.monitor.auth.jpa.UserDto;
 import com.csnight.redis.monitor.auth.service.SignUpUserService;
 import com.csnight.redis.monitor.utils.VerifyCodeUtils;
@@ -32,7 +33,9 @@ public class LoginController {
     }
 
     @GetMapping("/sign")
-    public String sign() {
+    public String sign(HttpServletRequest request) {
+        String session_id = request.getSession().getId();
+        System.out.println(session_id);
         return "sign";
     }
 

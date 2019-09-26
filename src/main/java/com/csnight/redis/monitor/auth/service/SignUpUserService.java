@@ -54,6 +54,7 @@ public class SignUpUserService {
         SysUser sysUser = new SysUser();
         sysUser.setUsername(userDto.getUsername());
         sysUser.setEmail(userDto.getEmail());
+        sysUser.setPhone(userDto.getPhone());
         sysUser.setNick_name(userDto.getUsername());
         sysUser.setEnabled(true);
         sysUser.setLogin_times(0);

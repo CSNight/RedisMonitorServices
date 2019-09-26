@@ -18,6 +18,11 @@ public class UserDto {
 
     @NotEmpty
     @NotNull
+    @Size(min = 11, max = 11)
+    private String phone;
+
+    @NotEmpty
+    @NotNull
     @Size(min = 6, max = 20)
     private String password;
 
@@ -25,6 +30,14 @@ public class UserDto {
     @NotNull
     @Size(min = 6, max = 20)
     private String match_password;
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 
     public String getUsername() {
         return username;

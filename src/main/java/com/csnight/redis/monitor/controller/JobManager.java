@@ -32,7 +32,6 @@ public class JobManager {
         jsonObject.put("expression", "0/1 * * * * ?");
         jobConfigBase.setTriggerConfig(jsonObject.toJSONString());
         jobConfigBase.setTriggerType(0);
-
         return jobFactory.AddJob(jobConfigBase, JobInstance.class);
     }
 
