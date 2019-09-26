@@ -6,6 +6,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -42,8 +45,12 @@ public class ValidationHandler extends OncePerRequestFilter implements Filter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if (successHandler.getLoginUserList().containsKey(request.getParameter("username"))) {
-            redirectStrategy.sendRedirect(request, response, "/auth/user_info");
-            return;
+            String session_id = successHandler.getLoginUserList().get(request.getParameter("username"));
+            String request_session_id = request.getSession().getId();
+            if (session_id.equals(request_session_id)) {
+                redirectStrategy.sendRedirect(request, response, "/auth/user_info");
+                return;
+            }
         }
         if (requestMatcher.matches(request)) {
             try {

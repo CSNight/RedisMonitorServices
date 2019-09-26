@@ -1,5 +1,6 @@
 package com.csnight.redis.monitor.auth.config;
 
+import com.csnight.redis.monitor.auth.handler.LoginSuccessHandler;
 import com.csnight.redis.monitor.auth.handler.SignOutHandler;
 import com.csnight.redis.monitor.auth.handler.ValidationHandler;
 import com.csnight.redis.monitor.auth.repos.SysUserRepository;
@@ -8,15 +9,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import javax.sql.DataSource;
 
@@ -44,6 +42,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         this.validationHandler = validationHandler;
     }
 
+
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -54,13 +53,11 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(new CustomUserService(sysUserRepository)).passwordEncoder(passwordEncoder()); //user Details Service验证
     }
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/static/**");
-    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        JdbcTokenRepositoryExt jdbcTokenRepositoryExt = tokenRepository();
+        ((LoginSuccessHandler) loginSuccessHandler).setTokenRepositoryExt(jdbcTokenRepositoryExt);
         http.csrf().disable().authorizeRequests().antMatchers(
                 "/static/**",
                 "/css/**",
@@ -76,15 +73,17 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 .formLogin().loginPage("/auth/sign").successHandler(loginSuccessHandler)
                 .failureHandler(loginFailureHandler).and().exceptionHandling().accessDeniedPage("/403")//指定登录页和登录失败页
                 .and().logout().logoutUrl("/auth/logout").logoutSuccessUrl("/auth/sign").addLogoutHandler(signOutHandler).permitAll()
-                .and().rememberMe().tokenRepository(tokenRepository()).tokenValiditySeconds(60 * 60 * 24 * 7);
+                .and().rememberMe().tokenRepository(jdbcTokenRepositoryExt).tokenValiditySeconds(60 * 60 * 24 * 7);
+        http.sessionManagement().maximumSessions(1).expiredUrl("/auth/sign");
     }
 
-    private PersistentTokenRepository tokenRepository() {
+    @Bean
+    public JdbcTokenRepositoryExt tokenRepository() {
         //存储内存，不推荐
         // InMemoryTokenRepositoryImpl memory =new InMemoryTokenRepositoryImpl();
         // return memory;
         /* 存档到数据库中 **/
-        JdbcTokenRepositoryImpl db = new JdbcTokenRepositoryImpl();
+        JdbcTokenRepositoryExt db = new JdbcTokenRepositoryExt();
         db.setDataSource(this.dataSource);
         return db;
     }

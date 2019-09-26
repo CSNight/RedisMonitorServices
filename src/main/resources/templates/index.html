@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns="http://www.w3.org/1999/xhtml">
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="utf-8">
     <title></title>
@@ -23,7 +24,7 @@
     </nav>
 </header>
 <main>
-    <div class="position-relative">
+    <div class="position-relative" sec:authorize="isAuthenticated()">
         <!-- shape Hero -->
         <section class="section section-lg section-shaped pb-250">
             <div class="shape shape-style-1 shape-default"></div>
