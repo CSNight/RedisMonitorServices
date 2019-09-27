@@ -3,6 +3,7 @@ package com.csnight.redis.monitor.auth.config;
 import com.csnight.redis.monitor.auth.handler.LoginSuccessHandler;
 import com.csnight.redis.monitor.auth.handler.SignOutHandler;
 import com.csnight.redis.monitor.auth.handler.ValidationHandler;
+import com.csnight.redis.monitor.auth.jpa.SysUser;
 import com.csnight.redis.monitor.auth.repos.SysUserRepository;
 import com.csnight.redis.monitor.auth.service.CustomUserService;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -51,6 +53,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(new CustomUserService(sysUserRepository)).passwordEncoder(passwordEncoder()); //user Details Service验证
+        AutoUnlockFailAccount();
     }
 
 
@@ -65,6 +68,9 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 "/vendor/**",
                 "/img/**",
                 "/",
+                "/404",
+                "/403",
+                "/500",
                 "/auth/failed",
                 "/auth/register",
                 "/auth/code").permitAll() //访问允许静态文件
@@ -75,6 +81,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 .and().logout().logoutUrl("/auth/logout").logoutSuccessUrl("/auth/sign").addLogoutHandler(signOutHandler).permitAll()
                 .and().rememberMe().tokenRepository(jdbcTokenRepositoryExt).tokenValiditySeconds(60 * 60 * 24 * 7);
         http.sessionManagement().maximumSessions(1).expiredUrl("/auth/sign");
+        http.headers().frameOptions().sameOrigin();
     }
 
     @Bean
@@ -86,5 +93,17 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         JdbcTokenRepositoryExt db = new JdbcTokenRepositoryExt();
         db.setDataSource(this.dataSource);
         return db;
+    }
+
+
+    private void AutoUnlockFailAccount() {
+        List<SysUser> lockedUser = sysUserRepository.findAllByEnabled(false);
+        for (SysUser locked : lockedUser) {
+            if (locked.getLock_by().equals("lockByFails")) {
+                locked.setEnabled(true);
+                locked.setLock_by("none");
+                sysUserRepository.save(locked);
+            }
+        }
     }
 }

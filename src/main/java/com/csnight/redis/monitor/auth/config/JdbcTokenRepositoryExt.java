@@ -10,6 +10,7 @@ import java.util.List;
 
 public class JdbcTokenRepositoryExt extends JdbcTokenRepositoryImpl {
     private String tokensByUserSql = "select username,series,token,last_used from persistent_logins where username = ? order by last_used desc";
+    private String removeUserTokenSql = "delete from persistent_logins where username = ? and token = ?";
 
     public List<PersistentRememberMeToken> getTokenForName(String username) {
         try {
@@ -24,5 +25,9 @@ public class JdbcTokenRepositoryExt extends JdbcTokenRepositoryImpl {
             this.logger.error("Failed to load token for series " + username, var5);
         }
         return null;
+    }
+
+    public void removeUserOldToken(String username, String token) {
+        this.getJdbcTemplate().update(this.removeUserTokenSql, username, token);
     }
 }

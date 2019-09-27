@@ -53,6 +53,8 @@ public class SysUser implements UserDetails {
     @Column(name = "login_times")
     private int login_times;
 
+    @Column(name = "lock_by")
+    private String lock_by;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -183,5 +185,13 @@ public class SysUser implements UserDetails {
 
     public void setRoles(List<SysRole> roles) {
         this.roles = roles;
+    }
+
+    public String getLock_by() {
+        return lock_by;
+    }
+
+    public void setLock_by(String lock_by) {
+        this.lock_by = lock_by;
     }
 }

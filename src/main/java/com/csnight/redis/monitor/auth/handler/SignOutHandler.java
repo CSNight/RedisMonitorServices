@@ -38,12 +38,9 @@ public class SignOutHandler implements LogoutHandler {
                 remove_key = ent.getKey();
             }
         }
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
         //TODO 查询persisit 表 获取remember-me 记录 综合判断
         if (!remove_key.equals("")) {
             successHandler.getLoginUserList().remove(remove_key);
         }
-
     }
 }

@@ -50,6 +50,11 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
         sysUserRepository.save(sysUser);
         LoginUserList.put(sysUser.getUsername(), request.getSession().getId());
         List<PersistentRememberMeToken> extTokenForName = tokenRepositoryExt.getTokenForName(userDetails.getUsername());
+        for (int i = extTokenForName.size() - 1; i > 0; i--) {
+            String username = extTokenForName.get(i).getUsername();
+            String token = extTokenForName.get(i).getTokenValue();
+            tokenRepositoryExt.removeUserOldToken(username, token);
+        }
         super.setDefaultTargetUrl("/auth/user_info");
         super.onAuthenticationSuccess(request, response, authentication);
     }
