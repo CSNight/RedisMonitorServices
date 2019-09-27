@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"
       xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="utf-8">
     <title></title>
@@ -21,16 +21,15 @@
                 <img src="/img/brand/white.png">
             </a>
             <div class="navbar-collapse navbar-custom-collapse collapse show" id="navbar-collapse" style="">
-
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
                         <a th:href="@{/}" class="nav-link">
-                            <span class="nav-link-inner--text">Home</span>
+                            <span class="nav-link-inner--text font-weight-800">Home</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a th:href="@{/user_info}" class="nav-link">
-                            <span class="nav-link-inner--text">DashBord</span>
+                        <a th:href="@{/auth/user_info}" class="nav-link">
+                            <span class="nav-link-inner--text">Dashbord</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -51,7 +50,7 @@
                             <span class="nav-link-inner--text d-lg-none">Github</span>
                         </a>
                     </li>
-                    <li class="nav-item d-none d-lg-block ml-lg-4">
+                    <li class="nav-item d-none d-lg-block ml-lg-4" sec:authorize="!isAuthenticated()" hidden>
                         <a class="btn btn-neutral btn-icon" th:href="@{/auth/sign}">
                             <span class="btn-inner--icon"><i class="fa fa-user"></i></span>
                             <span class="card-title">SignIn?</span>
@@ -59,6 +58,12 @@
                         <a class="btn btn-neutral btn-icon" th:href="@{/auth/regiser}">
                             <span class="btn-inner--icon"><i class="fa fa-user-plus"></i></span>
                             <span class="card-title">SignUp</span>
+                        </a>
+                    </li>
+                    <li class="nav-item d-none d-lg-block ml-lg-4" sec:authorize="isAuthenticated()">
+                        <a class="btn btn-neutral btn-icon" th:href="@{/auth/logout}">
+                            <span class="btn-inner--icon"><i class="fa fa-user"></i></span>
+                            <span class="card-title" th:text="${user}+' Logout'"></span>
                         </a>
                     </li>
                 </ul>
@@ -120,13 +125,14 @@
                                     <div class="icon icon-shape icon-shape-primary rounded-circle mb-4">
                                         <i class="ni ni-check-bold"></i>
                                     </div>
-                                    <h6 class="text-primary text-uppercase">Download Argon</h6>
-                                    <p class="description mt-3">Argon is a great free UI package based on Bootstrap 4
+                                    <h6 class="text-primary text-uppercase">Info Command Based</h6>
+                                    <p class="description mt-3">Oxygen is a redis monitor platform based on Spring 5 &
+                                        Quartz
                                         that includes the most important components and features.</p>
                                     <div>
-                                        <span class="badge badge-pill badge-primary">design</span>
-                                        <span class="badge badge-pill badge-primary">system</span>
-                                        <span class="badge badge-pill badge-primary">creative</span>
+                                        <span class="badge badge-pill badge-primary">efficient</span>
+                                        <span class="badge badge-pill badge-primary">nonblock</span>
+                                        <span class="badge badge-pill badge-primary">faster</span>
                                     </div>
                                     <a href="#" class="btn btn-primary mt-4">Learn more</a>
                                 </div>
@@ -138,13 +144,14 @@
                                     <div class="icon icon-shape icon-shape-success rounded-circle mb-4">
                                         <i class="ni ni-istanbul"></i>
                                     </div>
-                                    <h6 class="text-success text-uppercase">Build Something</h6>
-                                    <p class="description mt-3">Argon is a great free UI package based on Bootstrap 4
+                                    <h6 class="text-success text-uppercase">Custom Design Monitor</h6>
+                                    <p class="description mt-3">Oxygen is a redis monitor platform based on Spring 5 &
+                                        Quartz
                                         that includes the most important components and features.</p>
                                     <div>
-                                        <span class="badge badge-pill badge-success">business</span>
-                                        <span class="badge badge-pill badge-success">vision</span>
-                                        <span class="badge badge-pill badge-success">success</span>
+                                        <span class="badge badge-pill badge-success">Indicators</span>
+                                        <span class="badge badge-pill badge-success">Statistic</span>
+                                        <span class="badge badge-pill badge-success">FLEXIBLE</span>
                                     </div>
                                     <a href="#" class="btn btn-success mt-4">Learn more</a>
                                 </div>
@@ -156,13 +163,14 @@
                                     <div class="icon icon-shape icon-shape-warning rounded-circle mb-4">
                                         <i class="ni ni-planet"></i>
                                     </div>
-                                    <h6 class="text-warning text-uppercase">Prepare Launch</h6>
-                                    <p class="description mt-3">Argon is a great free UI package based on Bootstrap 4
+                                    <h6 class="text-warning text-uppercase">Online Operation</h6>
+                                    <p class="description mt-3">Oxygen is a redis monitor platform based on Spring 5 &
+                                        Quartz
                                         that includes the most important components and features.</p>
                                     <div>
-                                        <span class="badge badge-pill badge-warning">marketing</span>
-                                        <span class="badge badge-pill badge-warning">product</span>
-                                        <span class="badge badge-pill badge-warning">launch</span>
+                                        <span class="badge badge-pill badge-warning">VNC</span>
+                                        <span class="badge badge-pill badge-warning">Logs</span>
+                                        <span class="badge badge-pill badge-warning">Backup</span>
                                     </div>
                                     <a href="#" class="btn btn-warning mt-4">Learn more</a>
                                 </div>

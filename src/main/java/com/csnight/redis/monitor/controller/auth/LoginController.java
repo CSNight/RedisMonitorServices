@@ -53,9 +53,9 @@ public class LoginController {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String name = userDetails.getUsername();
         String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-        model.addAttribute("name", name);
+        model.addAttribute("user", name);
         model.addAttribute("date", date);
-        return "user_info";
+        return "index";
     }
 
     @PostMapping("/register")
