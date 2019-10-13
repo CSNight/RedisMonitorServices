@@ -56,6 +56,10 @@ public class SysUser implements UserDetails {
     @Column(name = "lock_by")
     private String lock_by;
 
+    @Lob
+    @Column(name = "head_img")
+    private byte[] head_img;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "sys_role_user",
@@ -193,5 +197,13 @@ public class SysUser implements UserDetails {
 
     public void setLock_by(String lock_by) {
         this.lock_by = lock_by;
+    }
+
+    public byte[] getHead_img() {
+        return head_img;
+    }
+
+    public void setHead_img(byte[] head_img) {
+        this.head_img = head_img;
     }
 }

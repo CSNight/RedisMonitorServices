@@ -1,6 +1,8 @@
 package com.csnight.redis.monitor.controller.auth;
 
+import com.csnight.redis.monitor.auth.jpa.SysUser;
 import com.csnight.redis.monitor.auth.jpa.UserDto;
+import com.csnight.redis.monitor.auth.service.LoginUserService;
 import com.csnight.redis.monitor.auth.service.SignUpUserService;
 import com.csnight.redis.monitor.utils.VerifyCodeUtils;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -26,9 +28,11 @@ import java.util.Date;
 @RequestMapping("/auth")
 public class LoginController {
     private final SignUpUserService signUpUserService;
+    private final LoginUserService loginUserService;
 
-    public LoginController(SignUpUserService signUpUserService) {
+    public LoginController(SignUpUserService signUpUserService, LoginUserService loginUserService) {
         this.signUpUserService = signUpUserService;
+        this.loginUserService = loginUserService;
     }
 
     @GetMapping("/sign")
@@ -53,9 +57,11 @@ public class LoginController {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String name = userDetails.getUsername();
         String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        SysUser sysUser = loginUserService.GetUserInfo(name);
         model.addAttribute("user", name);
+        model.addAttribute("head", new String(sysUser.getHead_img()));
         model.addAttribute("date", date);
-        return "index";
+        return "main";
     }
 
     @PostMapping("/register")
