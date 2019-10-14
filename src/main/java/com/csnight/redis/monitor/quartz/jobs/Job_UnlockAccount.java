@@ -1,8 +1,8 @@
 package com.csnight.redis.monitor.quartz.jobs;
 
 import com.csnight.redis.monitor.auth.handler.LoginFailureHandler;
-import com.csnight.redis.monitor.auth.jpa.SysUser;
-import com.csnight.redis.monitor.auth.repos.SysUserRepository;
+import com.csnight.redis.monitor.db.jpa.SysUser;
+import com.csnight.redis.monitor.db.repos.SysUserRepository;
 import com.csnight.redis.monitor.utils.ReflectUtils;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;

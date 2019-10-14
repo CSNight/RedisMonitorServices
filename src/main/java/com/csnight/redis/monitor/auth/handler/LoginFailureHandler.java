@@ -2,8 +2,8 @@ package com.csnight.redis.monitor.auth.handler;
 
 import com.alibaba.fastjson.JSONObject;
 import com.csnight.redis.monitor.auth.config.ValidateException;
-import com.csnight.redis.monitor.auth.jpa.SysUser;
-import com.csnight.redis.monitor.auth.repos.SysUserRepository;
+import com.csnight.redis.monitor.db.jpa.SysUser;
+import com.csnight.redis.monitor.db.repos.SysUserRepository;
 import com.csnight.redis.monitor.quartz.JobFactory;
 import com.csnight.redis.monitor.quartz.config.JobConfig;
 import com.csnight.redis.monitor.quartz.jobs.Job_UnlockAccount;

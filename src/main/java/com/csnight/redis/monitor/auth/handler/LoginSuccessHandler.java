@@ -1,8 +1,8 @@
 package com.csnight.redis.monitor.auth.handler;
 
 import com.csnight.redis.monitor.auth.config.JdbcTokenRepositoryExt;
-import com.csnight.redis.monitor.auth.jpa.SysUser;
-import com.csnight.redis.monitor.auth.repos.SysUserRepository;
+import com.csnight.redis.monitor.db.jpa.SysUser;
+import com.csnight.redis.monitor.db.repos.SysUserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;

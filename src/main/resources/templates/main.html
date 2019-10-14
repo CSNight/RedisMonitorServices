@@ -5,10 +5,13 @@
     <title>
         Redis Monitor Dashboard
     </title>
-    <base href="/">
     <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
     <link href="/vendor/nucleo/css/nucleo-icons.css" rel="stylesheet"/>
     <link type="text/css" href="/css/black-dashboard.min.css" rel="stylesheet"/>
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/bootstrap/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/vendor/popper/popper.min.js"></script>
+
 </head>
 <body class="sidebar-mini ">
 <div class="wrapper">
@@ -18,7 +21,7 @@
             <i class="tim-icons icon-bullet-list-67 visible-on-sidebar-mini text-muted"></i>
         </button>
     </div>
-    <div class="sidebar">
+    <div class="sidebar" data="blue">
         <!--
           Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red"
       -->
@@ -31,30 +34,34 @@
                     Oxygen
                 </a>
             </div>
-            <ul class="nav">
-                <li class="active">
-                    <a href="javascript:void(0)">
+            <ul class="nav" id="main-menu">
+                <li class="" th:each="menu_item:${menu_infos}" th:id="${menu_item.id}">
+                    <a data-toggle="collapse" th:href="'#'+${menu_item.name}">
                         <i class="tim-icons icon-chart-pie-36"></i>
-                        <p>Dashboard</p>
+                        <p th:utext="${!#lists.isEmpty(menu_item.children)}==true?${menu_item.name}+'<b class=\'caret\'></b>':${menu_item.name}"></p>
                     </a>
-                </li>
-                <li class="">
-                    <a href="javascript:void(0)">
-                        <i class="tim-icons icon-single-02"></i>
-                        <p>User Settings</p>
-                    </a>
+<!--                    <div th:if="${!#lists.isEmpty(menu_item.children)}" class="collapse" th:id="${menu_item.name}">-->
+<!--                        <ul class="nav">-->
+<!--                            <li class="" th:each="child:${menu_item.children}" th:id="${child.id}">-->
+<!--                                <a href="javascript:void(0)">-->
+<!--                                    <span class="sidebar-mini-icon fa fa-user"-->
+<!--                                          ></span>-->
+<!--                                    <span class="sidebar-normal" th:utext="'<i class=\'fa fa-user\'></i>'+${child.name}"></span>-->
+<!--                                </a>-->
+<!--                            </li>-->
+<!--                        </ul>-->
+<!--                    </div>-->
                 </li>
             </ul>
         </div>
     </div>
-    <div class="main-panel">
+    <div class="main-panel" data="blue">
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-absolute navbar-transparent">
             <div class="container-fluid">
                 <div class="navbar-wrapper">
                     <div class="navbar-minimize d-inline">
-                        <button class="minimize-sidebar btn btn-link btn-just-icon" rel="tooltip"
-                                data-original-title="Sidebar toggle" data-placement="left">
+                        <button class="minimize-sidebar btn btn-link btn-just-icon">
                             <i class="tim-icons icon-align-center visible-on-sidebar-regular"></i>
                             <i class="tim-icons icon-bullet-list-67 visible-on-sidebar-mini"></i>
                         </button>
@@ -118,10 +125,7 @@
             </div>
         </div>
         <!-- End Navbar -->
-        <div class="content">
-            <div class="row">
-
-            </div>
+        <div class="content" id="main-area">
         </div>
         <footer class="footer">
             <div class="container-fluid">
@@ -168,88 +172,22 @@
         </ul>
     </div>
 </div>
-<script src="/vendor/jquery/jquery.min.js"></script>
-<script src="/vendor/popper/popper.min.js"></script>
-<script src="/vendor/bootstrap/bootstrap.min.js"></script>
-<script src="/vendor/bootstrap/perfect-scrollbar.jquery.min.js"></script>
-<script src="/vendor/bootstrap/bootstrap-switch.js"></script>
-<script src="/vendor/nouislider/js/nouislider.min.js"></script>
+
+<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap-switch.js"></script>
 <script src="/js/black-dashboard.min.js?v=1.1.0"></script>
+<script src="/js/ui.js"></script>
+<script src="/vendor/common/require.min.js"></script>
 <script>
-    $(document).ready(function () {
-        $().ready(function () {
-            let $sidebar = $('.sidebar');
-            let $navbar = $('.navbar');
-            let $main_panel = $('.main-panel');
-            let $full_page = $('.full-page');
-            let $sidebar_responsive = $('body > .navbar-collapse');
-            let sidebar_mini_active = true;
-            let white_color = false;
-            $('.fixed-plugin a').click(function (event) {
-                if ($(this).hasClass('switch-trigger')) {
-                    if (event.stopPropagation) {
-                        event.stopPropagation();
-                    } else if (window.event) {
-                        window.event.cancelBubble = true;
-                    }
-                }
-            });
-            $('.fixed-plugin .background-color span').click(function () {
-                $(this).siblings().removeClass('active');
-                $(this).addClass('active');
-                var new_color = $(this).data('color');
-                if ($sidebar.length != 0) {
-                    $sidebar.attr('data', new_color);
-                }
-                if ($main_panel.length != 0) {
-                    $main_panel.attr('data', new_color);
-                }
-                if ($full_page.length != 0) {
-                    $full_page.attr('filter-color', new_color);
-                }
-                if ($sidebar_responsive.length != 0) {
-                    $sidebar_responsive.attr('data', new_color);
-                }
-            });
+    require.config({
+        baseUrl: '',
+        waitSeconds: 0,
+        paths: {
+            'global': '/js/global',
+        }
+    });
+    require(['global'], function () {
 
-            $('.switch-sidebar-mini input').on("switchChange.bootstrapSwitch", function () {
-                var $btn = $(this);
-                if (sidebar_mini_active == true) {
-                    $('body').removeClass('sidebar-mini');
-                    sidebar_mini_active = false;
-                } else {
-                    $('body').addClass('sidebar-mini');
-                    sidebar_mini_active = true;
-                }
-                // we simulate the window Resize so the charts will get updated in realtime.
-                var simulateWindowResize = setInterval(function () {
-                    window.dispatchEvent(new Event('resize'));
-                }, 180);
-                // we stop the simulation of Window Resize after the animations are completed
-                setTimeout(function () {
-                    clearInterval(simulateWindowResize);
-                }, 1000);
-            });
-
-            $('.switch-change-color input').on("switchChange.bootstrapSwitch", function () {
-                var $btn = $(this);
-                if (white_color == true) {
-                    $('body').addClass('change-background');
-                    setTimeout(function () {
-                        $('body').removeClass('change-background');
-                        $('body').removeClass('white-content');
-                    }, 900);
-                    white_color = false;
-                } else {
-                    $('body').addClass('change-background');
-                    setTimeout(function () {
-                        $('body').removeClass('change-background');
-                        $('body').addClass('white-content');
-                    }, 900);
-                    white_color = true;
-                }
-            });
-        });
     });
 </script>
 </body>

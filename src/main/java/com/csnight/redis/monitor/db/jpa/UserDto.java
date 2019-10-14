@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.auth.jpa;
+package com.csnight.redis.monitor.db.jpa;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;

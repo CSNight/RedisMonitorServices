@@ -1,7 +1,7 @@
 package com.csnight.redis.monitor.controller.auth;
 
-import com.csnight.redis.monitor.auth.jpa.SysUser;
-import com.csnight.redis.monitor.auth.jpa.UserDto;
+import com.csnight.redis.monitor.db.jpa.SysUser;
+import com.csnight.redis.monitor.db.jpa.UserDto;
 import com.csnight.redis.monitor.auth.service.LoginUserService;
 import com.csnight.redis.monitor.auth.service.SignUpUserService;
 import com.csnight.redis.monitor.utils.VerifyCodeUtils;

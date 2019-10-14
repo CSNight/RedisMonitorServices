@@ -3,9 +3,9 @@ package com.csnight.redis.monitor.auth.config;
 import com.csnight.redis.monitor.auth.handler.LoginSuccessHandler;
 import com.csnight.redis.monitor.auth.handler.SignOutHandler;
 import com.csnight.redis.monitor.auth.handler.ValidationHandler;
-import com.csnight.redis.monitor.auth.jpa.SysUser;
-import com.csnight.redis.monitor.auth.repos.SysUserRepository;
-import com.csnight.redis.monitor.auth.service.CustomUserService;
+import com.csnight.redis.monitor.db.jpa.SysUser;
+import com.csnight.redis.monitor.db.repos.SysUserRepository;
+import com.csnight.redis.monitor.auth.service.LoginUserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -52,7 +52,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(new CustomUserService(sysUserRepository)).passwordEncoder(passwordEncoder()); //user Details Service验证
+        auth.userDetailsService(new LoginUserService(sysUserRepository)).passwordEncoder(passwordEncoder()); //user Details Service验证
         AutoUnlockFailAccount();
     }
 

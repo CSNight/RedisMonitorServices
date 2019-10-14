@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.auth.jpa;
+package com.csnight.redis.monitor.db.jpa;
 
 
 import org.hibernate.annotations.GenericGenerator;

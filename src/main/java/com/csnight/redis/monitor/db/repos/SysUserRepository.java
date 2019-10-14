@@ -1,6 +1,6 @@
-package com.csnight.redis.monitor.auth.repos;
+package com.csnight.redis.monitor.db.repos;
 
-import com.csnight.redis.monitor.auth.jpa.SysUser;
+import com.csnight.redis.monitor.db.jpa.SysUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
