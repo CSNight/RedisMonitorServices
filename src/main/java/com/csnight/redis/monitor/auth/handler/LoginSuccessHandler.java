@@ -3,6 +3,8 @@ package com.csnight.redis.monitor.auth.handler;
 import com.csnight.redis.monitor.auth.config.JdbcTokenRepositoryExt;
 import com.csnight.redis.monitor.db.jpa.SysUser;
 import com.csnight.redis.monitor.db.repos.SysUserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -21,6 +23,7 @@ import java.util.Map;
 
 @Component
 public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
+    private static Logger _log = LoggerFactory.getLogger(LoginSuccessHandler.class);
     private SysUserRepository sysUserRepository;
     private Map<String, String> LoginUserList = new HashMap<>();
     private JdbcTokenRepositoryExt tokenRepositoryExt;
@@ -57,6 +60,7 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
         }
         super.setDefaultTargetUrl("/auth/user_info");
         super.onAuthenticationSuccess(request, response, authentication);
+        _log.info(sysUser.getUsername() + ":账户登陆成功 " + new Date());
     }
 
     private void InitializeRedisDbAndJobs() {

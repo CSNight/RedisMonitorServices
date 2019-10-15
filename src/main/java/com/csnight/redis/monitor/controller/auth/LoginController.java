@@ -1,10 +1,13 @@
 package com.csnight.redis.monitor.controller.auth;
 
-import com.csnight.redis.monitor.db.jpa.SysUser;
-import com.csnight.redis.monitor.db.jpa.UserDto;
 import com.csnight.redis.monitor.auth.service.LoginUserService;
 import com.csnight.redis.monitor.auth.service.SignUpUserService;
+import com.csnight.redis.monitor.db.jpa.SysUser;
+import com.csnight.redis.monitor.db.jpa.UserDto;
+import com.csnight.redis.monitor.utils.JSONUtil;
 import com.csnight.redis.monitor.utils.VerifyCodeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +32,7 @@ import java.util.Date;
 public class LoginController {
     private final SignUpUserService signUpUserService;
     private final LoginUserService loginUserService;
+    private static Logger _log = LoggerFactory.getLogger(LoginController.class);
 
     public LoginController(SignUpUserService signUpUserService, LoginUserService loginUserService) {
         this.signUpUserService = signUpUserService;
@@ -67,6 +71,7 @@ public class LoginController {
     @PostMapping("/register")
     public String createUser(@ModelAttribute("user") @Valid UserDto userDto, BindingResult result, Model model) {
         if (result.hasErrors()) {
+            _log.error(JSONUtil.object2json(result.getAllErrors()));
             return "register";
         }
         //check name 是否已使用
@@ -76,6 +81,7 @@ public class LoginController {
             userDto.setMatch_password("");
             userDto.setUsername("");
             model.addAttribute("user", userDto);
+            _log.error("用户已存在");
             return "register";
         }
         //check email 是否已注册。
@@ -84,6 +90,7 @@ public class LoginController {
             userDto.setMatch_password("");
             userDto.setEmail("");
             result.rejectValue("email", "error.user", "Email已注册");
+            _log.error("Email已注册");
             return "register";
         }
         //check password equal
@@ -91,6 +98,7 @@ public class LoginController {
             userDto.setPassword("");
             userDto.setMatch_password("");
             result.rejectValue("match_password", "error.user", "两次输入密码不一致");
+            _log.error("两次输入密码不一致");
             return "register";
         }
 
@@ -99,7 +107,9 @@ public class LoginController {
         } catch (DataIntegrityViolationException e) {
             result.rejectValue("email", "error.user", "Email已注册");
             result.rejectValue("username", "error.user", "用户已存在");
+            _log.error(e.getMessage());
         }
+        _log.info(userDto.getUsername()+":注册成功！");
         return "redirect:/auth/user_info";
     }
 

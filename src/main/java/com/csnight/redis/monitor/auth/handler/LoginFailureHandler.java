@@ -8,6 +8,8 @@ import com.csnight.redis.monitor.quartz.JobFactory;
 import com.csnight.redis.monitor.quartz.config.JobConfig;
 import com.csnight.redis.monitor.quartz.jobs.Job_UnlockAccount;
 import com.csnight.redis.monitor.utils.GUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -24,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
+    private static Logger _log = LoggerFactory.getLogger(SimpleUrlAuthenticationFailureHandler.class);
     @Autowired
     private SysUserRepository sysUserRepository;
     @Autowired
@@ -60,7 +63,7 @@ public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
                 for (String key : session_fails.keySet()) {
                     total_fails += session_fails.get(key);
                 }
-                System.out.println(username + ":账户尝试登陆错误" + total_fails + "次");
+                _log.warn(username + ":账户尝试登陆错误" + total_fails + "次");
                 if (total_fails >= 5) {
                     SysUser sysUser = sysUserRepository.findByUsername(username);
                     if (sysUser != null) {
@@ -76,7 +79,7 @@ public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
                 Map<String, Integer> session_fails = new HashMap<>();
                 session_fails.put(request.getSession().getId(), 1);
                 LoginFailList.put(username, session_fails);
-                System.out.println(username + ":账户尝试登陆错误" + 1 + "次");
+                _log.warn(username + ":账户尝试登陆错误" + 1 + "次");
             }
         }
         if (username != null && lock_list.containsKey(username)) {
@@ -87,6 +90,7 @@ public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
             }
         }
         ValidateException exception = new ValidateException(exception_msg);
+        _log.error(exception_msg);
         super.onAuthenticationFailure(request, response, exception);
     }
 

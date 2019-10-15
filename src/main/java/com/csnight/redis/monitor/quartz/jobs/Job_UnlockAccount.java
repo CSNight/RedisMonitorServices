@@ -7,8 +7,12 @@ import com.csnight.redis.monitor.utils.ReflectUtils;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Job_UnlockAccount implements Job {
+    private static Logger _log = LoggerFactory.getLogger(Job_UnlockAccount.class);
+
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         SysUserRepository sysUserRepository = ReflectUtils.getBean(SysUserRepository.class);
@@ -19,9 +23,9 @@ public class Job_UnlockAccount implements Job {
             sysUser.setEnabled(true);
             sysUser.setLock_by("none");
             sysUserRepository.save(sysUser);
-            System.out.println(username + ":解除锁定");
+            _log.info(username + ":解除锁定");
         } catch (Exception ignored) {
-
+            _log.error(ignored.getMessage());
         } finally {
             loginFailureHandler.getLock_list().remove(username);
         }

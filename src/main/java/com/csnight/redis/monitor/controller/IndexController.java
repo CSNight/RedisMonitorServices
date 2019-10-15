@@ -3,6 +3,7 @@ package com.csnight.redis.monitor.controller;
 import com.csnight.redis.monitor.auth.service.LoginUserService;
 import com.csnight.redis.monitor.db.jpa.SysUser;
 import com.csnight.redis.monitor.db.repos.SysMenuRepository;
+import com.csnight.redis.monitor.log.LogBack;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +21,7 @@ public class IndexController {
         this.sysMenuRepository = sysMenuRepository;
     }
 
+    @LogBack
     @GetMapping("/")
     public String index(Model model) {
         if (!SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString().equals("anonymousUser")) {
@@ -29,6 +31,7 @@ public class IndexController {
         return "index";
     }
 
+    @LogBack
     @GetMapping("/main")
     public String main(Model model) {
         if (!SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString().equals("anonymousUser")) {

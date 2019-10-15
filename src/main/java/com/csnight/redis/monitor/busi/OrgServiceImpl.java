@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class UserServiceImpl {
+public class OrgServiceImpl {
     private SysOrgRepository sysOrgRepository;
 
-    public UserServiceImpl(SysOrgRepository sysOrgRepository) {
+    public OrgServiceImpl(SysOrgRepository sysOrgRepository) {
         this.sysOrgRepository = sysOrgRepository;
     }
 

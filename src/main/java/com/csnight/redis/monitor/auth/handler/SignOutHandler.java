@@ -1,28 +1,24 @@
 package com.csnight.redis.monitor.auth.handler;
 
-import com.csnight.redis.monitor.auth.config.JdbcTokenRepositoryExt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.Map;
 
 @Component
 public class SignOutHandler implements LogoutHandler {
-
+    private static Logger _log = LoggerFactory.getLogger(SignOutHandler.class);
     private LoginSuccessHandler successHandler;
-
-
 
     public SignOutHandler(LoginSuccessHandler successHandler) {
         this.successHandler = successHandler;
     }
-
-
 
     private void InitializeRedisDbAndJobs() {
         //TODO 增加用户数据库连接逻辑及定时任务终止逻辑
@@ -42,5 +38,6 @@ public class SignOutHandler implements LogoutHandler {
         if (!remove_key.equals("")) {
             successHandler.getLoginUserList().remove(remove_key);
         }
+        _log.info(remove_key + ":账户登出成功 " + new Date());
     }
 }
