@@ -62,7 +62,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         JdbcTokenRepositoryExt jdbcTokenRepositoryExt = tokenRepository();
         ((LoginSuccessHandler) loginSuccessHandler).setTokenRepositoryExt(jdbcTokenRepositoryExt);
         http.csrf().disable().authorizeRequests().antMatchers(
-                "/static/**",
+                "/static/**","/csrf",
                 "/css/**",
                 "/js/**",
                 "/vendor/**",

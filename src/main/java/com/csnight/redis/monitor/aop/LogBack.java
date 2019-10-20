@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.log;
+package com.csnight.redis.monitor.aop;
 
 import java.lang.annotation.*;
 

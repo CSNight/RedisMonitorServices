@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
     <title></title>
-    <link href="/img/brand/favicon.png" rel="icon" type="image/png">
+    <link href="/favicon.ico" rel="icon" type="image/png">
     <link href="/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <link type="text/css" href="/vendor/argon/css/argon.css" rel="stylesheet">
     <script src="/vendor/jquery/jquery.min.js"></script>
@@ -37,7 +37,11 @@
                             <span class="nav-link-inner--text">System Setting</span>
                         </a>
                     </li>
-
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a th:href="@{/swagger-ui.html}" class="nav-link">
+                            <span class="nav-link-inner--text">Server Api</span>
+                        </a>
+                    </li>
                 </ul>
                 <hr class="d-lg-none">
                 <ul class="navbar-nav align-items-lg-center ml-lg-auto">

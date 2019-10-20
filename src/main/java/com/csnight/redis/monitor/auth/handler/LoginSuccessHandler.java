@@ -58,7 +58,7 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
             String token = extTokenForName.get(i).getTokenValue();
             tokenRepositoryExt.removeUserOldToken(username, token);
         }
-        super.setDefaultTargetUrl("/auth/user_info");
+        super.setDefaultTargetUrl("/");
         super.onAuthenticationSuccess(request, response, authentication);
         _log.info(sysUser.getUsername() + ":账户登陆成功 " + new Date());
     }
