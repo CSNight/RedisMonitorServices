@@ -8,6 +8,7 @@ define(function (require) {
         });
     };
     let setMenuHtml = function () {
+        let header_html = ''
         $('#main-menu').append('');
     };
     return {

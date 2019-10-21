@@ -6,7 +6,7 @@ $(document).ready(function () {
         let $full_page = $('.full-page');
         let $sidebar_responsive = $('body > .navbar-collapse');
         let sidebar_mini_active = true;
-        let white_color = false;
+        let white_color = true;
         $('.fixed-plugin a').click(function (event) {
             if ($(this).hasClass('switch-trigger')) {
                 if (event.stopPropagation) {
@@ -54,8 +54,7 @@ $(document).ready(function () {
         });
 
         $('.switch-change-color input').on("switchChange.bootstrapSwitch", function () {
-            var $btn = $(this);
-            if (white_color == true) {
+            if (white_color) {
                 $('body').addClass('change-background');
                 setTimeout(function () {
                     $('body').removeClass('change-background');
