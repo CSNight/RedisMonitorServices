@@ -1,0 +1,51 @@
+server:
+  port: 8020
+  servlet:
+    context-path: /
+spring:
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+    mode: HTML
+    prefix: classpath:/templates/
+    suffix: .html
+    servlet:
+      content-type: text/html
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/rmsdb?serverTimezone=Asia/Shanghai
+    username: csnight
+    password: qnyh@123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+  quartz:
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: redis_monitor
+            instanceId: AUTO
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            tablePrefix: QRTZ_
+            isClustered: false
+            clusterCheckinInterval: 10000
+            useProperties: false
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 100
+            threadPriority: 5
+            threadsInheritContextClassLoaderOfInitializingThread: true
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
+      schema: classpath:qrtz.sql
+mybatis:
+  mapper-Locations: classpath:mapping/*.xml
+logging:
+  config: classpath:logback-config.xml
