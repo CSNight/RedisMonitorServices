@@ -17,21 +17,29 @@ public class OrgServiceImpl {
     }
 
     public String GetOrgTree() {
-        Optional<SysOrg> sysOrg = sysOrgRepository.findById("1");
+        Optional<SysOrg> sysOrg = sysOrgRepository.findById(1L);
         return sysOrg.map(JSONUtil::pojo2json).orElse("");
     }
 
+    public String GetOrgList() {
+        List<SysOrg> orgList = sysOrgRepository.findAll();
+        for (SysOrg sysOrg : orgList) {
+            sysOrg.setChildren(null);
+        }
+        return JSONUtil.object2json(orgList);
+    }
+
     public String GetOrgByPid(String pid) {
-        List<SysOrg> orgList = sysOrgRepository.findByPid(pid);
+        List<SysOrg> orgList = sysOrgRepository.findByPid(Long.parseLong(pid));
         return JSONUtil.object2json(orgList);
     }
 
     public String ModifyOrg(JSONObject jo_org) {
         if (jo_org.containsKey("id")) {
             SysOrg sysOrg = new SysOrg();
-            sysOrg.setId(jo_org.getString("id"));
+            sysOrg.setId(jo_org.getLong("id"));
             sysOrg.setEnabled(jo_org.getBoolean("enabled"));
-            sysOrg.setPid(jo_org.getString("pid"));
+            sysOrg.setPid(jo_org.getLong("pid"));
             sysOrg.setName(jo_org.getString("name"));
             SysOrg res = sysOrgRepository.save(sysOrg);
             return JSONUtil.pojo2json(res);
@@ -39,22 +47,22 @@ public class OrgServiceImpl {
         return "failed";
     }
 
-    public String NewOrg(JSONObject jo_org) {
+    public String NewOrg(JSONObject jo_org, String user) {
         if (jo_org.containsKey("pid")) {
             SysOrg sysOrg = new SysOrg();
             sysOrg.setEnabled(jo_org.containsKey("enabled") ? jo_org.getBoolean("enabled") : false);
-            sysOrg.setPid(jo_org.getString("pid"));
+            sysOrg.setPid(jo_org.getLong("pid"));
             sysOrg.setName(jo_org.containsKey("name") ? jo_org.getString("name") : "unknown");
             sysOrg.setCreate_time(new Date());
+            sysOrg.setCreate_user(user);
             SysOrg res = sysOrgRepository.save(sysOrg);
             return JSONUtil.pojo2json(res);
         }
         return "failed";
-
     }
 
     public String DeleteOrgById(String id) {
-        Optional<SysOrg> sysOrgOpt = sysOrgRepository.findById(id);
+        Optional<SysOrg> sysOrgOpt = sysOrgRepository.findById(Long.parseLong(id));
         if (sysOrgOpt.isPresent()) {
             SysOrg sysOrg = sysOrgOpt.get();
             if (sysOrg.getChildren().size() > 0) {
@@ -62,7 +70,7 @@ public class OrgServiceImpl {
                 getOrgChildIds(sysOrg, ids);
                 sysOrgRepository.deleteInBatch(ids);
             } else {
-                sysOrgRepository.deleteById(id);
+                sysOrgRepository.deleteById(Long.parseLong(id));
             }
             return "success";
         }

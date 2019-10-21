@@ -1,38 +1,38 @@
 package com.csnight.redis.monitor.db.jpa;
 
-import org.hibernate.annotations.GenericGenerator;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 @Entity
 @Table(name = "sys_org")
 public class SysOrg {
     @Id
-    @GenericGenerator(name = "jpa-uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    @GeneratedValue(generator = "jpa-uuid")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private String id;
+    private Long id;
     @Column(name = "name")
     private String name;
     @Column(name = "create_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date create_time;
     @Column(name = "pid")
-    private String pid;
+    private Long pid;
     @Column(name = "enabled")
     private boolean enabled;
+    @Column(name = "create_user")
+    private String create_user;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "pid")
     private List<SysOrg> children = new ArrayList<>();
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -52,11 +52,11 @@ public class SysOrg {
         this.create_time = create_time;
     }
 
-    public String getPid() {
+    public Long getPid() {
         return pid;
     }
 
-    public void setPid(String pid) {
+    public void setPid(Long pid) {
         this.pid = pid;
     }
 
@@ -74,5 +74,13 @@ public class SysOrg {
 
     public void setChildren(List<SysOrg> children) {
         this.children = children;
+    }
+
+    public String getCreate_user() {
+        return create_user;
+    }
+
+    public void setCreate_user(String create_user) {
+        this.create_user = create_user;
     }
 }

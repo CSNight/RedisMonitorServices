@@ -17,7 +17,7 @@ public class SwaggerConfiguration {
     @Bean
     public Docket createRestfulApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .apiInfo(apiInfo()).enableUrlTemplating(true)
+                .apiInfo(apiInfo())
                 .pathMapping("/")
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.csnight.redis.monitor.rest")) //暴露接口地址的包路径

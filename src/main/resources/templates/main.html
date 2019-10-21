@@ -5,15 +5,21 @@
     <title>
         Redis Monitor Dashboard
     </title>
-    <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+    <link href="/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <link href="/vendor/nucleo/css/nucleo-icons.css" rel="stylesheet"/>
     <link type="text/css" href="/css/black-dashboard.min.css" rel="stylesheet"/>
+    <link type="text/css" href="/vendor/layui/css/layui.css" rel="stylesheet"/>
+    <script src="/vendor/layui/layui.all.js"></script>
+    <link type="text/css" href="/vendor/bootstrap/css/bootstrap-table.min.css" rel="stylesheet"/>
+    <link type="text/css" href="/vendor/jquery/css/jquery.treegrid.css" rel="stylesheet"/>
     <script src="/vendor/jquery/jquery.min.js"></script>
-    <script src="/vendor/bootstrap/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/vendor/jquery/jquery.treegrid.js"></script>
+    <script src="/vendor/common/perfect-scrollbar.jquery.min.js"></script>
     <script src="/vendor/popper/popper.min.js"></script>
 
 </head>
-<body class="sidebar-mini ">
+<body class="sidebar-mini white-content">
+
 <div class="wrapper">
     <div class="navbar-minimize-fixed">
         <button class="minimize-sidebar btn btn-link btn-just-icon">
@@ -36,21 +42,22 @@
             </div>
             <ul class="nav" id="main-menu">
                 <li class="" th:each="menu_item:${menu_infos}" th:id="${menu_item.id}">
-                    <a data-toggle="collapse" th:href="'#'+${menu_item.name}">
+                    <a data-toggle="collapse" th:href="'#'+${menu_item.path}">
                         <i class="tim-icons icon-chart-pie-36"></i>
                         <p th:utext="${!#lists.isEmpty(menu_item.children)}==true?${menu_item.name}+'<b class=\'caret\'></b>':${menu_item.name}"></p>
                     </a>
-<!--                    <div th:if="${!#lists.isEmpty(menu_item.children)}" class="collapse" th:id="${menu_item.name}">-->
-<!--                        <ul class="nav">-->
-<!--                            <li class="" th:each="child:${menu_item.children}" th:id="${child.id}">-->
-<!--                                <a href="javascript:void(0)">-->
-<!--                                    <span class="sidebar-mini-icon fa fa-user"-->
-<!--                                          ></span>-->
-<!--                                    <span class="sidebar-normal" th:utext="'<i class=\'fa fa-user\'></i>'+${child.name}"></span>-->
-<!--                                </a>-->
-<!--                            </li>-->
-<!--                        </ul>-->
-<!--                    </div>-->
+                    <div th:if="${!#lists.isEmpty(menu_item.children)}" class="collapse" th:id="${menu_item.path}">
+                        <ul class="nav">
+                            <li class="" th:each="child:${menu_item.children}" th:id="${child.path}">
+                                <a href="javascript:void(0)">
+                                    <span class="sidebar-mini-icon fa fa-user"
+                                    ></span>
+                                    <span class="sidebar-normal"
+                                          th:utext="'<i class=\'fa fa-user\'></i>'+${child.name}"></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -174,6 +181,8 @@
 </div>
 
 <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap-table.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap-table-treegrid.min.js"></script>
 <script src="/vendor/bootstrap/js/bootstrap-switch.js"></script>
 <script src="/js/black-dashboard.min.js?v=1.1.0"></script>
 <script src="/js/ui.js"></script>
