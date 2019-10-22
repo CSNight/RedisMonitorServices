@@ -36,13 +36,15 @@ public class OrgServiceImpl {
 
     public String ModifyOrg(JSONObject jo_org) {
         if (jo_org.containsKey("id")) {
-            SysOrg sysOrg = new SysOrg();
-            sysOrg.setId(jo_org.getLong("id"));
-            sysOrg.setEnabled(jo_org.getBoolean("enabled"));
-            sysOrg.setPid(jo_org.getLong("pid"));
-            sysOrg.setName(jo_org.getString("name"));
-            SysOrg res = sysOrgRepository.save(sysOrg);
-            return JSONUtil.pojo2json(res);
+            Optional<SysOrg> sysOrg = sysOrgRepository.findById(jo_org.getLong("id"));
+            if (sysOrg.isPresent()) {
+                SysOrg old_org = sysOrg.get();
+                old_org.setEnabled(jo_org.containsKey("enabled") ? jo_org.getBoolean("enabled") : old_org.isEnabled());
+                old_org.setPid(jo_org.containsKey("pid") ? jo_org.getLong("pid") : old_org.getPid());
+                old_org.setName(jo_org.containsKey("name") ? jo_org.getString("name") : old_org.getName());
+                SysOrg res = sysOrgRepository.save(old_org);
+                return JSONUtil.pojo2json(res);
+            }
         }
         return "failed";
     }
@@ -69,9 +71,8 @@ public class OrgServiceImpl {
                 Set<SysOrg> ids = new HashSet<>();
                 getOrgChildIds(sysOrg, ids);
                 sysOrgRepository.deleteInBatch(ids);
-            } else {
-                sysOrgRepository.deleteById(Long.parseLong(id));
             }
+            sysOrgRepository.deleteById(Long.parseLong(id));
             return "success";
         }
         return "failed";

@@ -26,16 +26,22 @@ public class ResponseFormatAdvice implements ResponseBodyAdvice<Object> {
             ServletServerHttpResponse ssr = (ServletServerHttpResponse) resp;
             int s = ssr.getServletResponse().getStatus();
             String method = Objects.requireNonNull(methodParameter.getMethod()).getName();
-            if(!(o instanceof String)){
+            if (!(o instanceof String)) {
                 return o;
             }
             if (JSONObject.isValidArray(o.toString())) {
                 return JSONObject.toJSONString(new RespTemplate(s, JSONObject.parseArray(o.toString()),
                         req.getURI().getPath(), method), SerializerFeature.WriteDateUseDateFormat);
-            } else if(JSONObject.isValidObject(o.toString())) {
+            } else if (JSONObject.isValidObject(o.toString())) {
                 return JSONObject.toJSONString(new RespTemplate(s, JSONObject.parseObject(o.toString()),
                         req.getURI().getPath(), method), SerializerFeature.WriteDateUseDateFormat);
-            }else{
+            } else if (o.toString().equals("success")) {
+                return JSONObject.toJSONString(new RespTemplate(200, o,
+                        req.getURI().getPath(), method), SerializerFeature.WriteDateUseDateFormat);
+            } else if (o.toString().equals("failed")) {
+                return JSONObject.toJSONString(new RespTemplate(400, o,
+                        req.getURI().getPath(), method), SerializerFeature.WriteDateUseDateFormat);
+            } else {
                 return o;
             }
         }

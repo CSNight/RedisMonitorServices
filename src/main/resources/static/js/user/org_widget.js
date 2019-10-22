@@ -10,6 +10,7 @@ define(function (require) {
         html += "</div>";
         $('#main-area').html(html);
         tableLoad();
+        bind_events();
     };
     let tableLoad = function () {
         $('#org_tree').html('');
@@ -20,11 +21,11 @@ define(function (require) {
                 tableInit(org_tree, "org_tree");
             }
         });
-    }
+    };
 
     function tableInit(data, dom) {
         let $table = $('#' + dom);
-        $table.bootstrapTable({
+        $table.bootstrapTable('destroy').bootstrapTable({
             data: data,
             idField: 'id',
             dataType: 'json',
@@ -52,13 +53,16 @@ define(function (require) {
                     align: 'center',
                     events: {
                         'click .org_del': function (e, value, row, index) {
-                            del(row.id);
-                        }, 'click .org_modify': function (e, value, row, index) {
-                            update(row.id);
-                        }, 'click .org_lock': function (e, value, row, index) {
-                            update(row.id);
-                        }, 'click .org_unlock': function (e, value, row, index) {
-                            update(row.id);
+                            del(row);
+                        },
+                        'click .org_modify': function (e, value, row, index) {
+                            update(row);
+                        },
+                        'click .org_lock': function (e, value, row, index) {
+                            lock(row);
+                        },
+                        'click .org_unlock': function (e, value, row, index) {
+                            unlock(row);
                         }
                     },
                     formatter: operateFormatter
@@ -100,25 +104,58 @@ define(function (require) {
                 lock_html
             ].join('');
         }
-
-
     }
 
-    $('#new_org').click(function add(id) {
-        layer.open({
-            content: 'test'
-            , btn: ['添加', '取消']
-            , yes: function (index, layero) {
-                console.log(layero);
-            }, cancel: function () {
-            }
+    function bind_events() {
+        $('#new_org').click(function add(id) {
+            layer.open({
+                content: 'test'
+                , btn: ['添加', '取消']
+                , yes: function (index, layero) {
+                    console.log(layero);
+                }, cancel: function () {
+                }
+            });
         });
-    });
-
-    function del(id) {
     }
 
-    function update(id) {
+    function del(row) {
+        layer.confirm("本操作将连带所属子部门一起删除，是否删除该部门？", {icon: 0, title: ["警告", "color:red"]}, function (index) {
+            layer.close(index);
+            G.request.DELETE("/org/delete_org/" + row.id).then(function (resp) {
+                let resp_obj = JSON.parse(resp);
+                if (resp_obj.hasOwnProperty("message") && resp_obj.status === 200) {
+                    if (resp_obj.message === "success") {
+                        layer.msg('删除成功', {
+                            time: 2000, icon: 1
+                        });
+                    } else {
+                        layer.msg('删除失败', {
+                            time: 2000, icon: 0
+                        });
+                    }
+                } else {
+                    layer.msg('删除失败', {
+                        time: 2000, icon: 0
+                    });
+                }
+            }).catch(function () {
+                layer.msg('删除失败', {
+                    time: 2000, icon: 0
+                });
+            }).finally(function () {
+                tableLoad();
+            })
+        })
+    }
+
+    function update(row) {
+    }
+
+    function unlock(row) {
+    }
+
+    function lock(row) {
     }
 
     let setNewOrgDialog = function () {

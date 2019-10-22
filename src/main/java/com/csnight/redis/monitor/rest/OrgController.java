@@ -70,7 +70,7 @@ public class OrgController {
 
     @LogBack
     @ApiOperation(value = "通过ID删除组织机构")
-    @RequestMapping(value = "{id}/delete_org/", method = RequestMethod.DELETE)
+    @RequestMapping(value = "delete_org/{id}", method = RequestMethod.DELETE)
     public String DeleteOrgById(@PathVariable String id) {
         return userService.DeleteOrgById(id);
     }
