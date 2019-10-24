@@ -212,9 +212,30 @@ define(function (require) {
     }
 
     function unlock(row) {
+        let org_ent = {
+            id: row.id,
+            name: row.name,
+            enabled: true,
+            pid: row.pid,
+            create_user: row.create_user,
+            create_time: row.create_time
+        };
+        layer.confirm("本操作将连带所属子部门一起解锁，是否继续？", {icon: 0, title: ["警告", "color:orange"]}, function (index) {
+            request_update(org_ent, index);
+        })
+
     }
 
     function lock(row) {
+        let org_ent = {
+            id: row.id,
+            name: row.name,
+            enabled: false,
+            pid: row.pid,
+            create_user: row.create_user,
+            create_time: row.create_time
+        };
+        request_update(org_ent, -1);
     }
 
     let setNewOrgDialog = function (name, enable, dept_parent) {

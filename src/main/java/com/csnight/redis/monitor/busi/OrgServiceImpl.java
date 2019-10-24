@@ -39,10 +39,20 @@ public class OrgServiceImpl {
             Optional<SysOrg> sysOrg = sysOrgRepository.findById(jo_org.getLong("id"));
             if (sysOrg.isPresent()) {
                 SysOrg old_org = sysOrg.get();
+                boolean enabled = old_org.isEnabled();
                 old_org.setEnabled(jo_org.containsKey("enabled") ? jo_org.getBoolean("enabled") : old_org.isEnabled());
                 old_org.setPid(jo_org.containsKey("pid") ? jo_org.getLong("pid") : old_org.getPid());
                 old_org.setName(jo_org.containsKey("name") ? jo_org.getString("name") : old_org.getName());
                 SysOrg res = sysOrgRepository.save(old_org);
+                if (old_org.isEnabled() != enabled) {
+                    Set<SysOrg> ids = new HashSet<>();
+                    getOrgChildIds(old_org, ids);
+                    for (SysOrg child : ids) {
+                        child.setEnabled(res.isEnabled());
+                        sysOrgRepository.save(child);
+                    }
+                }
+                ModifyParent(res);
                 return JSONUtil.pojo2json(res);
             }
         }
@@ -85,5 +95,34 @@ public class OrgServiceImpl {
                 getOrgChildIds(child, ids);
             }
         }
+    }
+
+    private void ModifyParent(SysOrg current) {
+        if (current.getPid() == 1) {
+            return;
+        }
+        List<Boolean> enables = sysOrgRepository.findEnabledByPid(current.getPid());
+        Optional<SysOrg> top_parent_option = sysOrgRepository.findById(current.getPid());
+        if (top_parent_option.isPresent() && any(enables)) {
+            SysOrg top_parent = top_parent_option.get();
+            top_parent.setEnabled(current.isEnabled());
+            SysOrg top_modify = sysOrgRepository.save(top_parent);
+            ModifyParent(top_modify);
+        }
+    }
+
+    private boolean any(List<Boolean> list) {
+        if (list.isEmpty()) {
+            return true;
+        }
+        boolean isSame = true;
+        boolean temp_val = list.get(0);
+        for (Boolean b : list) {
+            if (temp_val != b) {
+                isSame = false;
+                break;
+            }
+        }
+        return isSame;
     }
 }
