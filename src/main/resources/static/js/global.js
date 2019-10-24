@@ -1,5 +1,4 @@
 define(function (require) {
-
     let extend = function (target, methods) {
         if (!target) {
             target = {};

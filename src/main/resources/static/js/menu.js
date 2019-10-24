@@ -5,6 +5,7 @@ define(function (require) {
             $('#main-area').html('');
             const org = require('js/user/org_widget');
             org.init();
+            $('.navbar-brand').text($(this).find('a').text());
         });
     };
     let setMenuHtml = function () {

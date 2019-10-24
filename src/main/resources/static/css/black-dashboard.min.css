@@ -16415,6 +16415,7 @@ textarea.form-control:active, textarea.form-control:focus {
     height: 30px;
     line-height: 30px;
     cursor: pointer;
+    color: #555;
     text-transform: uppercase;
     outline: none
 }
