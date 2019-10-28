@@ -3,12 +3,13 @@ package com.csnight.redis.monitor.auth.config;
 import com.csnight.redis.monitor.auth.handler.LoginSuccessHandler;
 import com.csnight.redis.monitor.auth.handler.SignOutHandler;
 import com.csnight.redis.monitor.auth.handler.ValidationHandler;
+import com.csnight.redis.monitor.auth.service.LoginUserService;
 import com.csnight.redis.monitor.db.jpa.SysUser;
 import com.csnight.redis.monitor.db.repos.SysUserRepository;
-import com.csnight.redis.monitor.auth.service.LoginUserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -22,6 +23,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
     private final AuthenticationFailureHandler loginFailureHandler;
     private final AuthenticationSuccessHandler loginSuccessHandler;
@@ -62,7 +64,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         JdbcTokenRepositoryExt jdbcTokenRepositoryExt = tokenRepository();
         ((LoginSuccessHandler) loginSuccessHandler).setTokenRepositoryExt(jdbcTokenRepositoryExt);
         http.csrf().disable().authorizeRequests().antMatchers(
-                "/static/**","/csrf",
+                "/static/**", "/csrf",
                 "/css/**",
                 "/js/**",
                 "/vendor/**",

@@ -3,8 +3,11 @@ define(function (require) {
     let org_select = null;
     let org_list = null;
     let init = function () {
-
         setHtmlFrame();
+        //表格数据加载
+        tableLoad();
+        //绑定表格外部添加按钮事件
+        bind_events();
     };
 
     //初始化内容
@@ -14,21 +17,20 @@ define(function (require) {
         html += '<button type="button" id="new_org" class="layui-btn layui-btn-normal"><i class="fa fa-plus"></i>新增部门</button></div><table id="org_tree"></table></div>';
         html += "</div>";
         $('#main-area').html(html);
-        tableLoad();
-        bind_events();
+
     };
     let tableLoad = function () {
         $('#org_tree').html('');
+        //部门目录树加载
         G.request.GET("/org/get_org_tree", "", true).then(function (resp) {
-            let resp_obj = JSON.parse(resp);
-            if (resp_obj.hasOwnProperty("message") && resp_obj.status === 200) {
-                org_tree = resp_obj.message;
+            if (resp.hasOwnProperty("message") && resp.status === 200) {
+                org_tree = resp.message;
             }
         });
+        //部门目录树列表请求
         G.request.GET("/org/get_org_list", "", true).then(function (resp) {
-            let resp_obj = JSON.parse(resp);
-            if (resp_obj.hasOwnProperty("message") && resp_obj.status === 200) {
-                org_list = resp_obj.message;
+            if (resp.hasOwnProperty("message") && resp.status === 200) {
+                org_list = resp.message;
                 tableInit(org_list, "org_tree");
             }
         });
@@ -36,6 +38,7 @@ define(function (require) {
 
     function tableInit(data, dom) {
         let $table = $('#' + dom);
+        //表格配置
         $table.bootstrapTable('destroy').bootstrapTable({
             data: data,
             idField: 'id',
@@ -104,8 +107,10 @@ define(function (require) {
                 $table.treegrid('getAllNodes').treegrid('expand');
             }
         });
+        //展开节点
         $table.treegrid('getAllNodes').treegrid('expand');
 
+        //操作列表按钮模板
         function operateFormatter(value, row, index) {
             if (row.id === 1) {
                 return '';
@@ -153,7 +158,7 @@ define(function (require) {
                 }, cancel: function () {
                 }, success: function () {
                     layui.form.render();
-                    new_dropdown();
+                    org_tree_dropdown();
                 }
             });
         });
@@ -206,7 +211,7 @@ define(function (require) {
             }, cancel: function () {
             }, success: function () {
                 layui.form.render();
-                new_dropdown();
+                org_tree_dropdown();
             }
         });
     }
@@ -259,16 +264,16 @@ define(function (require) {
         value = dept_parent ? dept_parent : value;
         belong_html += '<input type="text" id="select_dept" readonly name="parent_dept" value="' + value + '" placeholder="选择部门" class="layui-input">';
         belong_html += '<i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit"><dd>';
-        belong_html += '<ul id="classtree"></ul></dd></dl></div></div></div>';
+        belong_html += '<ul id="org_tree_drop"></ul></dd></dl></div></div></div>';
         form += name_html + status_html + belong_html + "</form>";
         return form;
     };
 
-    function new_dropdown() {
+    function org_tree_dropdown() {
         $('#select_dept').click(function () {
-            $('#classtree').html('');
+            $('#org_tree_drop').html('');
             layui.tree.render({
-                elem: '#classtree',
+                elem: '#org_tree_drop',
                 data: [JSON.parse(JSON.stringify(org_tree).replace(/name/g, "title"))],
                 id: 'demoId',
                 click: function (e) {
@@ -283,60 +288,51 @@ define(function (require) {
 
     function request_add(org_ent, layer_index) {
         G.request.POST('/org/new_org', {'org_ent': JSON.stringify(org_ent)}).then(function (res) {
-            let resp_obj = JSON.parse(res);
-            if (resp_obj.hasOwnProperty("message") && resp_obj.status === 200) {
-                layer.close(layer_index);
-                tableLoad();
+            layer.close(layer_index);
+            if (res.hasOwnProperty("message") && res.status === 200) {
                 layer.msg('添加成功', {
                     time: 2000, icon: 1
                 });
-            } else {
-                layer.close(layer_index);
-                layer.msg('插入失败', {
-                    time: 2000, icon: 0
-                });
-                tableLoad();
+                return;
             }
+            layer.msg('插入失败', {
+                time: 2000, icon: 0
+            });
+        }).finally(function () {
+            tableLoad();
         });
     }
 
     function request_update(org_ent, layer_index) {
         G.request.PUT('/org/modify_org', {'org_ent': JSON.stringify(org_ent)}).then(function (res) {
-            let resp_obj = JSON.parse(res);
-            if (resp_obj.hasOwnProperty("message") && resp_obj.status === 200) {
-                layer.close(layer_index);
-                tableLoad();
+            layer.close(layer_index);
+            if (res.hasOwnProperty("message") && res.status === 200) {
                 layer.msg('修改成功', {
                     time: 2000, icon: 1
                 });
-            } else {
-                layer.close(layer_index);
-                layer.msg('插入失败', {
-                    time: 2000, icon: 0
-                });
-                tableLoad();
+                return;
             }
+            layer.msg('修改失败', {
+                time: 2000, icon: 0
+            });
+        }).finally(function () {
+            tableLoad();
         });
     }
 
     function request_del(row) {
         G.request.DELETE("/org/delete_org/" + row.id).then(function (resp) {
-            let resp_obj = JSON.parse(resp);
-            if (resp_obj.hasOwnProperty("message") && resp_obj.status === 200) {
-                if (resp_obj.message === "success") {
+            if (resp.hasOwnProperty("message") && resp.status === 200) {
+                if (resp.message === "success") {
                     layer.msg('删除成功', {
                         time: 2000, icon: 1
                     });
-                } else {
-                    layer.msg('删除失败', {
-                        time: 2000, icon: 0
-                    });
+                    return;
                 }
-            } else {
-                layer.msg('删除失败', {
-                    time: 2000, icon: 0
-                });
             }
+            layer.msg('删除失败', {
+                time: 2000, icon: 0
+            });
         }).catch(function () {
             layer.msg('删除失败', {
                 time: 2000, icon: 0

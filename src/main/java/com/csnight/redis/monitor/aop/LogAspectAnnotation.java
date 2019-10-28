@@ -1,25 +1,21 @@
 package com.csnight.redis.monitor.aop;
 
+import com.csnight.redis.monitor.utils.JSONUtil;
+import com.csnight.redis.monitor.utils.RespTemplate;
 import com.csnight.redis.monitor.utils.ThrowableUtil;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.web.reactive.error.DefaultErrorWebExceptionHandler;
-import org.springframework.boot.autoconfigure.web.servlet.error.DefaultErrorViewResolver;
-import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
-import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ErrorHandler;
-import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -68,11 +64,18 @@ public class LogAspectAnnotation {
         HttpServletResponse rep = attributes.getResponse();
         long costTime = System.currentTimeMillis() - startTime.get();
         assert rep != null;
+        Object wrapRes = "";
+        if (result instanceof RespTemplate) {
+            wrapRes = JSONUtil.object2json(result);
+        } else {
+            wrapRes = result;
+        }
         logger.info("\r\nCost:{}ms Status:" + rep.getStatus() +
                 "\r\nClass:{}=>{}\r\n" +
-                "Response => {}", costTime, className, methodName, result);
+                "Response => {}", costTime, className, methodName, wrapRes);
         return result;
     }
+
     /**
      * 配置异常通知
      *

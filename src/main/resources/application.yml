@@ -49,3 +49,14 @@ mybatis:
   mapper-Locations: classpath:mapping/*.xml
 logging:
   config: classpath:logback-config.xml
+#security:
+#  oauth2:
+#    client:
+#      id: rms
+#      client-id: rms
+#      client-secret: csnight
+#      grant-type: authorization_code
+#      accessTokenUri: http://localhost:8030/oauth/token
+#      userAuthorizationUri: http://localhost:8030/oauth/authorize
+#    resource:
+#      token-info-uri: http://localhost:8030/oauth/check_token

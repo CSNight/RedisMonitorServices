@@ -46,14 +46,14 @@
                 </a>
             </div>
             <ul class="nav" id="main-menu">
-                <li class="" th:each="menu_item:${menu_infos}" th:id="${menu_item.id}">
+                <li class="" th:each="menu_item:${menu_infos}" th:id="${menu_item.component}">
                     <a data-toggle="collapse" th:href="'#'+${menu_item.path}">
                         <i class="tim-icons icon-chart-pie-36"></i>
                         <p th:utext="${!#lists.isEmpty(menu_item.children)}==true?${menu_item.name}+'<b class=\'caret\'></b>':${menu_item.name}"></p>
                     </a>
                     <div th:if="${!#lists.isEmpty(menu_item.children)}" class="collapse" th:id="${menu_item.path}">
                         <ul class="nav">
-                            <li class="" th:each="child:${menu_item.children}" th:id="${child.path}">
+                            <li class="" th:each="child:${menu_item.children}" th:id="${child.component}">
                                 <a href="javascript:void(0)">
                                     <span class="sidebar-mini-icon fa fa-user"
                                     ></span>
@@ -123,19 +123,6 @@
                 </div>
             </div>
         </nav>
-        <div class="modal modal-search fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="searchModal"
-             aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <input type="text" class="form-control" id="inlineFormInputGroup" placeholder="SEARCH">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <i class="tim-icons icon-simple-remove"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
         <!-- End Navbar -->
         <div class="content" id="main-area">
         </div>

@@ -1,9 +1,8 @@
 package com.csnight.redis.monitor.aop;
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.csnight.redis.monitor.utils.RespTemplate;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -26,24 +25,14 @@ public class ResponseFormatAdvice implements ResponseBodyAdvice<Object> {
             ServletServerHttpResponse ssr = (ServletServerHttpResponse) resp;
             int s = ssr.getServletResponse().getStatus();
             String method = Objects.requireNonNull(methodParameter.getMethod()).getName();
-            if (!(o instanceof String)) {
+            if (!(o instanceof RespTemplate)) {
                 return o;
             }
-            if (JSONObject.isValidArray(o.toString())) {
-                return JSONObject.toJSONString(new RespTemplate(s, JSONObject.parseArray(o.toString()),
-                        req.getURI().getPath(), method), SerializerFeature.WriteDateUseDateFormat);
-            } else if (JSONObject.isValidObject(o.toString())) {
-                return JSONObject.toJSONString(new RespTemplate(s, JSONObject.parseObject(o.toString()),
-                        req.getURI().getPath(), method), SerializerFeature.WriteDateUseDateFormat);
-            } else if (o.toString().equals("success")) {
-                return JSONObject.toJSONString(new RespTemplate(200, o,
-                        req.getURI().getPath(), method), SerializerFeature.WriteDateUseDateFormat);
-            } else if (o.toString().equals("failed")) {
-                return JSONObject.toJSONString(new RespTemplate(400, o,
-                        req.getURI().getPath(), method), SerializerFeature.WriteDateUseDateFormat);
-            } else {
-                return o;
-            }
+            RespTemplate respTemplate = (RespTemplate) o;
+            if (respTemplate.getMessage().equals("failed")) {
+                return new RespTemplate(s, HttpStatus.BAD_REQUEST, respTemplate.getMessage(), req.getURI().getPath(), method);
+            } else
+                return new RespTemplate(s, respTemplate.getCode(), respTemplate.getMessage(), req.getURI().getPath(), method);
         }
         return o;
     }

@@ -1,41 +1,37 @@
-package com.csnight.redis.monitor.db.jpa;
+package com.csnight.redis.monitor.rest.dto;
 
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
-@Entity
-@Table(name = "sys_menu")
-public class SysMenu {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class MenuDto {
     private Long id;
-    @Column(name = "create_time")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date create_time;
-    @Column(name = "iframe")
+    @NotEmpty
+    @NotNull
     private boolean iframe;
-    @Column(name = "name")
+    @NotEmpty
+    @NotNull
     private String name;
-    @Column(name = "component")
+    @NotEmpty
+    @NotNull
     private String component;
-    @Column(name = "pid")
+    @NotEmpty
+    @NotNull
     private Long pid;
-    @Column(name = "sort")
+    @NotEmpty
+    @NotNull
     private Long sort;
-    @Column(name = "icon")
+    @NotEmpty
+    @NotNull
     private String icon;
-    @Column(name = "path")
+    @NotEmpty
+    @NotNull
     private String path;
-    @Column(name = "hidden")
+    @NotEmpty
+    @NotNull
     private boolean hidden;
-    @Column(name = "component_name")
+    @NotEmpty
+    @NotNull
     private String component_name;
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "pid")
-    private List<SysMenu> children = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -43,14 +39,6 @@ public class SysMenu {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Date getCreate_time() {
-        return create_time;
-    }
-
-    public void setCreate_time(Date create_time) {
-        this.create_time = create_time;
     }
 
     public boolean isIframe() {
@@ -123,13 +111,5 @@ public class SysMenu {
 
     public void setComponent_name(String component_name) {
         this.component_name = component_name;
-    }
-
-    public List<SysMenu> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<SysMenu> children) {
-        this.children = children;
     }
 }

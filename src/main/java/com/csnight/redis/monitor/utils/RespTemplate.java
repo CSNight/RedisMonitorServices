@@ -1,6 +1,7 @@
 package com.csnight.redis.monitor.utils;
 
 import io.swagger.annotations.ApiModel;
+import org.springframework.http.HttpStatus;
 
 import java.util.Date;
 
@@ -8,15 +9,22 @@ import java.util.Date;
 public class RespTemplate {
     private Date ack = new Date();
     private int status;
+    private HttpStatus code;
     private Object message;
     private String uri;
     private String method;
 
-    public RespTemplate(int status, Object msg, String uri, String method) {
+    public RespTemplate(HttpStatus code, Object msg) {
+        this.code = code;
+        this.message = msg;
+    }
+
+    public RespTemplate(int status, HttpStatus code, Object msg, String uri, String method) {
         this.status = status;
         this.message = msg;
         this.uri = uri;
         this.method = method;
+        this.code = code;
     }
 
     public Date getAck() {
@@ -45,5 +53,25 @@ public class RespTemplate {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public void setAck(Date ack) {
+        this.ack = ack;
+    }
+
+    public HttpStatus getCode() {
+        return code;
+    }
+
+    public void setCode(HttpStatus code) {
+        this.code = code;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
     }
 }

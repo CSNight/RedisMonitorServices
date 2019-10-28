@@ -3,7 +3,7 @@ package com.csnight.redis.monitor.busi;
 import com.alibaba.fastjson.JSONObject;
 import com.csnight.redis.monitor.db.jpa.SysOrg;
 import com.csnight.redis.monitor.db.repos.SysOrgRepository;
-import com.csnight.redis.monitor.utils.JSONUtil;
+import com.csnight.redis.monitor.utils.BaseUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -16,25 +16,24 @@ public class OrgServiceImpl {
         this.sysOrgRepository = sysOrgRepository;
     }
 
-    public String GetOrgTree() {
+    public SysOrg GetOrgTree() {
         Optional<SysOrg> sysOrg = sysOrgRepository.findById(1L);
-        return sysOrg.map(JSONUtil::pojo2json).orElse("");
+        return sysOrg.orElse(null);
     }
 
-    public String GetOrgList() {
+    public List<SysOrg> GetOrgList() {
         List<SysOrg> orgList = sysOrgRepository.findAll();
         for (SysOrg sysOrg : orgList) {
             sysOrg.setChildren(null);
         }
-        return JSONUtil.object2json(orgList);
+        return orgList;
     }
 
-    public String GetOrgByPid(String pid) {
-        List<SysOrg> orgList = sysOrgRepository.findByPid(Long.parseLong(pid));
-        return JSONUtil.object2json(orgList);
+    public List<SysOrg> GetOrgByPid(String pid) {
+        return sysOrgRepository.findByPid(Long.parseLong(pid));
     }
 
-    public String ModifyOrg(JSONObject jo_org) {
+    public SysOrg ModifyOrg(JSONObject jo_org) {
         if (jo_org.containsKey("id")) {
             Optional<SysOrg> sysOrg = sysOrgRepository.findById(jo_org.getLong("id"));
             if (sysOrg.isPresent()) {
@@ -53,13 +52,13 @@ public class OrgServiceImpl {
                     }
                 }
                 ModifyParent(res);
-                return JSONUtil.pojo2json(res);
+                return res;
             }
         }
-        return "failed";
+        return null;
     }
 
-    public String NewOrg(JSONObject jo_org, String user) {
+    public SysOrg NewOrg(JSONObject jo_org, String user) {
         if (jo_org.containsKey("pid")) {
             SysOrg sysOrg = new SysOrg();
             sysOrg.setEnabled(jo_org.containsKey("enabled") ? jo_org.getBoolean("enabled") : false);
@@ -67,10 +66,9 @@ public class OrgServiceImpl {
             sysOrg.setName(jo_org.containsKey("name") ? jo_org.getString("name") : "unknown");
             sysOrg.setCreate_time(new Date());
             sysOrg.setCreate_user(user);
-            SysOrg res = sysOrgRepository.save(sysOrg);
-            return JSONUtil.pojo2json(res);
+            return sysOrgRepository.save(sysOrg);
         }
-        return "failed";
+        return null;
     }
 
     public String DeleteOrgById(String id) {
@@ -103,26 +101,11 @@ public class OrgServiceImpl {
         }
         List<Boolean> enables = sysOrgRepository.findEnabledByPid(current.getPid());
         Optional<SysOrg> top_parent_option = sysOrgRepository.findById(current.getPid());
-        if (top_parent_option.isPresent() && any(enables)) {
+        if (top_parent_option.isPresent() && BaseUtils.any(enables)) {
             SysOrg top_parent = top_parent_option.get();
             top_parent.setEnabled(current.isEnabled());
             SysOrg top_modify = sysOrgRepository.save(top_parent);
             ModifyParent(top_modify);
         }
-    }
-
-    private boolean any(List<Boolean> list) {
-        if (list.isEmpty()) {
-            return true;
-        }
-        boolean isSame = true;
-        boolean temp_val = list.get(0);
-        for (Boolean b : list) {
-            if (temp_val != b) {
-                isSame = false;
-                break;
-            }
-        }
-        return isSame;
     }
 }

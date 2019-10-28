@@ -1,6 +1,5 @@
 package com.csnight.redis.monitor.controller;
 
-import com.csnight.redis.monitor.aop.LogBack;
 import com.csnight.redis.monitor.auth.service.LoginUserService;
 import com.csnight.redis.monitor.db.jpa.SysUser;
 import com.csnight.redis.monitor.db.repos.SysMenuRepository;

@@ -9,12 +9,11 @@ import org.springframework.security.web.authentication.rememberme.PersistentReme
 import java.util.List;
 
 public class JdbcTokenRepositoryExt extends JdbcTokenRepositoryImpl {
-    private String tokensByUserSql = "select username,series,token,last_used from persistent_logins where username = ? order by last_used desc";
-    private String removeUserTokenSql = "delete from persistent_logins where username = ? and token = ?";
 
     public List<PersistentRememberMeToken> getTokenForName(String username) {
         try {
-            return this.getJdbcTemplate() != null ? this.getJdbcTemplate().query(this.tokensByUserSql, (rs, rowNum) -> new PersistentRememberMeToken(rs.getString(1), rs.getString(2), rs.getString(3), rs.getTimestamp(4)), username) : null;
+            String tokensByUserSql = "select username,series,token,last_used from persistent_logins where username = ? order by last_used desc";
+            return this.getJdbcTemplate() != null ? this.getJdbcTemplate().query(tokensByUserSql, (rs, rowNum) -> new PersistentRememberMeToken(rs.getString(1), rs.getString(2), rs.getString(3), rs.getTimestamp(4)), username) : null;
         } catch (EmptyResultDataAccessException var3) {
             if (this.logger.isDebugEnabled()) {
                 this.logger.debug("Querying token for series '" + username + "' returned no results.", var3);
@@ -28,6 +27,8 @@ public class JdbcTokenRepositoryExt extends JdbcTokenRepositoryImpl {
     }
 
     public void removeUserOldToken(String username, String token) {
-        this.getJdbcTemplate().update(this.removeUserTokenSql, username, token);
+        String removeUserTokenSql = "delete from persistent_logins where username = ? and token = ?";
+        assert this.getJdbcTemplate() != null;
+        this.getJdbcTemplate().update(removeUserTokenSql, username, token);
     }
 }
