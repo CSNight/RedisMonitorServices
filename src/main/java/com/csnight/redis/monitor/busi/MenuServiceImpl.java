@@ -1,19 +1,25 @@
 package com.csnight.redis.monitor.busi;
 
+import com.csnight.redis.monitor.db.jpa.SysIcons;
 import com.csnight.redis.monitor.db.jpa.SysMenu;
+import com.csnight.redis.monitor.db.repos.SysIconRepository;
 import com.csnight.redis.monitor.db.repos.SysMenuRepository;
 import com.csnight.redis.monitor.rest.dto.MenuDto;
 import com.csnight.redis.monitor.utils.BaseUtils;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 @Service
 public class MenuServiceImpl {
+    @Resource
     private SysMenuRepository sysMenuRepository;
+    @Resource
+    private SysIconRepository sysIconRepository;
 
-    public MenuServiceImpl(SysMenuRepository sysMenuRepository) {
-        this.sysMenuRepository = sysMenuRepository;
+    public List<SysIcons> GetIconList() {
+        return sysIconRepository.findAll();
     }
 
     public List<SysMenu> GetMenuList() {

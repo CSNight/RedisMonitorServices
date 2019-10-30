@@ -13,6 +13,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -60,6 +61,7 @@ public class LogAspectAnnotation {
             logger.error("\r\nCost:{}ms Status:" + rep.getStatus() +
                     "\r\nClass:{} => {}\r\n" +
                     "Error => {}", costTime, className, methodName, throwable.getMessage());
+            result = new RespTemplate(403, HttpStatus.FORBIDDEN, throwable.getMessage(), req.getRequestURI(), req.getMethod());
         }
         HttpServletResponse rep = attributes.getResponse();
         long costTime = System.currentTimeMillis() - startTime.get();

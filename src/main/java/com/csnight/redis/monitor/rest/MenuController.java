@@ -9,19 +9,24 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 
 @RestController
 @RequestMapping(value = "menus")
 @Api(tags = "菜单API")
 public class MenuController {
+    @Resource
     private MenuServiceImpl menuService;
 
-    public MenuController(MenuServiceImpl menuService) {
-        this.menuService = menuService;
+    @ApiOperation(value = "获取系统图标库")
+    @RequestMapping(value = "/get_icons", method = RequestMethod.GET)
+    public RespTemplate GetIcons() {
+        return new RespTemplate(HttpStatus.OK, menuService.GetIconList());
     }
 
     @LogBack
+    // @PreAuthorize("hasAuthority('MENU_QUERY')")
     @ApiOperation(value = "获取菜单目录树")
     @RequestMapping(value = "/get_menu_tree", method = RequestMethod.GET)
     public RespTemplate GetMenuTree() {
@@ -29,6 +34,7 @@ public class MenuController {
     }
 
     @LogBack
+    // @PreAuthorize("hasAuthority('MENU_QUERY')")
     @ApiOperation(value = "获取菜单目录列表")
     @RequestMapping(value = "/get_menu_list", method = RequestMethod.GET)
     public RespTemplate GetMenuList() {

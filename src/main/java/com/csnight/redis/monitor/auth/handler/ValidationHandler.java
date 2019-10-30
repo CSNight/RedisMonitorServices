@@ -1,7 +1,6 @@
 package com.csnight.redis.monitor.auth.handler;
 
 import com.csnight.redis.monitor.auth.config.ValidateException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
@@ -9,6 +8,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.annotation.Resource;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -19,9 +19,9 @@ import java.io.IOException;
 @Component
 public class ValidationHandler extends OncePerRequestFilter implements Filter {
 
-    @Autowired
+    @Resource
     private LoginFailureHandler failureHandler;
-    @Autowired
+    @Resource
     private LoginSuccessHandler successHandler;
     private AntPathRequestMatcher requestMatcher = new AntPathRequestMatcher("/auth/sign", "POST");
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();

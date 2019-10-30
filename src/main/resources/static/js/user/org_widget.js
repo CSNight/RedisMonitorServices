@@ -248,7 +248,7 @@ define(function (require) {
         let name_html = '<div class="layui-form-item"><label class="layui-form-label form-imp">部门名称</label>';
         name_html += '<div class="layui-input-block">';
         let dept_name = name ? name : '';
-        name_html += '<input type="text" name="name" id="dept_name" autocomplete="off" value="' + dept_name + '" placeholder="请输入标题" class="layui-input">';
+        name_html += '<input type="text" name="name" id="dept_name" autocomplete="off" value="' + dept_name + '" placeholder="请输入部门名称" class="layui-input">';
         name_html += '</div></div>';
         let status_html = '<div class="layui-form-item"><label class="layui-form-label">状态</label>';
         status_html += '<div class="layui-input-block">';

@@ -5,8 +5,6 @@ import javax.validation.constraints.NotNull;
 
 public class MenuDto {
     private Long id;
-    @NotEmpty
-    @NotNull
     private boolean iframe;
     @NotEmpty
     @NotNull
@@ -14,11 +12,7 @@ public class MenuDto {
     @NotEmpty
     @NotNull
     private String component;
-    @NotEmpty
-    @NotNull
     private Long pid;
-    @NotEmpty
-    @NotNull
     private Long sort;
     @NotEmpty
     @NotNull
@@ -26,8 +20,6 @@ public class MenuDto {
     @NotEmpty
     @NotNull
     private String path;
-    @NotEmpty
-    @NotNull
     private boolean hidden;
     @NotEmpty
     @NotNull

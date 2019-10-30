@@ -36,10 +36,6 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
         this.sysUserRepository = sysUserRepository;
     }
 
-    public JdbcTokenRepositoryExt getTokenRepositoryExt() {
-        return tokenRepositoryExt;
-    }
-
     public void setTokenRepositoryExt(JdbcTokenRepositoryExt tokenRepositoryExt) {
         this.tokenRepositoryExt = tokenRepositoryExt;
     }

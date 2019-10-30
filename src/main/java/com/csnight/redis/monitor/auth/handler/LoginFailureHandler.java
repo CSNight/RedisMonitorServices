@@ -10,11 +10,11 @@ import com.csnight.redis.monitor.quartz.jobs.Job_UnlockAccount;
 import com.csnight.redis.monitor.utils.GUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,9 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
     private static Logger _log = LoggerFactory.getLogger(SimpleUrlAuthenticationFailureHandler.class);
-    @Autowired
+    @Resource
     private SysUserRepository sysUserRepository;
-    @Autowired
+    @Resource
     private JobFactory jobFactory;
     private Map<String, Map<String, Integer>> LoginFailList = new ConcurrentHashMap<>();
     private Map<String, Long> lock_list = new ConcurrentHashMap<>();

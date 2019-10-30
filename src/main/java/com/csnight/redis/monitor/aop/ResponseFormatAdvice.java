@@ -31,8 +31,11 @@ public class ResponseFormatAdvice implements ResponseBodyAdvice<Object> {
             RespTemplate respTemplate = (RespTemplate) o;
             if (respTemplate.getMessage().equals("failed")) {
                 return new RespTemplate(s, HttpStatus.BAD_REQUEST, respTemplate.getMessage(), req.getURI().getPath(), method);
-            } else
+            } else if (respTemplate.getMessage().equals("success")) {
+                return new RespTemplate(s, HttpStatus.OK, respTemplate.getMessage(), req.getURI().getPath(), method);
+            } else {
                 return new RespTemplate(s, respTemplate.getCode(), respTemplate.getMessage(), req.getURI().getPath(), method);
+            }
         }
         return o;
     }

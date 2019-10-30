@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.util.List;
 
@@ -25,27 +26,18 @@ import java.util.List;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
-    private final AuthenticationFailureHandler loginFailureHandler;
-    private final AuthenticationSuccessHandler loginSuccessHandler;
-    private final SignOutHandler signOutHandler;
-    private final DataSource dataSource;
-    private final SysUserRepository sysUserRepository;
-    private final ValidationHandler validationHandler;
-
-    public WebSecurityConfigure(DataSource dataSource,
-                                SysUserRepository sysUserRepository,
-                                AuthenticationFailureHandler loginFailureHandler,
-                                AuthenticationSuccessHandler loginSuccessHandler,
-                                SignOutHandler signOutHandler,
-                                ValidationHandler validationHandler) {
-        this.dataSource = dataSource;
-        this.sysUserRepository = sysUserRepository;
-        this.loginFailureHandler = loginFailureHandler;
-        this.loginSuccessHandler = loginSuccessHandler;
-        this.signOutHandler = signOutHandler;
-        this.validationHandler = validationHandler;
-    }
-
+    @Resource
+    private AuthenticationFailureHandler loginFailureHandler;
+    @Resource
+    private AuthenticationSuccessHandler loginSuccessHandler;
+    @Resource
+    private SignOutHandler signOutHandler;
+    @Resource
+    private DataSource dataSource;
+    @Resource
+    private SysUserRepository sysUserRepository;
+    @Resource
+    private ValidationHandler validationHandler;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
