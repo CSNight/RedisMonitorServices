@@ -7,6 +7,7 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
@@ -41,5 +42,9 @@ public class SignOutHandler implements LogoutHandler {
             successHandler.getLoginUserList().remove(remove_key);
         }
         _log.info(remove_key + ":账户登出成功 " + new Date());
+        Cookie cookie = new Cookie("token", "bb");
+        cookie.setPath("/");
+        cookie.setMaxAge(-1);
+        httpServletResponse.addCookie(cookie);
     }
 }

@@ -156,27 +156,7 @@ define(function () {
                 content: setNewMenuDialog()
                 , btn: ['添加', '取消']
                 , yes: function (index, layero) {
-                    let dept_name = $('#dept_name').val();
-                    let enabled = $('.layui-form-radioed').prev().hasClass('dept_enable');
-                    let dept_parent = $('#select_dept').val();
-                    if (dept_name !== '') {
-                        let dept_pid = '';
-                        for (let i = 0; i < org_list.length; i++) {
-                            if (org_list[i].name === dept_parent) {
-                                dept_pid = org_list[i].id;
-                            }
-                        }
-                        let org_ent = {
-                            name: dept_name,
-                            enabled: enabled,
-                            pid: dept_pid
-                        };
-                        request_add(org_ent, index);
-                    } else {
-                        layer.msg('部门名称不能为空', {
-                            time: 2000, icon: 0
-                        });
-                    }
+
 
                 }, cancel: function () {
                 }, success: function () {
