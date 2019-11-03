@@ -6,6 +6,7 @@ import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.annotation.Resource;
@@ -29,6 +30,15 @@ public class ValidationHandler extends OncePerRequestFilter implements Filter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String origin = request.getHeader("Origin");
+        response.setHeader("Access-Control-Allow-Origin", origin);
+        String headers = request.getHeader("Access-Control-Request-Headers");
+        response.setHeader("Access-Control-Allow-Headers", headers);
+        response.setHeader("Access-Control-Expose-Headers", headers);
+        response.setHeader("Cache-Control", "no-cache");
+        response.setHeader("Access-Control-Allow-Methods", "*");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
         if (requestMatcher.matches(request)) {
             if (successHandler.getLoginUserList().containsKey(request.getParameter("username"))) {
                 String session_id = successHandler.getLoginUserList().get(request.getParameter("username"));
