@@ -3,6 +3,7 @@ package com.csnight.redis.monitor.rest;
 import com.alibaba.fastjson.JSONObject;
 import com.csnight.redis.monitor.aop.LogBack;
 import com.csnight.redis.monitor.busi.OrgServiceImpl;
+import com.csnight.redis.monitor.busi.exp.OrgQueryExp;
 import com.csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -35,6 +36,13 @@ public class OrgController {
     @RequestMapping(value = "/get_org_list", method = RequestMethod.GET)
     public RespTemplate GetOrgList() {
         return new RespTemplate(HttpStatus.OK, userService.GetOrgList());
+    }
+
+    @LogBack
+    @ApiOperation(value = "查询组织机构")
+    @RequestMapping(value = "/query_org", method = RequestMethod.GET)
+    public RespTemplate OrgQuery(OrgQueryExp exp) {
+        return new RespTemplate(HttpStatus.OK, userService.QueryBy(exp));
     }
 
     @LogBack

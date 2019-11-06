@@ -1,6 +1,8 @@
 package com.csnight.redis.monitor.busi;
 
 import com.alibaba.fastjson.JSONObject;
+import com.csnight.redis.monitor.aop.QueryAnnotationProcess;
+import com.csnight.redis.monitor.busi.exp.OrgQueryExp;
 import com.csnight.redis.monitor.db.jpa.SysOrg;
 import com.csnight.redis.monitor.db.repos.SysOrgRepository;
 import com.csnight.redis.monitor.utils.BaseUtils;
@@ -23,6 +25,14 @@ public class OrgServiceImpl {
 
     public List<SysOrg> GetOrgList() {
         List<SysOrg> orgList = sysOrgRepository.findAll();
+        for (SysOrg sysOrg : orgList) {
+            sysOrg.setChildren(null);
+        }
+        return orgList;
+    }
+
+    public List<SysOrg> QueryBy(OrgQueryExp exp) {
+        List<SysOrg> orgList = sysOrgRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder));
         for (SysOrg sysOrg : orgList) {
             sysOrg.setChildren(null);
         }
