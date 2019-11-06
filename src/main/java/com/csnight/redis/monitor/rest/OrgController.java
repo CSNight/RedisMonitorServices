@@ -46,6 +46,13 @@ public class OrgController {
     }
 
     @LogBack
+    @ApiOperation(value = "根据ID及状态查询组织机构")
+    @RequestMapping(value = "/get_org_by", method = RequestMethod.GET)
+    public RespTemplate OrgQueryBy(String id, boolean enabled) {
+        return new RespTemplate(HttpStatus.OK, userService.GetOrgByIdAndEnabled(id, enabled));
+    }
+
+    @LogBack
     @ApiOperation(value = "通过父节点ID获取组织机构目录")
     @RequestMapping(value = "/{pid}/get_org", method = RequestMethod.GET)
     public RespTemplate GetOrgByPid(@PathVariable String pid) {

@@ -43,6 +43,12 @@ public class OrgServiceImpl {
         return sysOrgRepository.findByPid(Long.parseLong(pid));
     }
 
+    public SysOrg GetOrgByIdAndEnabled(String id, boolean enabled) {
+        Optional<SysOrg> org = sysOrgRepository.findById(Long.parseLong(id));
+        org.ifPresent(sysOrg -> getOrgChildFilter(sysOrg, sysOrg, enabled));
+        return org.orElse(null);
+    }
+
     public SysOrg ModifyOrg(JSONObject jo_org) {
         if (jo_org.containsKey("id")) {
             Optional<SysOrg> sysOrg = sysOrgRepository.findById(jo_org.getLong("id"));
@@ -102,6 +108,19 @@ public class OrgServiceImpl {
             if (child.getChildren().size() > 0) {
                 getOrgChildIds(child, ids);
             }
+        }
+    }
+
+    private void getOrgChildFilter(SysOrg sysOrg, SysOrg newOrg, boolean enabled) {
+        for (SysOrg child : sysOrg.getChildren()) {
+            if (child.isEnabled() != enabled) {
+                newOrg.getChildren().remove(child);
+            } else {
+                if (child.getChildren().size() > 0) {
+                    getOrgChildFilter(child, newOrg.getChildren().get(newOrg.getChildren().indexOf(child)), enabled);
+                }
+            }
+
         }
     }
 
