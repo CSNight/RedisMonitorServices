@@ -72,7 +72,6 @@ public class QueryAnnotationProcess {
                         case EQUAL:
                             if (fieldType.equals(Boolean.class)) {
                                 fieldType = boolean.class;
-                                val = ((Boolean) val).booleanValue();
                             }
                             list.add(cb.equal(getExpression(attributeName, join, root)
                                     .as((Class<? extends Comparable>) fieldType), val));
