@@ -1,5 +1,6 @@
 package com.csnight.redis.monitor.auth.handler;
 
+import com.alibaba.fastjson.JSONObject;
 import com.csnight.redis.monitor.auth.config.JdbcTokenRepositoryExt;
 import com.csnight.redis.monitor.db.jpa.SysUser;
 import com.csnight.redis.monitor.db.repos.SysUserRepository;
@@ -56,13 +57,14 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
             tokenRepositoryExt.removeUserOldToken(username, token);
         }
         super.setDefaultTargetUrl("/");
-        Cookie cookie = new Cookie("token", "sdadasdadasdada");
-        cookie.setPath("/");
-        cookie.setMaxAge(3600);
-        response.addCookie(cookie);
         super.onAuthenticationSuccess(request, response, authentication);
         _log.info(sysUser.getUsername() + ":账户登陆成功 " + new Date());
-
+//        if (true) {
+//            response.setContentType("application/json;charset=UTF-8");
+//            response.getWriter().write(JSONObject.toJSONString(authentication));
+//        } else {
+//            super.onAuthenticationSuccess(request, response, authentication);
+//        }
     }
 
     private void InitializeRedisDbAndJobs() {
