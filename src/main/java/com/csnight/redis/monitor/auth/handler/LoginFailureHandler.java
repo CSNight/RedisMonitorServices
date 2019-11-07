@@ -1,15 +1,16 @@
 package com.csnight.redis.monitor.auth.handler;
 
 import com.alibaba.fastjson.JSONObject;
-import com.csnight.redis.monitor.auth.config.ValidateException;
 import com.csnight.redis.monitor.db.jpa.SysUser;
 import com.csnight.redis.monitor.db.repos.SysUserRepository;
 import com.csnight.redis.monitor.quartz.JobFactory;
 import com.csnight.redis.monitor.quartz.config.JobConfig;
 import com.csnight.redis.monitor.quartz.jobs.Job_UnlockAccount;
 import com.csnight.redis.monitor.utils.GUID;
+import com.csnight.redis.monitor.utils.RespTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -89,9 +90,11 @@ public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
                 exception_msg = "账户锁定已解除";
             }
         }
-        ValidateException exception = new ValidateException(exception_msg);
         _log.error(exception_msg);
-        super.onAuthenticationFailure(request, response, exception);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(JSONObject.toJSONString(
+                new RespTemplate(400, HttpStatus.BAD_REQUEST, exception_msg, "/auth/sign", "Login")));
+        //super.onAuthenticationFailure(request, response, exception);
     }
 
     private void unLockJob(String username) {

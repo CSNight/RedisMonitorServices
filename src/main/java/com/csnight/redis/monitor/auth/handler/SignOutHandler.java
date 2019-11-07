@@ -1,5 +1,6 @@
 package com.csnight.redis.monitor.auth.handler;
 
+import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -10,6 +11,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 
@@ -41,6 +43,6 @@ public class SignOutHandler implements LogoutHandler {
         if (!remove_key.equals("")) {
             successHandler.getLoginUserList().remove(remove_key);
         }
-        _log.info(remove_key + ":账户登出成功 " + new Date());
+        _log.info(remove_key + ":账户登出成功" + new Date());
     }
 }

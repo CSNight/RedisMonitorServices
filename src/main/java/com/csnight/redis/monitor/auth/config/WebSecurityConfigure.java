@@ -61,25 +61,15 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 = http.authorizeRequests();
         registry.requestMatchers(CorsUtils::isPreFlightRequest).permitAll();//让Spring security放行所有preflight request
         http.csrf().disable().authorizeRequests().antMatchers(
-                "/static/**", "/csrf",
-                "/css/**",
-                "/js/**",
-                "/vendor/**",
-                "/img/**",
-                "/",
-                "/404",
-                "/403",
-                "/500",
-                "/auth/failed",
-                "/auth/register",
+                "/static/**",
                 "/auth/code").permitAll() //访问允许静态文件
                 .anyRequest().authenticated()
                 .and().addFilterBefore(validationHandler, UsernamePasswordAuthenticationFilter.class)
-                .formLogin().loginPage("/auth/sign").successHandler(loginSuccessHandler)
-                .failureHandler(loginFailureHandler).and().exceptionHandling().accessDeniedPage("/403")//指定登录页和登录失败页
-                .and().logout().logoutUrl("/auth/logout").logoutSuccessUrl("/auth/sign").addLogoutHandler(signOutHandler).permitAll()
+                .formLogin().loginProcessingUrl("/auth/sign").successHandler(loginSuccessHandler)
+                .failureHandler(loginFailureHandler).and()
+                .logout().logoutUrl("/auth/logout").addLogoutHandler(signOutHandler).permitAll()
                 .and().rememberMe().tokenRepository(jdbcTokenRepositoryExt).tokenValiditySeconds(60 * 60 * 24 * 7);
-        http.sessionManagement().maximumSessions(1).expiredUrl("/auth/sign");
+        http.sessionManagement().maximumSessions(1);
         http.headers().frameOptions().disable();
     }
 

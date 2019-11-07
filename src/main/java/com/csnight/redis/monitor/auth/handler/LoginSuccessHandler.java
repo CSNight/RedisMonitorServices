@@ -13,7 +13,6 @@ import org.springframework.security.web.authentication.rememberme.PersistentReme
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -56,15 +55,15 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
             String token = extTokenForName.get(i).getTokenValue();
             tokenRepositoryExt.removeUserOldToken(username, token);
         }
-        super.setDefaultTargetUrl("/");
-        super.onAuthenticationSuccess(request, response, authentication);
+        //super.setDefaultTargetUrl("/");
+        //super.onAuthenticationSuccess(request, response, authentication);
         _log.info(sysUser.getUsername() + ":账户登陆成功 " + new Date());
-//        if (true) {
-//            response.setContentType("application/json;charset=UTF-8");
-//            response.getWriter().write(JSONObject.toJSONString(authentication));
-//        } else {
-//            super.onAuthenticationSuccess(request, response, authentication);
-//        }
+        if (true) {
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write(JSONObject.toJSONString(authentication));
+        } else {
+            super.onAuthenticationSuccess(request, response, authentication);
+        }
     }
 
     private void InitializeRedisDbAndJobs() {

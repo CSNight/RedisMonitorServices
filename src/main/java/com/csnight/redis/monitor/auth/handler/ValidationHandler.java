@@ -29,6 +29,12 @@ public class ValidationHandler extends OncePerRequestFilter implements Filter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String origin = request.getHeader("Origin");
+        response.setHeader("Access-Control-Allow-Origin", origin);
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.setHeader("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS");
+        response.setHeader("Access-Control-Max-Age", "86400");
+        response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         if (requestMatcher.matches(request)) {
             if (successHandler.getLoginUserList().containsKey(request.getParameter("username"))) {
                 String session_id = successHandler.getLoginUserList().get(request.getParameter("username"));
