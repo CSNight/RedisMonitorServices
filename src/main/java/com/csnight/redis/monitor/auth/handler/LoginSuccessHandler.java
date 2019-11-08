@@ -4,8 +4,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.csnight.redis.monitor.auth.config.JdbcTokenRepositoryExt;
 import com.csnight.redis.monitor.db.jpa.SysUser;
 import com.csnight.redis.monitor.db.repos.SysUserRepository;
+import com.csnight.redis.monitor.utils.GUID;
+import com.csnight.redis.monitor.utils.RespTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -13,6 +16,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentReme
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -55,15 +59,22 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
             String token = extTokenForName.get(i).getTokenValue();
             tokenRepositoryExt.removeUserOldToken(username, token);
         }
+        //跳转认证模式
         //super.setDefaultTargetUrl("/");
         //super.onAuthenticationSuccess(request, response, authentication);
         _log.info(sysUser.getUsername() + ":账户登陆成功 " + new Date());
-        if (true) {
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write(JSONObject.toJSONString(authentication));
-        } else {
-            super.onAuthenticationSuccess(request, response, authentication);
-        }
+        //JSON认证模式
+        Cookie cookie = new Cookie("LoginTK", GUID.getUUID());
+        cookie.setDomain("localhost");
+        cookie.setMaxAge(3600 * 24);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        response.setContentType("application/json;charset=UTF-8");
+        JSONObject jo_res = new JSONObject();
+        jo_res.put("msg", "Login Success");
+        jo_res.put("username", sysUser.getUsername());
+        response.getWriter().write(JSONObject.toJSONString(new RespTemplate(200, HttpStatus.OK, jo_res, "/auth/sign", "Login")));
+
     }
 
     private void InitializeRedisDbAndJobs() {

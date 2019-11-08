@@ -1,5 +1,6 @@
 package com.csnight.redis.monitor.rest;
 
+import com.alibaba.fastjson.JSONObject;
 import com.csnight.redis.monitor.aop.LogBack;
 import com.csnight.redis.monitor.auth.service.LoginUserService;
 import com.csnight.redis.monitor.auth.service.SignUpUserService;
@@ -14,7 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -23,6 +27,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "auth")
@@ -38,6 +46,10 @@ public class LoginController {
     @ApiOperation(value = "获取用户详情")
     @RequestMapping(value = "user_info", method = RequestMethod.GET)
     public RespTemplate UserInfo(String username) {
+        if (username == null || username.equals("")) {
+            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            username = userDetails.getUsername();
+        }
         SysUser sysUser = loginUserService.GetUserInfo(username);
         if (sysUser == null) {
             return new RespTemplate(HttpStatus.NOT_FOUND, "failed");
@@ -47,12 +59,38 @@ public class LoginController {
     }
 
     @LogBack
+    @ApiOperation(value = "获取用户头像")
+    @RequestMapping(value = "user_avatar", method = RequestMethod.GET)
+    public RespTemplate GetHeader(String username) {
+        if (username == null || username.equals("")) {
+            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            username = userDetails.getUsername();
+        }
+        SysUser sysUser = loginUserService.GetUserInfo(username);
+        if (sysUser == null) {
+            return new RespTemplate(HttpStatus.NOT_FOUND, "failed");
+        }
+        sysUser.setPassword("");
+        return new RespTemplate(HttpStatus.OK, new String(sysUser.getHead_img()));
+    }
+
+    @LogBack
     @ApiOperation(value = "用户注册")
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public RespTemplate createUser(@ModelAttribute("user") @Valid UserDto userDto, BindingResult result) {
         if (result.hasErrors()) {
-            _log.error(JSONUtil.object2json(result.getAllErrors()));
-            return new RespTemplate(HttpStatus.BAD_REQUEST, JSONUtil.object2json(result.getAllErrors()));
+            Map<String, List<String>> errors = new HashMap<>();
+            for (FieldError error : result.getFieldErrors()) {
+                if (errors.containsKey(error.getField())) {
+                    errors.get(error.getField()).add(error.getDefaultMessage());
+                } else {
+                    List<String> err = new ArrayList<>();
+                    err.add(error.getDefaultMessage());
+                    errors.put(error.getField(), err);
+                }
+            }
+            _log.error(JSONUtil.object2json(errors));
+            return new RespTemplate(HttpStatus.BAD_REQUEST, errors);
         }
         //check name 是否已使用
         if (signUpUserService.checkUserByName(userDto.getUsername())) {
@@ -89,7 +127,10 @@ public class LoginController {
             _log.error(e.getMessage());
         }
         _log.info(userDto.getUsername() + ":注册成功！");
-        return new RespTemplate(HttpStatus.OK, "success");
+        JSONObject jo_res = new JSONObject();
+        jo_res.put("msg", "success");
+        jo_res.put("username", userDto.getUsername());
+        return new RespTemplate(HttpStatus.OK, jo_res);
     }
 
     @LogBack
@@ -99,7 +140,8 @@ public class LoginController {
         response.setHeader("Cache-Control", "no-cache");
         response.setDateHeader("Expires", 0);
         response.setContentType("image/jpeg");
-        response.setHeader("Access-Control-Allow-Origin", "*");
+        String origin = request.getHeader("Origin");
+        response.setHeader("Access-Control-Allow-Origin", origin);
         // 生成随机字串
         String verifyCode = VerifyCodeUtils.generateVerifyCode(4);
         // 存入会话session

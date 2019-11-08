@@ -1,9 +1,10 @@
 package com.csnight.redis.monitor.auth.handler;
 
+import com.alibaba.fastjson.JSONObject;
 import com.csnight.redis.monitor.auth.config.ValidateException;
+import com.csnight.redis.monitor.utils.RespTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.DefaultRedirectStrategy;
-import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -24,7 +25,6 @@ public class ValidationHandler extends OncePerRequestFilter implements Filter {
     @Resource
     private LoginSuccessHandler successHandler;
     private AntPathRequestMatcher requestMatcher = new AntPathRequestMatcher("/auth/sign", "POST");
-    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 
     @Override
@@ -40,7 +40,12 @@ public class ValidationHandler extends OncePerRequestFilter implements Filter {
                 String session_id = successHandler.getLoginUserList().get(request.getParameter("username"));
                 String request_session_id = request.getSession().getId();
                 if (session_id.equals(request_session_id)) {
-                    redirectStrategy.sendRedirect(request, response, "/auth/user_info");
+                    response.setContentType("application/json;charset=UTF-8");
+                    JSONObject jo_res = new JSONObject();
+                    jo_res.put("msg", "Already Login");
+                    jo_res.put("username", request.getParameter("username"));
+                    response.getWriter().write(JSONObject.toJSONString(
+                            new RespTemplate(200, HttpStatus.OK, jo_res, "/auth/sign", "Login")));
                     return;
                 }
             }

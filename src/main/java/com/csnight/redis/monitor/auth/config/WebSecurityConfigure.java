@@ -1,7 +1,7 @@
 package com.csnight.redis.monitor.auth.config;
 
+import com.csnight.redis.monitor.auth.handler.CusLogoutSuccessHandler;
 import com.csnight.redis.monitor.auth.handler.LoginSuccessHandler;
-import com.csnight.redis.monitor.auth.handler.SignOutHandler;
 import com.csnight.redis.monitor.auth.handler.ValidationHandler;
 import com.csnight.redis.monitor.auth.service.LoginUserService;
 import com.csnight.redis.monitor.db.jpa.SysUser;
@@ -33,13 +33,15 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
     @Resource
     private AuthenticationSuccessHandler loginSuccessHandler;
     @Resource
-    private SignOutHandler signOutHandler;
+    private CusLogoutSuccessHandler logoutSuccessHandler;
     @Resource
     private DataSource dataSource;
     @Resource
     private SysUserRepository sysUserRepository;
     @Resource
     private ValidationHandler validationHandler;
+    @Resource
+    private SignOutHandler signOutHandler;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -62,12 +64,13 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         registry.requestMatchers(CorsUtils::isPreFlightRequest).permitAll();//让Spring security放行所有preflight request
         http.csrf().disable().authorizeRequests().antMatchers(
                 "/static/**",
+                "/auth/register",
                 "/auth/code").permitAll() //访问允许静态文件
                 .anyRequest().authenticated()
                 .and().addFilterBefore(validationHandler, UsernamePasswordAuthenticationFilter.class)
                 .formLogin().loginProcessingUrl("/auth/sign").successHandler(loginSuccessHandler)
                 .failureHandler(loginFailureHandler).and()
-                .logout().logoutUrl("/auth/logout").addLogoutHandler(signOutHandler).permitAll()
+                .logout().logoutUrl("/auth/logout").addLogoutHandler(signOutHandler).logoutSuccessHandler(logoutSuccessHandler).permitAll()
                 .and().rememberMe().tokenRepository(jdbcTokenRepositoryExt).tokenValiditySeconds(60 * 60 * 24 * 7);
         http.sessionManagement().maximumSessions(1);
         http.headers().frameOptions().disable();
