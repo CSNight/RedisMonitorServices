@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.csnight.redis.monitor.aop.LogBack;
 import com.csnight.redis.monitor.busi.OrgServiceImpl;
 import com.csnight.redis.monitor.busi.exp.OrgQueryExp;
+import com.csnight.redis.monitor.db.jpa.SysOrg;
 import com.csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -77,7 +78,8 @@ public class OrgController {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String name = userDetails.getUsername();
         if (org_ent != null && !org_ent.equals("")) {
-            return new RespTemplate(HttpStatus.OK, userService.NewOrg(JSONObject.parseObject(org_ent), name));
+            SysOrg new_one = userService.NewOrg(JSONObject.parseObject(org_ent), name);
+            return new RespTemplate(new_one != null ? HttpStatus.OK : HttpStatus.CONFLICT, new_one != null ? new_one : "Exists organizations contains conflicts!");
         }
         return new RespTemplate(HttpStatus.BAD_REQUEST, "");
     }

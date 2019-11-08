@@ -63,17 +63,19 @@ public class OrgServiceImpl {
                 old_org.setEnabled(jo_org.containsKey("enabled") ? jo_org.getBoolean("enabled") : old_org.isEnabled());
                 old_org.setPid(jo_org.containsKey("pid") ? jo_org.getLong("pid") : old_org.getPid());
                 old_org.setName(jo_org.containsKey("name") ? jo_org.getString("name") : old_org.getName());
-                SysOrg res = sysOrgRepository.save(old_org);
-                if (old_org.isEnabled() != enabled) {
-                    Set<SysOrg> ids = new HashSet<>();
-                    getOrgChildIds(old_org, ids);
-                    for (SysOrg child : ids) {
-                        child.setEnabled(res.isEnabled());
-                        sysOrgRepository.save(child);
+                if (checkOrgConflict(old_org, false)) {
+                    SysOrg res = sysOrgRepository.save(old_org);
+                    if (old_org.isEnabled() != enabled) {
+                        Set<SysOrg> ids = new HashSet<>();
+                        getOrgChildIds(old_org, ids);
+                        for (SysOrg child : ids) {
+                            child.setEnabled(res.isEnabled());
+                            sysOrgRepository.save(child);
+                        }
                     }
+                    ModifyParent(res);
+                    return res;
                 }
-                ModifyParent(res);
-                return res;
             }
         }
         return null;
@@ -87,7 +89,9 @@ public class OrgServiceImpl {
             sysOrg.setName(jo_org.containsKey("name") ? jo_org.getString("name") : "unknown");
             sysOrg.setCreate_time(new Date());
             sysOrg.setCreate_user(user);
-            return sysOrgRepository.save(sysOrg);
+            if (checkOrgConflict(sysOrg, true)) {
+                return sysOrgRepository.save(sysOrg);
+            }
         }
         return null;
     }
@@ -105,6 +109,35 @@ public class OrgServiceImpl {
             return "success";
         }
         return "failed";
+    }
+
+    private boolean checkOrgConflict(SysOrg sysOrg, boolean isNew) {
+        boolean isValid = true;
+        Set<SysOrg> ids = new HashSet<>();
+        getOrgChildIds(sysOrg, ids);
+        for (SysOrg org : ids) {
+            if (sysOrg.getPid().equals(org.getId())) {
+                return false;
+            }
+        }
+        if (isNew) {
+            SysOrg hasSame = sysOrgRepository.findByName(sysOrg.getName());
+            if (hasSame != null) {
+                isValid = false;
+            }
+        } else {
+            Optional<SysOrg> original = sysOrgRepository.findById(sysOrg.getId());
+            if (original.isPresent()) {
+                SysOrg origin_org = original.get();
+                if (!origin_org.getName().equals(sysOrg.getName())) {
+                    SysOrg hasSame = sysOrgRepository.findByName(sysOrg.getName());
+                    if (hasSame != null) {
+                        isValid = false;
+                    }
+                }
+            }
+        }
+        return isValid;
     }
 
     private void getOrgChildIds(SysOrg sysOrg, Set<SysOrg> ids) {

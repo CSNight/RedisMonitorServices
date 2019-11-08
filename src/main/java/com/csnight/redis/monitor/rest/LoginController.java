@@ -40,7 +40,7 @@ public class LoginController {
     private SignUpUserService signUpUserService;
     @Resource
     private LoginUserService loginUserService;
-    private static Logger _log = LoggerFactory.getLogger(com.csnight.redis.monitor.controller.auth.LoginController.class);
+    private static Logger _log = LoggerFactory.getLogger(LoginController.class);
 
     @LogBack
     @ApiOperation(value = "获取用户详情")
