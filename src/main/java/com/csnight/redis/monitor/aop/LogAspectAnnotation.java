@@ -43,8 +43,10 @@ public class LogAspectAnnotation {
         Object[] args = process.getArgs();
         StringBuilder params = new StringBuilder();
         for (Object arg : args) {
-            params.append(arg.toString());
-            params.append(";");
+            if (arg != null) {
+                params.append(arg.toString());
+                params.append(";");
+            }
         }
         startTime.set(System.currentTimeMillis());
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

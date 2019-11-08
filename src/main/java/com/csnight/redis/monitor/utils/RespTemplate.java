@@ -25,6 +25,9 @@ public class RespTemplate {
         this.uri = uri;
         this.method = method;
         this.code = code;
+        if (code.equals(HttpStatus.OK)) {
+            this.status = 200;
+        }
     }
 
     public Date getAck() {

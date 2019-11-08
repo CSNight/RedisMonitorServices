@@ -45,8 +45,13 @@ public class OrgServiceImpl {
 
     public SysOrg GetOrgByIdAndEnabled(String id, boolean enabled) {
         Optional<SysOrg> org = sysOrgRepository.findById(Long.parseLong(id));
-        org.ifPresent(sysOrg -> getOrgChildFilter(sysOrg, sysOrg, enabled));
-        return org.orElse(null);
+        SysOrg copy_org = new SysOrg();
+        if (org.isPresent()) {
+            SysOrg org_old = org.get();
+            copy_org = JSONObject.parseObject(JSONObject.toJSONString(org_old), SysOrg.class);
+            getOrgChildFilter(org_old, copy_org, enabled);
+        }
+        return copy_org;
     }
 
     public SysOrg ModifyOrg(JSONObject jo_org) {
@@ -114,10 +119,23 @@ public class OrgServiceImpl {
     private void getOrgChildFilter(SysOrg sysOrg, SysOrg newOrg, boolean enabled) {
         for (SysOrg child : sysOrg.getChildren()) {
             if (child.isEnabled() != enabled) {
-                newOrg.getChildren().remove(child);
+                int index = -1;
+                for (SysOrg ch : newOrg.getChildren()) {
+                    if (ch.getId().equals(child.getId())) {
+                        index = newOrg.getChildren().indexOf(ch);
+                    }
+                }
+                if (index > -1) {
+                    newOrg.getChildren().remove(index);
+                }
             } else {
                 if (child.getChildren().size() > 0) {
-                    getOrgChildFilter(child, newOrg.getChildren().get(newOrg.getChildren().indexOf(child)), enabled);
+                    for (SysOrg ch : newOrg.getChildren()) {
+                        if (ch.getId().equals(child.getId())) {
+                            getOrgChildFilter(child, ch, enabled);
+                        }
+                    }
+
                 }
             }
 
