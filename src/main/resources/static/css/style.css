@@ -1,9 +1,0 @@
-.form-imp:before {
-    content: '*';
-    position: relative;
-    color: red;
-}
-
-.layui-tree-entry {
-    box-sizing: content-box !important;
-}
