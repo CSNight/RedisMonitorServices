@@ -3,14 +3,14 @@ server:
   servlet:
     context-path: /
 spring:
-  thymeleaf:
-    cache: false
-    encoding: UTF-8
-    mode: HTML
-    prefix: classpath:/templates/
-    suffix: .html
-    servlet:
-      content-type: text/html
+#  thymeleaf:
+#    cache: false
+#    encoding: UTF-8
+#    mode: HTML
+#    prefix: classpath:/templates/
+#    suffix: .html
+#    servlet:
+#      content-type: text/html
   jpa:
     open-in-view: false
     properties:

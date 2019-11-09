@@ -106,7 +106,7 @@ public class MenuServiceImpl {
     }
 
     private void ModifyParent(SysMenu current) {
-        if (current.getPid() == 1) {
+        if (current.getPid() == 0) {
             return;
         }
         List<Boolean> enables = sysMenuRepository.findHiddenByPid(current.getPid());
