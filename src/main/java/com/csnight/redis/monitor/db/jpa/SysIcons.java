@@ -12,6 +12,8 @@ public class SysIcons {
     private String name;
     @Column(name = "_class")
     private String _class;
+    @Column(name = "_group")
+    private String _group;
 
     public Long getId() {
         return id;
@@ -35,5 +37,13 @@ public class SysIcons {
 
     public void set_class(String _class) {
         this._class = _class;
+    }
+
+    public String get_group() {
+        return _group;
+    }
+
+    public void set_group(String _group) {
+        this._group = _group;
     }
 }
