@@ -82,7 +82,7 @@ public class MenuServiceImpl {
 
     public SysMenu NewMenu(MenuDto menuDto) {
         SysMenu new_menu = new SysMenu();
-        if (menuDto.getPid().equals(0) && !menuDto.isIframe()) {
+        if (menuDto.getPid().equals(0L) && !menuDto.isIframe()) {
             new_menu.setPath("/" + menuDto.getComponent_name());
         } else if (menuDto.getPid() > 0 && !menuDto.isIframe()) {
             Optional<SysMenu> parent = sysMenuRepository.findById(menuDto.getPid());

@@ -17,7 +17,6 @@ public class MenuDto {
     @NotEmpty
     @NotNull
     private String icon;
-    @NotEmpty
     @NotNull
     private String path;
     private boolean hidden;
