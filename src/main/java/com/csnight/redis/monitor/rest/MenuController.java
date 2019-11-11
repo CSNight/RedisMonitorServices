@@ -15,7 +15,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping(value = "menus")
-@Api(tags = "菜单API")
+@Api(tags = "菜单管理API")
 public class MenuController {
     @Resource
     private MenuServiceImpl menuService;
@@ -52,8 +52,15 @@ public class MenuController {
     @LogBack
     @ApiOperation(value = "查询菜单目录")
     @RequestMapping(value = "/query_menu", method = RequestMethod.GET)
-    public RespTemplate OrgQuery(MenuQueryExp exp) {
+    public RespTemplate MenuQuery(MenuQueryExp exp) {
         return new RespTemplate(HttpStatus.OK, menuService.QueryBy(exp));
+    }
+
+    @LogBack
+    @ApiOperation(value = "查询菜单路由")
+    @RequestMapping(value = "/menu_routers", method = RequestMethod.GET)
+    public RespTemplate MenuRoutes() {
+        return new RespTemplate(HttpStatus.OK, menuService.GetMenuRouter());
     }
 
     @LogBack

@@ -1,6 +1,8 @@
 package com.csnight.redis.monitor.busi;
 
+import com.alibaba.fastjson.JSONArray;
 import com.csnight.redis.monitor.aop.QueryAnnotationProcess;
+import com.csnight.redis.monitor.busi.exp.MenuItem;
 import com.csnight.redis.monitor.busi.exp.MenuQueryExp;
 import com.csnight.redis.monitor.db.jpa.SysIcons;
 import com.csnight.redis.monitor.db.jpa.SysMenu;
@@ -47,6 +49,11 @@ public class MenuServiceImpl {
 
     public List<SysMenu> GetMenuByPid(String pid) {
         return sysMenuRepository.findByPidOrderBySortAsc(Long.parseLong(pid));
+    }
+
+    public List<MenuItem> GetMenuRouter() {
+        List<SysMenu> menuList = sysMenuRepository.findByPidOrderBySortAsc(0L);
+        return JSONArray.parseArray(JSONArray.toJSONString(menuList), MenuItem.class);
     }
 
     public SysMenu ModifyMenu(MenuDto menuDto) {

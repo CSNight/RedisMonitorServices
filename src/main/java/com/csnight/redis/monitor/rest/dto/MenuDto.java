@@ -13,7 +13,7 @@ public class MenuDto {
     @NotNull
     private String component;
     private Long pid;
-    private Long sort;
+    private int sort;
     @NotEmpty
     @NotNull
     private String icon;
@@ -64,11 +64,11 @@ public class MenuDto {
         this.pid = pid;
     }
 
-    public Long getSort() {
+    public int getSort() {
         return sort;
     }
 
-    public void setSort(Long sort) {
+    public void setSort(int sort) {
         this.sort = sort;
     }
 

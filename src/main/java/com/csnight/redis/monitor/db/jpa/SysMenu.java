@@ -24,7 +24,7 @@ public class SysMenu {
     @Column(name = "pid")
     private Long pid;
     @Column(name = "sort")
-    private Long sort;
+    private int sort;
     @Column(name = "icon")
     private String icon;
     @Column(name = "path")
@@ -87,11 +87,11 @@ public class SysMenu {
         this.pid = pid;
     }
 
-    public Long getSort() {
+    public int getSort() {
         return sort;
     }
 
-    public void setSort(Long sort) {
+    public void setSort(int sort) {
         this.sort = sort;
     }
 
