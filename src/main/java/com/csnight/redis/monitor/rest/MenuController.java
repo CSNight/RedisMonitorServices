@@ -2,6 +2,7 @@ package com.csnight.redis.monitor.rest;
 
 import com.csnight.redis.monitor.aop.LogBack;
 import com.csnight.redis.monitor.busi.MenuServiceImpl;
+import com.csnight.redis.monitor.busi.exp.MenuQueryExp;
 import com.csnight.redis.monitor.rest.dto.MenuDto;
 import com.csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;
@@ -46,6 +47,13 @@ public class MenuController {
     @RequestMapping(value = "/{pid}/get_menu", method = RequestMethod.GET)
     public RespTemplate GetMenuByPid(@PathVariable String pid) {
         return new RespTemplate(HttpStatus.OK, menuService.GetMenuByPid(pid));
+    }
+
+    @LogBack
+    @ApiOperation(value = "查询菜单目录")
+    @RequestMapping(value = "/query_menu", method = RequestMethod.GET)
+    public RespTemplate OrgQuery(MenuQueryExp exp) {
+        return new RespTemplate(HttpStatus.OK, menuService.QueryBy(exp));
     }
 
     @LogBack

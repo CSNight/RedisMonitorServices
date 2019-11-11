@@ -1,5 +1,6 @@
 package com.csnight.redis.monitor.db.jpa;
 
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +36,7 @@ public class SysMenu {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "pid")
+    @OrderBy(value = "sort")
     private List<SysMenu> children = new ArrayList<>();
 
     public Long getId() {
