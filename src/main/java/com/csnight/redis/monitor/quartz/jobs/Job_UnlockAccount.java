@@ -28,6 +28,7 @@ public class Job_UnlockAccount implements Job {
             _log.error(ignored.getMessage());
         } finally {
             loginFailureHandler.getLock_list().remove(username);
+            _log.info(username + ":锁定移除");
         }
     }
 }

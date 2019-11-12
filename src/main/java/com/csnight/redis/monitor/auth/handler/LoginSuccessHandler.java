@@ -20,10 +20,10 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.*;
 
 
 @Component
@@ -64,17 +64,11 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
         //super.onAuthenticationSuccess(request, response, authentication);
         _log.info(sysUser.getUsername() + ":账户登陆成功 " + new Date());
         //JSON认证模式
-        Cookie cookie = new Cookie("LoginTK", GUID.getUUID());
-        cookie.setDomain("localhost");
-        cookie.setMaxAge(3600 * 24);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-        response.setContentType("application/json;charset=UTF-8");
         JSONObject jo_res = new JSONObject();
         jo_res.put("msg", "Login Success");
         jo_res.put("username", sysUser.getUsername());
+        jo_res.put("LoginTK", GUID.getUUID());
         response.getWriter().write(JSONObject.toJSONString(new RespTemplate(200, HttpStatus.OK, jo_res, "/auth/sign", "Login")));
-
     }
 
     private void InitializeRedisDbAndJobs() {
