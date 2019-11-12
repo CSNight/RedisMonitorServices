@@ -61,12 +61,19 @@ public class MenuServiceImpl {
         if (sysMenu.isPresent()) {
             SysMenu old_menu = sysMenu.get();
             boolean hidden = old_menu.isHidden();
+            if (menuDto.getPid().equals(0L) && !menuDto.isIframe()) {
+                old_menu.setPath("/" + menuDto.getComponent_name());
+            } else if (menuDto.getPid() > 0 && !menuDto.isIframe()) {
+                Optional<SysMenu> parent = sysMenuRepository.findById(menuDto.getPid());
+                parent.ifPresent(parent_ins -> old_menu.setPath(parent_ins.getPath() + "/" + menuDto.getComponent_name()));
+            } else {
+                old_menu.setPath(menuDto.getPath());
+            }
             old_menu.setComponent(menuDto.getComponent());
             old_menu.setComponent_name(menuDto.getComponent_name());
             old_menu.setIcon(menuDto.getIcon());
             old_menu.setHidden(menuDto.isHidden());
             old_menu.setName(menuDto.getName());
-            old_menu.setPath(menuDto.getPath());
             old_menu.setSort(menuDto.getSort());
             old_menu.setIframe(menuDto.isIframe());
             old_menu.setPid(menuDto.getPid());
