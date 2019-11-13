@@ -36,7 +36,7 @@ public class SysMenu {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "pid")
-    @OrderBy(value = "sort")
+    @OrderBy(value = "sort asc")
     private List<SysMenu> children = new ArrayList<>();
 
     public Long getId() {
