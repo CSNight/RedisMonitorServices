@@ -1,7 +1,7 @@
 package com.csnight.redis.monitor.auth.service;
 
 import com.csnight.redis.monitor.db.jpa.SysUser;
-import com.csnight.redis.monitor.db.jpa.UserDto;
+import com.csnight.redis.monitor.rest.dto.UserDto;
 import com.csnight.redis.monitor.db.repos.SysRoleRepository;
 import com.csnight.redis.monitor.db.repos.SysUserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

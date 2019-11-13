@@ -1,5 +1,8 @@
 package com.csnight.redis.monitor.utils;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -42,5 +45,17 @@ public class BaseUtils {
             System.err.println("IP地址获取失败" + e.toString());
         }
         return "";
+    }
+
+    public static String GetUserFromContext() {
+        String username = "";
+        try {
+            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            username = userDetails.getUsername();
+
+        } catch (Exception ex) {
+            username = "";
+        }
+        return username;
     }
 }

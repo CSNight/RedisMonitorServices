@@ -16,10 +16,10 @@ import java.io.PrintWriter;
 public class CusLogoutSuccessHandler extends HttpStatusReturningLogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-        String username = authentication.getName();
-        if (username == null) {
+        if (authentication == null) {
             return;
         }
+        String username = authentication.getName();
         response.setContentType("application/json;charset=UTF-8");
         JSONObject jo_res = new JSONObject();
         jo_res.put("msg", username + " logout Success");

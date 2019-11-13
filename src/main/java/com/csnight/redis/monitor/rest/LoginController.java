@@ -5,7 +5,8 @@ import com.csnight.redis.monitor.aop.LogBack;
 import com.csnight.redis.monitor.auth.service.LoginUserService;
 import com.csnight.redis.monitor.auth.service.SignUpUserService;
 import com.csnight.redis.monitor.db.jpa.SysUser;
-import com.csnight.redis.monitor.db.jpa.UserDto;
+import com.csnight.redis.monitor.rest.dto.UserDto;
+import com.csnight.redis.monitor.utils.BaseUtils;
 import com.csnight.redis.monitor.utils.JSONUtil;
 import com.csnight.redis.monitor.utils.RespTemplate;
 import com.csnight.redis.monitor.utils.VerifyCodeUtils;
@@ -15,8 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -47,8 +46,7 @@ public class LoginController {
     @RequestMapping(value = "user_info", method = RequestMethod.GET)
     public RespTemplate UserInfo(String username) {
         if (username == null || username.equals("")) {
-            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            username = userDetails.getUsername();
+            username = BaseUtils.GetUserFromContext();
         }
         SysUser sysUser = loginUserService.GetUserInfo(username);
         if (sysUser == null) {
@@ -63,8 +61,7 @@ public class LoginController {
     @RequestMapping(value = "user_avatar", method = RequestMethod.GET)
     public RespTemplate GetHeader(String username) {
         if (username == null || username.equals("")) {
-            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            username = userDetails.getUsername();
+            username = BaseUtils.GetUserFromContext();
         }
         SysUser sysUser = loginUserService.GetUserInfo(username);
         if (sysUser == null) {

@@ -5,6 +5,7 @@ import com.csnight.redis.monitor.auth.config.ValidateException;
 import com.csnight.redis.monitor.utils.RespTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.rememberme.CookieTheftException;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -60,7 +61,11 @@ public class ValidationHandler extends OncePerRequestFilter implements Filter {
                 return;
             }
         }
-        filterChain.doFilter(request, response);
+        try {
+            filterChain.doFilter(request, response);
+        } catch (CookieTheftException e) {
+            unsuccessfulAuthentication(request, response, e);
+        }
     }
 
     private void validate(HttpServletRequest request) {
