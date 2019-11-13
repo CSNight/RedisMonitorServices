@@ -4,6 +4,7 @@ package com.csnight.redis.monitor.db.jpa;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -15,10 +16,15 @@ public class SysRole {
     @GeneratedValue(generator = "jpa-uuid")
     @Column(name = "id")
     private String id;
-
-    @Column(name = "name ", length = 25)
+    @Column(name = "code ")
+    private String code;
+    @Column(name = "name ")
     private String name;
-
+    @Column(name = "level ")
+    private int level;
+    @Column(name = "create_time")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date create_time;
     //急加载 会查询role表
     @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
     private Set<SysPermission> Permission;
@@ -39,6 +45,29 @@ public class SysRole {
         this.name = name;
     }
 
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public Date getCreate_time() {
+        return create_time;
+    }
+
+    public void setCreate_time(Date create_time) {
+        this.create_time = create_time;
+    }
 
     public Set<SysPermission> getPermission() {
         return Permission;

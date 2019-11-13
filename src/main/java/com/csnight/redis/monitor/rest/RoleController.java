@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @RestController
-@RequestMapping(value = "permit")
+@RequestMapping(value = "roles")
 @Api(tags = "角色管理API")
 public class RoleController {
     @Resource
@@ -21,7 +21,7 @@ public class RoleController {
 
     @LogBack
     @ApiOperation(value = "获取角色列表")
-    @RequestMapping(value = "get_roles", method = RequestMethod.GET)
+    @RequestMapping(value = "/get_roles", method = RequestMethod.GET)
     public RespTemplate GetRoleList() {
         return new RespTemplate(HttpStatus.OK, roleService.GetAllRole());
     }
