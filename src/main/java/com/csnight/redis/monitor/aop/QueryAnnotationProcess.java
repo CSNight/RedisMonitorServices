@@ -34,7 +34,7 @@ public class QueryAnnotationProcess {
                     }
                     Join join = null;
                     // 模糊多字段
-                    if (!blurry.isEmpty()) {
+                    if (!blurry.equals("")) {
                         String[] blurrys = blurry.split(",");
                         List<Predicate> orPredicate = new ArrayList<>();
                         for (String s : blurrys) {
