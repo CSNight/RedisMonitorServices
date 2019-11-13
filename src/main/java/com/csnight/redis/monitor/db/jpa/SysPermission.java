@@ -1,9 +1,11 @@
 package com.csnight.redis.monitor.db.jpa;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "sys_permission")
@@ -16,19 +18,24 @@ public class SysPermission {
     private String id;
     @Column(name = "name")
     private String name;
-    @Column(name = "url")
-    private String url;
-    @Column(name = "pid")
-    private int pid;
+    @OneToOne
+    @JoinColumn(name = "pid")
+    private SysMenu menu;
     @Column(name = "description")
     private String description;
+    @Column(name = "create_user")
+    private String create_user;
+    @Column(name = "create_time")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date create_time;
 
-    @ManyToMany(fetch = FetchType.LAZY)//懒加载   快速查询 不会查询role表
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER)//懒加载   快速查询 不会查询role表
     @JoinTable(
             name = "sys_permission_role",
             joinColumns = {@JoinColumn(name = "permission_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
-    private List<SysRole> roles;
+    private Set<SysRole> roles;
 
     public String getId() {
         return id;
@@ -46,22 +53,6 @@ public class SysPermission {
         this.name = name;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public int getPid() {
-        return pid;
-    }
-
-    public void setPid(int pid) {
-        this.pid = pid;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -70,11 +61,35 @@ public class SysPermission {
         this.description = description;
     }
 
-    public List<SysRole> getRoles() {
+    public Set<SysRole> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<SysRole> roles) {
+    public void setRoles(Set<SysRole> roles) {
         this.roles = roles;
+    }
+
+    public SysMenu getMenu() {
+        return menu;
+    }
+
+    public void setMenu(SysMenu menu) {
+        this.menu = menu;
+    }
+
+    public String getCreate_user() {
+        return create_user;
+    }
+
+    public void setCreate_user(String create_user) {
+        this.create_user = create_user;
+    }
+
+    public Date getCreate_time() {
+        return create_time;
+    }
+
+    public void setCreate_time(Date create_time) {
+        this.create_time = create_time;
     }
 }

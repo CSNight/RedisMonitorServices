@@ -4,7 +4,7 @@ package com.csnight.redis.monitor.db.jpa;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "sys_role")
@@ -21,7 +21,7 @@ public class SysRole {
 
     //急加载 会查询role表
     @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
-    private List<SysPermission> Permission;
+    private Set<SysPermission> Permission;
 
     public String getId() {
         return id;
@@ -40,11 +40,11 @@ public class SysRole {
     }
 
 
-    public List<SysPermission> getPermission() {
+    public Set<SysPermission> getPermission() {
         return Permission;
     }
 
-    public void setPermission(List<SysPermission> permission) {
+    public void setPermission(Set<SysPermission> permission) {
         Permission = permission;
     }
 }
