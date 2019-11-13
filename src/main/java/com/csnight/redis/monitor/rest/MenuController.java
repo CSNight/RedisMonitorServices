@@ -85,7 +85,7 @@ public class MenuController {
 
     @LogBack
     @ApiOperation(value = "通过ID删除菜单")
-    @RequestMapping(value = "delete_menu/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/delete_menu/{id}", method = RequestMethod.DELETE)
     public RespTemplate DeleteMenuById(@PathVariable String id) {
         return new RespTemplate(HttpStatus.OK, menuService.DeleteMenuById(id));
     }

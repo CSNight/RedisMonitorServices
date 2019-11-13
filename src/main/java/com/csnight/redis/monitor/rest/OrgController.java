@@ -86,7 +86,7 @@ public class OrgController {
 
     @LogBack
     @ApiOperation(value = "通过ID删除组织机构")
-    @RequestMapping(value = "delete_org/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/delete_org/{id}", method = RequestMethod.DELETE)
     public RespTemplate DeleteOrgById(@PathVariable String id) {
         return new RespTemplate(HttpStatus.OK, userService.DeleteOrgById(id));
     }
