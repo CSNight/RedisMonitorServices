@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,7 +51,7 @@ public class LoginUserService implements UserDetailsService {
         }
     }
 
-    private List<GrantedAuthority> createAuthorities(List<SysRole> roles) {
+    private List<GrantedAuthority> createAuthorities(Set<SysRole> roles) {
         List<GrantedAuthority> auths = new ArrayList<>();
         for (SysRole role : roles) {
             for (SysPermission permission : role.getPermission())

@@ -1,14 +1,15 @@
 package com.csnight.redis.monitor.auth.service;
 
 import com.csnight.redis.monitor.db.jpa.SysUser;
-import com.csnight.redis.monitor.rest.dto.UserDto;
 import com.csnight.redis.monitor.db.repos.SysRoleRepository;
 import com.csnight.redis.monitor.db.repos.SysUserRepository;
+import com.csnight.redis.monitor.rest.dto.UserDto;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 
 
 @Service
@@ -59,7 +60,7 @@ public class SignUpUserService {
         sysUser.setEnabled(true);
         sysUser.setLogin_times(0);
         sysUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        sysUser.setRoles(Collections.singletonList(sysRoleRepository.findByName("ROLE_USER")));
+        sysUser.setRoles(new HashSet<>(Collections.singletonList(sysRoleRepository.findByName("ROLE_USER"))));
         sysUser.setCreate_time(new Date());
         sysUser.setLast_login(new Date());
         save(sysUser);

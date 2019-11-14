@@ -1,7 +1,7 @@
 package com.csnight.redis.monitor.auth.handler;
 
 import com.alibaba.fastjson.JSONObject;
-import com.csnight.redis.monitor.auth.config.ValidateException;
+import com.csnight.redis.monitor.exception.ValidateException;
 import com.csnight.redis.monitor.utils.RespTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;

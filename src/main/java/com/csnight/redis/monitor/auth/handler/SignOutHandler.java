@@ -1,6 +1,5 @@
-package com.csnight.redis.monitor.auth.config;
+package com.csnight.redis.monitor.auth.handler;
 
-import com.csnight.redis.monitor.auth.handler.LoginSuccessHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;

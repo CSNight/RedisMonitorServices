@@ -5,6 +5,7 @@ import com.csnight.redis.monitor.aop.LogBack;
 import com.csnight.redis.monitor.busi.OrgServiceImpl;
 import com.csnight.redis.monitor.busi.exp.OrgQueryExp;
 import com.csnight.redis.monitor.db.jpa.SysOrg;
+import com.csnight.redis.monitor.exception.ConflictsException;
 import com.csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -63,7 +64,7 @@ public class OrgController {
     @LogBack
     @ApiOperation(value = "修改组织机构")
     @RequestMapping(value = "/modify_org", method = RequestMethod.PUT)
-    public RespTemplate ModifyOrgIns(@RequestParam("org_ent") String org_ent) {
+    public RespTemplate ModifyOrgIns(@RequestParam("org_ent") String org_ent) throws ConflictsException {
         if (org_ent != null && !org_ent.equals("")) {
             return new RespTemplate(HttpStatus.OK, userService.ModifyOrg(JSONObject.parseObject(org_ent)));
         }
@@ -74,7 +75,7 @@ public class OrgController {
     @ApiOperation(value = "添加组织机构")
     @ApiImplicitParam(paramType = "query", name = "org_ent", value = "新组织", required = true, dataType = "String")
     @RequestMapping(value = "/new_org", method = RequestMethod.POST)
-    public RespTemplate NewOrgIns(@RequestParam("org_ent") String org_ent) {
+    public RespTemplate NewOrgIns(@RequestParam("org_ent") String org_ent) throws ConflictsException {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String name = userDetails.getUsername();
         if (org_ent != null && !org_ent.equals("")) {

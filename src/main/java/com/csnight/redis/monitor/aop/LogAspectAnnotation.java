@@ -63,7 +63,7 @@ public class LogAspectAnnotation {
             logger.error("\r\nCost:{}ms Status:" + rep.getStatus() +
                     "\r\nClass:{} => {}\r\n" +
                     "Error => {}", costTime, className, methodName, throwable.getMessage());
-            result = new RespTemplate(403, HttpStatus.FORBIDDEN, throwable.getMessage(), req.getRequestURI(), req.getMethod());
+            result = new RespTemplate(500, HttpStatus.INTERNAL_SERVER_ERROR, throwable.getMessage(), req.getRequestURI(), req.getMethod());
         }
         HttpServletResponse rep = attributes.getResponse();
         long costTime = System.currentTimeMillis() - startTime.get();

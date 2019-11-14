@@ -1,10 +1,11 @@
 package com.csnight.redis.monitor.busi;
 
 import com.alibaba.fastjson.JSONObject;
-import com.csnight.redis.monitor.aop.QueryAnnotationProcess;
 import com.csnight.redis.monitor.busi.exp.OrgQueryExp;
+import com.csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import com.csnight.redis.monitor.db.jpa.SysOrg;
 import com.csnight.redis.monitor.db.repos.SysOrgRepository;
+import com.csnight.redis.monitor.exception.ConflictsException;
 import com.csnight.redis.monitor.utils.BaseUtils;
 import org.springframework.stereotype.Service;
 
@@ -54,7 +55,7 @@ public class OrgServiceImpl {
         return copy_org;
     }
 
-    public SysOrg ModifyOrg(JSONObject jo_org) {
+    public SysOrg ModifyOrg(JSONObject jo_org) throws ConflictsException {
         if (jo_org.containsKey("id")) {
             Optional<SysOrg> sysOrg = sysOrgRepository.findById(jo_org.getLong("id"));
             if (sysOrg.isPresent()) {
@@ -75,13 +76,15 @@ public class OrgServiceImpl {
                     }
                     ModifyParent(res);
                     return res;
+                } else {
+                    throw new ConflictsException("Department with same name already exists!");
                 }
             }
         }
         return null;
     }
 
-    public SysOrg NewOrg(JSONObject jo_org, String user) {
+    public SysOrg NewOrg(JSONObject jo_org, String user) throws ConflictsException {
         if (jo_org.containsKey("pid")) {
             SysOrg sysOrg = new SysOrg();
             sysOrg.setEnabled(jo_org.containsKey("enabled") ? jo_org.getBoolean("enabled") : false);
@@ -91,6 +94,8 @@ public class OrgServiceImpl {
             sysOrg.setCreate_user(user);
             if (checkOrgConflict(sysOrg, true)) {
                 return sysOrgRepository.save(sysOrg);
+            } else {
+                throw new ConflictsException("Department with same name already exists!");
             }
         }
         return null;

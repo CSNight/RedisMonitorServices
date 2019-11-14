@@ -26,8 +26,19 @@ public class SysRole {
     @Temporal(TemporalType.TIMESTAMP)
     private Date create_time;
     //急加载 会查询role表
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "sys_role_permission",
+            inverseJoinColumns = {@JoinColumn(name = "permission_id", referencedColumnName = "id")},
+            joinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
     private Set<SysPermission> Permission;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "sys_role_menu",
+            inverseJoinColumns = {@JoinColumn(name = "menu_id", referencedColumnName = "id")},
+            joinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
+    private Set<SysMenu> menus;
 
     public String getId() {
         return id;
@@ -75,5 +86,13 @@ public class SysRole {
 
     public void setPermission(Set<SysPermission> permission) {
         Permission = permission;
+    }
+
+    public Set<SysMenu> getMenus() {
+        return menus;
+    }
+
+    public void setMenus(Set<SysMenu> menus) {
+        this.menus = menus;
     }
 }

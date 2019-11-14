@@ -3,6 +3,7 @@ package com.csnight.redis.monitor.rest;
 import com.csnight.redis.monitor.aop.LogBack;
 import com.csnight.redis.monitor.busi.MenuServiceImpl;
 import com.csnight.redis.monitor.busi.exp.MenuQueryExp;
+import com.csnight.redis.monitor.exception.ConflictsException;
 import com.csnight.redis.monitor.rest.dto.MenuDto;
 import com.csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;
@@ -66,7 +67,7 @@ public class MenuController {
     @LogBack
     @ApiOperation(value = "修改菜单信息")
     @RequestMapping(value = "/modify_menu", method = RequestMethod.PUT)
-    public RespTemplate ModifyMenuIns(@Valid @RequestBody MenuDto menuDto) {
+    public RespTemplate ModifyMenuIns(@Valid @RequestBody MenuDto menuDto) throws ConflictsException {
         if (menuDto != null) {
             return new RespTemplate(HttpStatus.OK, menuService.ModifyMenu(menuDto));
         }
@@ -76,7 +77,7 @@ public class MenuController {
     @LogBack
     @ApiOperation(value = "添加菜单项")
     @RequestMapping(value = "/new_menu", method = RequestMethod.POST)
-    public RespTemplate NewMenuIns(@Valid @RequestBody MenuDto menuDto) {
+    public RespTemplate NewMenuIns(@Valid @RequestBody MenuDto menuDto) throws ConflictsException {
         if (menuDto != null) {
             return new RespTemplate(HttpStatus.OK, menuService.NewMenu(menuDto));
         }

@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.aop;
+package com.csnight.redis.monitor.db.blurry;
 
 import javax.persistence.criteria.*;
 import java.lang.reflect.Field;

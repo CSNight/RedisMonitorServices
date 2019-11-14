@@ -3,6 +3,7 @@ package com.csnight.redis.monitor.rest;
 import com.csnight.redis.monitor.aop.LogBack;
 import com.csnight.redis.monitor.busi.PermissionServiceImpl;
 import com.csnight.redis.monitor.busi.exp.PermitQueryExp;
+import com.csnight.redis.monitor.exception.ConflictsException;
 import com.csnight.redis.monitor.rest.dto.PermissionDto;
 import com.csnight.redis.monitor.utils.BaseUtils;
 import com.csnight.redis.monitor.utils.RespTemplate;
@@ -39,7 +40,7 @@ public class PermitController {
     @LogBack
     @ApiOperation(value = "创建权限")
     @RequestMapping(value = "/create_permit", method = RequestMethod.POST)
-    public RespTemplate CreatePermit(@Valid @RequestBody PermissionDto dto) {
+    public RespTemplate CreatePermit(@Valid @RequestBody PermissionDto dto) throws ConflictsException {
         String username = BaseUtils.GetUserFromContext();
         return new RespTemplate(HttpStatus.OK, permissionService.NewPermission(dto, username));
     }
@@ -54,7 +55,7 @@ public class PermitController {
     @LogBack
     @ApiOperation(value = "修改权限")
     @RequestMapping(value = "/edit_permit", method = RequestMethod.PUT)
-    public RespTemplate ModifyPermit(@Valid @RequestBody PermissionDto dto) {
+    public RespTemplate ModifyPermit(@Valid @RequestBody PermissionDto dto) throws ConflictsException {
         return new RespTemplate(HttpStatus.OK, permissionService.ModifyPermission(dto));
     }
 }

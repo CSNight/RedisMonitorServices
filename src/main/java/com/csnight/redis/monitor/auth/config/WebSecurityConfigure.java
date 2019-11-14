@@ -2,6 +2,7 @@ package com.csnight.redis.monitor.auth.config;
 
 import com.csnight.redis.monitor.auth.handler.CusLogoutSuccessHandler;
 import com.csnight.redis.monitor.auth.handler.LoginSuccessHandler;
+import com.csnight.redis.monitor.auth.handler.SignOutHandler;
 import com.csnight.redis.monitor.auth.handler.ValidationHandler;
 import com.csnight.redis.monitor.auth.service.LoginUserService;
 import com.csnight.redis.monitor.db.jpa.SysUser;

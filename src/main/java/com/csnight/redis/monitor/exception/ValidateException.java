@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.auth.config;
+package com.csnight.redis.monitor.exception;
 
 import org.springframework.security.core.AuthenticationException;
 

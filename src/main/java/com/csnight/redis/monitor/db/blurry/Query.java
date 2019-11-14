@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.aop;
+package com.csnight.redis.monitor.db.blurry;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

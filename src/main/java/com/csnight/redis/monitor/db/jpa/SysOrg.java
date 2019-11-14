@@ -26,7 +26,7 @@ public class SysOrg {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "pid")
-    private List<SysOrg> children = new ArrayList<>();
+    private List<SysOrg> children;
 
     public Long getId() {
         return id;

@@ -28,13 +28,9 @@ public class SysPermission {
     @Column(name = "create_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date create_time;
-
+    //懒加载   快速查询 不会查询role表
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.EAGER)//懒加载   快速查询 不会查询role表
-    @JoinTable(
-            name = "sys_permission_role",
-            joinColumns = {@JoinColumn(name = "permission_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
+    @ManyToMany(mappedBy = "Permission", fetch = FetchType.EAGER)
     private Set<SysRole> roles;
 
     public String getId() {

@@ -7,17 +7,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "sys_user")
 @DynamicUpdate(value = true)
 public class SysUser implements UserDetails {
-    private static final long serialVersionUID = 1L;
-
     @Id
     @GenericGenerator(name = "jpa-uuid", strategy = "org.hibernate.id.UUIDGenerator")
     @GeneratedValue(generator = "jpa-uuid")
@@ -66,18 +61,18 @@ public class SysUser implements UserDetails {
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")}
     )
-    private List<SysRole> roles;
+    private Set<SysRole> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // TODO Auto-generated method stub
-        List<GrantedAuthority> auths = new ArrayList<>();
-        List<SysRole> roles = this.getRoles();
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        Set<SysRole> roles = this.getRoles();
         for (SysRole role : roles) {
             for (SysPermission permission : role.getPermission())
-                auths.add(new SimpleGrantedAuthority(permission.getName()));
+                authorities.add(new SimpleGrantedAuthority(permission.getName()));
         }
-        return auths;
+        return authorities;
     }
 
     @Override
@@ -183,11 +178,11 @@ public class SysUser implements UserDetails {
         this.login_times = login_times;
     }
 
-    public List<SysRole> getRoles() {
+    public Set<SysRole> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<SysRole> roles) {
+    public void setRoles(Set<SysRole> roles) {
         this.roles = roles;
     }
 

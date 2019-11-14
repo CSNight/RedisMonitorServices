@@ -1,6 +1,6 @@
 package com.csnight.redis.monitor.busi.exp;
 
-import com.csnight.redis.monitor.aop.Query;
+import com.csnight.redis.monitor.db.blurry.Query;
 
 public class PermitQueryExp {
     @Query(blurry = "name,description")

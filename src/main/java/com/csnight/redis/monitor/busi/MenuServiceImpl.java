@@ -1,13 +1,14 @@
 package com.csnight.redis.monitor.busi;
 
 import com.alibaba.fastjson.JSONArray;
-import com.csnight.redis.monitor.aop.QueryAnnotationProcess;
 import com.csnight.redis.monitor.busi.exp.MenuItem;
 import com.csnight.redis.monitor.busi.exp.MenuQueryExp;
+import com.csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import com.csnight.redis.monitor.db.jpa.SysIcons;
 import com.csnight.redis.monitor.db.jpa.SysMenu;
 import com.csnight.redis.monitor.db.repos.SysIconRepository;
 import com.csnight.redis.monitor.db.repos.SysMenuRepository;
+import com.csnight.redis.monitor.exception.ConflictsException;
 import com.csnight.redis.monitor.rest.dto.MenuDto;
 import com.csnight.redis.monitor.utils.BaseUtils;
 import org.springframework.data.domain.Sort;
@@ -56,7 +57,7 @@ public class MenuServiceImpl {
         return JSONArray.parseArray(JSONArray.toJSONString(menuList), MenuItem.class);
     }
 
-    public SysMenu ModifyMenu(MenuDto menuDto) {
+    public SysMenu ModifyMenu(MenuDto menuDto) throws ConflictsException {
         Optional<SysMenu> sysMenu = sysMenuRepository.findById(menuDto.getId());
         if (sysMenu.isPresent()) {
             SysMenu old_menu = sysMenu.get();
@@ -89,12 +90,14 @@ public class MenuServiceImpl {
                 }
                 ModifyParent(res);
                 return res;
+            } else {
+                throw new ConflictsException("Menu entity conflict!");
             }
         }
         return null;
     }
 
-    public SysMenu NewMenu(MenuDto menuDto) {
+    public SysMenu NewMenu(MenuDto menuDto) throws ConflictsException {
         SysMenu new_menu = new SysMenu();
         if (menuDto.getPid().equals(0L) && !menuDto.isIframe()) {
             new_menu.setPath("/" + menuDto.getComponent_name());
@@ -115,8 +118,9 @@ public class MenuServiceImpl {
         new_menu.setCreate_time(new Date());
         if (checkMenuConflict(new_menu, true)) {
             return sysMenuRepository.save(new_menu);
+        } else {
+            throw new ConflictsException("Menu entity conflict!");
         }
-        return null;
     }
 
     public String DeleteMenuById(String id) {

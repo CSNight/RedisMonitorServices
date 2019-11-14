@@ -1,11 +1,12 @@
 package com.csnight.redis.monitor.busi;
 
-import com.csnight.redis.monitor.aop.QueryAnnotationProcess;
 import com.csnight.redis.monitor.busi.exp.PermitQueryExp;
+import com.csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import com.csnight.redis.monitor.db.jpa.SysMenu;
 import com.csnight.redis.monitor.db.jpa.SysPermission;
 import com.csnight.redis.monitor.db.repos.SysMenuRepository;
 import com.csnight.redis.monitor.db.repos.SysPermissionRepository;
+import com.csnight.redis.monitor.exception.ConflictsException;
 import com.csnight.redis.monitor.rest.dto.PermissionDto;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,7 @@ public class PermissionServiceImpl {
         return permissionRepository.findAll();
     }
 
-    public SysPermission NewPermission(PermissionDto dto, String username) {
+    public SysPermission NewPermission(PermissionDto dto, String username) throws ConflictsException {
         SysPermission permission = new SysPermission();
         permission.setName(dto.getName());
         permission.setDescription(dto.getDescription());
@@ -38,8 +39,9 @@ public class PermissionServiceImpl {
         if (checkConflictPermit(permission, true) && MenuExist(dto.getMenu())) {
             permission.setMenu(dto.getMenu());
             return permissionRepository.save(permission);
+        } else {
+            throw new ConflictsException("Permission with same name already exists or menu belongs dosen't exists!");
         }
-        return null;
     }
 
     public String DeletePermitById(String id) {
@@ -51,7 +53,7 @@ public class PermissionServiceImpl {
         return "failed";
     }
 
-    public SysPermission ModifyPermission(PermissionDto dto) {
+    public SysPermission ModifyPermission(PermissionDto dto) throws ConflictsException {
         Optional<SysPermission> optPermit = permissionRepository.findById(dto.getId());
         if (optPermit.isPresent()) {
             SysPermission old_permit = optPermit.get();
@@ -60,6 +62,8 @@ public class PermissionServiceImpl {
                 old_permit.setName(dto.getName());
                 old_permit.setMenu(dto.getMenu());
                 return permissionRepository.save(old_permit);
+            } else {
+                throw new ConflictsException("Department with same name already exists!");
             }
         }
         return null;

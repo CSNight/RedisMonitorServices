@@ -1,14 +1,16 @@
 package com.csnight.redis.monitor.db.jpa;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "sys_menu")
-public class SysMenu {
+public class SysMenu{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,7 +39,11 @@ public class SysMenu {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "pid")
     @OrderBy(value = "sort asc")
-    private List<SysMenu> children = new ArrayList<>();
+    private List<SysMenu> children;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "menus", fetch = FetchType.EAGER)
+    private Set<SysRole> roles;
 
     public Long getId() {
         return id;
@@ -133,5 +139,13 @@ public class SysMenu {
 
     public void setChildren(List<SysMenu> children) {
         this.children = children;
+    }
+
+    public Set<SysRole> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<SysRole> roles) {
+        this.roles = roles;
     }
 }
