@@ -5,6 +5,7 @@ import com.csnight.redis.monitor.db.jpa.SysRole;
 import com.csnight.redis.monitor.db.repos.SysRoleRepository;
 import com.csnight.redis.monitor.exception.ConflictsException;
 import com.csnight.redis.monitor.rest.dto.RoleDto;
+import com.csnight.redis.monitor.rest.vo.SysMenuVo;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -16,7 +17,13 @@ public class RoleServiceImpl {
     private SysRoleRepository sysRoleRepository;
 
     public List<SysRole> GetAllRole() {
-        return sysRoleRepository.findAll();
+        List<SysRole> roles = sysRoleRepository.findAll();
+        for (SysRole role : roles) {
+            for (SysMenu menu : role.getMenus()) {
+                menu.setChildren(new ArrayList<>());
+            }
+        }
+        return roles;
     }
 
     public SysRole NewRole(RoleDto dto) throws ConflictsException {
@@ -62,8 +69,18 @@ public class RoleServiceImpl {
         Optional<SysRole> optRole = sysRoleRepository.findById(dto.getId());
         if (optRole.isPresent()) {
             SysRole old_role = optRole.get();
-            old_role.setMenus(dto.getMenuSet());
-            return sysRoleRepository.save(old_role);
+            Set<SysMenu> menus = new HashSet<>();
+            for (SysMenuVo menuVo : dto.getMenuSet()) {
+                SysMenu sysMenu = new SysMenu();
+                sysMenu.setId(menuVo.getId());
+                menus.add(sysMenu);
+            }
+            old_role.setMenus(menus);
+             SysRole sysRole = sysRoleRepository.save(old_role);
+            for (SysMenu sysMenu : sysRole.getMenus()) {
+                sysMenu.setChildren(new ArrayList<>());
+            }
+            return sysRole;
         }
         return null;
     }
@@ -73,7 +90,11 @@ public class RoleServiceImpl {
         if (optRole.isPresent()) {
             SysRole old_role = optRole.get();
             old_role.setPermission(dto.getPermissionSet());
-            return sysRoleRepository.save(old_role);
+            SysRole sysRole = sysRoleRepository.save(old_role);
+            for (SysMenu sysMenu : sysRole.getMenus()) {
+                sysMenu.setChildren(new ArrayList<>());
+            }
+            return sysRole;
         }
         return null;
     }

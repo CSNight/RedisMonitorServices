@@ -4,6 +4,7 @@ package com.csnight.redis.monitor.db.jpa;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +40,7 @@ public class SysMenu{
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "pid")
     @OrderBy(value = "sort asc")
-    private List<SysMenu> children;
+    private List<SysMenu> children=new ArrayList<>();
 
     @JsonIgnore
     @ManyToMany(mappedBy = "menus", fetch = FetchType.EAGER)

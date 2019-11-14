@@ -1,12 +1,13 @@
 package com.csnight.redis.monitor.rest.dto;
 
-import com.csnight.redis.monitor.db.jpa.SysMenu;
 import com.csnight.redis.monitor.db.jpa.SysPermission;
+import com.csnight.redis.monitor.rest.vo.SysMenuVo;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.Set;
 
 public class RoleDto {
@@ -22,8 +23,10 @@ public class RoleDto {
     @Max(3)
     private int level;
 
+    private Date create_time;
+
     private Set<SysPermission> permissionSet;
-    private Set<SysMenu> menuSet;
+    private Set<SysMenuVo> menuSet;
 
     public String getId() {
         return id;
@@ -65,11 +68,19 @@ public class RoleDto {
         this.permissionSet = permissionSet;
     }
 
-    public Set<SysMenu> getMenuSet() {
+    public Set<SysMenuVo> getMenuSet() {
         return menuSet;
     }
 
-    public void setMenuSet(Set<SysMenu> menuSet) {
+    public void setMenuSet(Set<SysMenuVo> menuSet) {
         this.menuSet = menuSet;
+    }
+
+    public Date getCreate_time() {
+        return create_time;
+    }
+
+    public void setCreate_time(Date create_time) {
+        this.create_time = create_time;
     }
 }
