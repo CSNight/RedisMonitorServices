@@ -1,5 +1,6 @@
 package com.csnight.redis.monitor.busi.exp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MenuItem {
@@ -14,7 +15,7 @@ public class MenuItem {
     private int sort;
     private boolean hidden;
     private MenuMeta meta;
-    private List<MenuItem> children;
+    private List<MenuItem> children=new ArrayList<>();
 
     public long getId() {
         return id;

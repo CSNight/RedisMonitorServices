@@ -1,6 +1,7 @@
 package com.csnight.redis.monitor.db.jpa;
 
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -11,7 +12,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "sys_menu")
-public class SysMenu{
+public class SysMenu {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -39,11 +40,13 @@ public class SysMenu{
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "pid")
-    @OrderBy(value = "sort asc")
-    private List<SysMenu> children=new ArrayList<>();
+    @OrderBy(value = "sort")
+    private List<SysMenu> children = new ArrayList<>();
 
-    @JsonIgnore
+
     @ManyToMany(mappedBy = "menus", fetch = FetchType.EAGER)
+    @JsonIgnore
+    @JSONField(serialize = false)
     private Set<SysRole> roles;
 
     public Long getId() {

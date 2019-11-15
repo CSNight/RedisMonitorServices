@@ -5,6 +5,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -31,14 +32,14 @@ public class SysRole {
             name = "sys_role_permission",
             inverseJoinColumns = {@JoinColumn(name = "permission_id", referencedColumnName = "id")},
             joinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
-    private Set<SysPermission> Permission;
+    private Set<SysPermission> Permission = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "sys_role_menu",
             inverseJoinColumns = {@JoinColumn(name = "menu_id", referencedColumnName = "id")},
             joinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
-    private Set<SysMenu> menus;
+    private Set<SysMenu> menus = new HashSet<>();
 
     public String getId() {
         return id;

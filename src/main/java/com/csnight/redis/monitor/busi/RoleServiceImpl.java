@@ -76,7 +76,7 @@ public class RoleServiceImpl {
                 menus.add(sysMenu);
             }
             old_role.setMenus(menus);
-             SysRole sysRole = sysRoleRepository.save(old_role);
+            SysRole sysRole = sysRoleRepository.save(old_role);
             for (SysMenu sysMenu : sysRole.getMenus()) {
                 sysMenu.setChildren(new ArrayList<>());
             }
