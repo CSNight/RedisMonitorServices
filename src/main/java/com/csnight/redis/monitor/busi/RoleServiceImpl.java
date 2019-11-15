@@ -1,5 +1,7 @@
 package com.csnight.redis.monitor.busi;
 
+import com.csnight.redis.monitor.busi.exp.RoleQueryExp;
+import com.csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import com.csnight.redis.monitor.db.jpa.SysMenu;
 import com.csnight.redis.monitor.db.jpa.SysRole;
 import com.csnight.redis.monitor.db.repos.SysRoleRepository;
@@ -15,6 +17,17 @@ import java.util.*;
 public class RoleServiceImpl {
     @Resource
     private SysRoleRepository sysRoleRepository;
+
+    public List<SysRole> QueryBy(RoleQueryExp exp) {
+        List<SysRole> roles = sysRoleRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder));
+        for (SysRole role : roles) {
+            for (SysMenu menu : role.getMenus()) {
+                menu.setChildren(new ArrayList<>());
+            }
+        }
+        return roles;
+    }
+
 
     public List<SysRole> GetAllRole() {
         List<SysRole> roles = sysRoleRepository.findAll();

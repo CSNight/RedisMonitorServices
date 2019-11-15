@@ -2,6 +2,7 @@ package com.csnight.redis.monitor.rest;
 
 import com.csnight.redis.monitor.aop.LogBack;
 import com.csnight.redis.monitor.busi.RoleServiceImpl;
+import com.csnight.redis.monitor.busi.exp.RoleQueryExp;
 import com.csnight.redis.monitor.db.jpa.SysRole;
 import com.csnight.redis.monitor.exception.ConflictsException;
 import com.csnight.redis.monitor.rest.dto.RoleDto;
@@ -21,6 +22,13 @@ import java.util.List;
 public class RoleController {
     @Resource
     private RoleServiceImpl roleService;
+
+    @LogBack
+    @ApiOperation(value = "查询权限")
+    @RequestMapping(value = "/query_roles", method = RequestMethod.GET)
+    public RespTemplate PermitQuery(RoleQueryExp exp) {
+        return new RespTemplate(HttpStatus.OK, roleService.QueryBy(exp));
+    }
 
     @LogBack
     @ApiOperation(value = "获取角色列表")

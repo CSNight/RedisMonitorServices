@@ -5,7 +5,7 @@ public class MenuMeta {
     private String ref;
     private String icon;
 
-    public MenuMeta(String title, String ref, String icon) {
+    MenuMeta(String title, String ref, String icon) {
         this.title = title;
         this.ref = ref;
         this.icon = icon;
