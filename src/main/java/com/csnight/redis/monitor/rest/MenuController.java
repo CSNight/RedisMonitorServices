@@ -61,7 +61,7 @@ public class MenuController {
     @ApiOperation(value = "查询菜单路由")
     @RequestMapping(value = "/menu_routers", method = RequestMethod.GET)
     public RespTemplate MenuRoutes() {
-        return new RespTemplate(HttpStatus.OK, menuService.GetMenuRouter());
+        return new RespTemplate(HttpStatus.OK, menuService.GetMenuRouterByRole());
     }
 
     @LogBack

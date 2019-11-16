@@ -6,8 +6,11 @@ import com.csnight.redis.monitor.busi.exp.MenuQueryExp;
 import com.csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import com.csnight.redis.monitor.db.jpa.SysIcons;
 import com.csnight.redis.monitor.db.jpa.SysMenu;
+import com.csnight.redis.monitor.db.jpa.SysRole;
+import com.csnight.redis.monitor.db.jpa.SysUser;
 import com.csnight.redis.monitor.db.repos.SysIconRepository;
 import com.csnight.redis.monitor.db.repos.SysMenuRepository;
+import com.csnight.redis.monitor.db.repos.SysUserRepository;
 import com.csnight.redis.monitor.exception.ConflictsException;
 import com.csnight.redis.monitor.rest.dto.MenuDto;
 import com.csnight.redis.monitor.utils.BaseUtils;
@@ -23,6 +26,8 @@ public class MenuServiceImpl {
     private SysMenuRepository sysMenuRepository;
     @Resource
     private SysIconRepository sysIconRepository;
+    @Resource
+    private SysUserRepository sysUserRepository;
 
     public List<SysIcons> GetIconList() {
         return sysIconRepository.findAll();
@@ -52,9 +57,41 @@ public class MenuServiceImpl {
         return sysMenuRepository.findByPidOrderBySortAsc(Long.parseLong(pid));
     }
 
-    public List<MenuItem> GetMenuRouter() {
-        List<SysMenu> menuList = sysMenuRepository.findByPidOrderBySortAsc(0L);
-        return JSONArray.parseArray(JSONArray.toJSONString(menuList), MenuItem.class);
+    public List<MenuItem> GetMenuRouterByRole() {
+        SysUser user = sysUserRepository.findByUsername(BaseUtils.GetUserFromContext());
+        Set<SysRole> roles = user.getRoles();
+        Map<Long, SysMenu> menus_set = new LinkedHashMap<>();
+        for (SysRole role : roles) {
+            Set<SysMenu> menus = role.getMenus();
+            for (SysMenu menu : menus) {
+                menu.setChildren(new ArrayList<>());
+                menus_set.put(menu.getId(), menu);
+            }
+        }
+        List<MenuItem> tmp = JSONArray.parseArray(JSONArray.toJSONString(menus_set.values()), MenuItem.class);
+        return BuildMenuTree(0L, tmp);
+    }
+
+    private List<MenuItem> BuildMenuTree(Long pid, List<MenuItem> menus) {
+        List<MenuItem> list = new ArrayList<>();
+        for (MenuItem menu : menus) {
+            if (menu.getPid() == pid) {
+                list.add(menu);
+            }
+        }
+        list.sort((o1, o2) -> {
+            Integer sort = o1.getSort();
+            return sort.compareTo(o2.getSort());
+        });
+        for (MenuItem menu : list) {
+            List<MenuItem> child = BuildMenuTree(menu.getId(), menus);
+            child.sort((o1, o2) -> {
+                Integer sort = o1.getSort();
+                return sort.compareTo(o2.getSort());
+            });
+            menu.setChildren(child);
+        }
+        return list;
     }
 
     public SysMenu ModifyMenu(MenuDto menuDto) throws ConflictsException {
