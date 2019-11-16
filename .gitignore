@@ -12,7 +12,7 @@ target/
 .settings
 .springBeans
 .sts4-cache
-
+.pfx
 ### IntelliJ IDEA ###
 .idea
 *.iws
@@ -30,3 +30,4 @@ build/
 ### VS Code ###
 .vscode/
 src/test/
+/src/main/resources/www.csnight.xyz.pfx

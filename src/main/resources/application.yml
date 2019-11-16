@@ -2,15 +2,11 @@ server:
   port: 8020
   servlet:
     context-path: /
+#  ssl:
+#    key-store: classpath:www.csnight.xyz.pfx
+#    key-store-password: ******
+#    key-store-type: PKCS12
 spring:
-#  thymeleaf:
-#    cache: false
-#    encoding: UTF-8
-#    mode: HTML
-#    prefix: classpath:/templates/
-#    suffix: .html
-#    servlet:
-#      content-type: text/html
   jpa:
     open-in-view: false
     properties:
