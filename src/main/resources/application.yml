@@ -1,11 +1,11 @@
 server:
-  port: 8020
+  port: 443
   servlet:
     context-path: /
-#  ssl:
-#    key-store: classpath:www.csnight.xyz.pfx
-#    key-store-password: ******
-#    key-store-type: PKCS12
+  ssl:
+    key-store: classpath:www.csnight.xyz.pfx
+    key-store-password: *******
+    key-store-type: PKCS12
 spring:
   jpa:
     open-in-view: false
@@ -41,8 +41,6 @@ spring:
     jdbc:
       initialize-schema: never
       schema: classpath:qrtz.sql
-mybatis:
-  mapper-Locations: classpath:mapping/*.xml
 logging:
   config: classpath:logback-config.xml
 #security:

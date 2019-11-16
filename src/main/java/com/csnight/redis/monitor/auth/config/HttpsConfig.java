@@ -6,8 +6,9 @@ import org.apache.tomcat.util.descriptor.web.SecurityCollection;
 import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-//@Configuration
+@Configuration
 public class HttpsConfig {
 
     @Bean
@@ -33,7 +34,7 @@ public class HttpsConfig {
         connector.setScheme("http");
         connector.setPort(8020);
         connector.setSecure(false);
-        connector.setRedirectPort(8443);
+        connector.setRedirectPort(443);
         return connector;
     }
 }

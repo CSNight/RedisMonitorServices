@@ -10,12 +10,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.context.support.ServletRequestHandledEvent;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 public class SpringContextEvent implements ApplicationListener {
     private static Logger _log = LoggerFactory.getLogger(SpringContextEvent.class);
