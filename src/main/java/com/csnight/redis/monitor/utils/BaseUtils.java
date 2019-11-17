@@ -8,6 +8,8 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BaseUtils {
     public static boolean any(List<Boolean> list) {
@@ -57,5 +59,18 @@ public class BaseUtils {
             username = "";
         }
         return username;
+    }
+    public static boolean checkPhone(String identify) {
+        String regex = "^[1][3,4,5,7,8,9][0-9]{9}$";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(identify);
+        return m.matches();
+    }
+
+    public static boolean checkEmail(String identify) {
+        String regex = "^[\\w!#$%&'*+/=?^_`{|}~-]+(?:\\.[\\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\\w](?:[\\w-]*[\\w])?\\.)+[\\w](?:[\\w-]*[\\w])?";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(identify);
+        return m.matches();
     }
 }

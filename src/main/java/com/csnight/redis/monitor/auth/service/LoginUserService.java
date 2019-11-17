@@ -4,6 +4,7 @@ import com.csnight.redis.monitor.db.jpa.SysPermission;
 import com.csnight.redis.monitor.db.jpa.SysRole;
 import com.csnight.redis.monitor.db.jpa.SysUser;
 import com.csnight.redis.monitor.db.repos.SysUserRepository;
+import com.csnight.redis.monitor.utils.BaseUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -15,8 +16,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 public class LoginUserService implements UserDetailsService {
@@ -38,13 +37,15 @@ public class LoginUserService implements UserDetailsService {
     }
 
     public SysUser GetUserInfo(String username) {
-        return userMapper.findByUsername(username);
+        SysUser user = userMapper.findByUsername(username);
+        user.setPassword("");
+        return user;
     }
 
     private SysUser checkByIdentify(String identify) {
-        if (identify.contains("@") && checkEmail(identify)) {
+        if (identify.contains("@") && BaseUtils.checkEmail(identify)) {
             return userMapper.findByUsernameOrEmail(identify, identify);
-        } else if (checkPhone(identify)) {
+        } else if (BaseUtils.checkPhone(identify)) {
             return userMapper.findByPhone(identify);
         } else {
             return userMapper.findByUsername(identify);
@@ -60,18 +61,5 @@ public class LoginUserService implements UserDetailsService {
         return auths;
     }
 
-    private boolean checkPhone(String identify) {
-        String regex = "^[1][3,4,5,7,8,9][0-9]{9}$";
-        Pattern p = Pattern.compile(regex);
-        Matcher m = p.matcher(identify);
-        return m.matches();
-    }
-
-    private boolean checkEmail(String identify) {
-        String regex = "^[\\w!#$%&'*+/=?^_`{|}~-]+(?:\\.[\\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\\w](?:[\\w-]*[\\w])?\\.)+[\\w](?:[\\w-]*[\\w])?";
-        Pattern p = Pattern.compile(regex);
-        Matcher m = p.matcher(identify);
-        return m.matches();
-    }
 
 }

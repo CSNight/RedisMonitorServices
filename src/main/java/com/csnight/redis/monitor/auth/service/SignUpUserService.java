@@ -3,7 +3,7 @@ package com.csnight.redis.monitor.auth.service;
 import com.csnight.redis.monitor.db.jpa.SysUser;
 import com.csnight.redis.monitor.db.repos.SysRoleRepository;
 import com.csnight.redis.monitor.db.repos.SysUserRepository;
-import com.csnight.redis.monitor.rest.dto.UserDto;
+import com.csnight.redis.monitor.rest.dto.UserSignDto;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,15 +51,15 @@ public class SignUpUserService {
         return user != null;
     }
 
-    public void registerNewAccount(UserDto userDto) {
+    public void registerNewAccount(UserSignDto userSignDto) {
         SysUser sysUser = new SysUser();
-        sysUser.setUsername(userDto.getUsername());
-        sysUser.setEmail(userDto.getEmail());
-        sysUser.setPhone(userDto.getPhone());
-        sysUser.setNick_name(userDto.getUsername());
+        sysUser.setUsername(userSignDto.getUsername());
+        sysUser.setEmail(userSignDto.getEmail());
+        sysUser.setPhone(userSignDto.getPhone());
+        sysUser.setNick_name(userSignDto.getUsername());
         sysUser.setEnabled(true);
         sysUser.setLogin_times(0);
-        sysUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        sysUser.setPassword(passwordEncoder.encode(userSignDto.getPassword()));
         sysUser.setRoles(new HashSet<>(Collections.singletonList(sysRoleRepository.findByName("ROLE_USER"))));
         sysUser.setCreate_time(new Date());
         sysUser.setLast_login(new Date());

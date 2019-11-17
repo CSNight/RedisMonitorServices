@@ -1,8 +1,11 @@
 package com.csnight.redis.monitor.busi.exp;
 
+import io.swagger.annotations.ApiModel;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@ApiModel(value = "菜单导航模型")
 public class MenuItem {
     private long id;
     private long pid;
@@ -15,7 +18,7 @@ public class MenuItem {
     private int sort;
     private boolean hidden;
     private MenuMeta meta;
-    private List<MenuItem> children=new ArrayList<>();
+    private List<MenuItem> children = new ArrayList<>();
 
     public long getId() {
         return id;

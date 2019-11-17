@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 
 import java.util.Date;
 
-@ApiModel
+@ApiModel(value = "请求响应模板")
 public class RespTemplate {
     private Date ack = new Date();
     private int status;

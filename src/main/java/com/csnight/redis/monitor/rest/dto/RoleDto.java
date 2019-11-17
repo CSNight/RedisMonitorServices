@@ -2,6 +2,7 @@ package com.csnight.redis.monitor.rest.dto;
 
 import com.csnight.redis.monitor.db.jpa.SysPermission;
 import com.csnight.redis.monitor.rest.vo.SysMenuVo;
+import io.swagger.annotations.ApiModel;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -9,7 +10,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Set;
-
+@ApiModel(value = "角色模型")
 public class RoleDto {
 
     private String id;

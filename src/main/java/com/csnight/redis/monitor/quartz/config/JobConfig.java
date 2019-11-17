@@ -4,7 +4,7 @@ import com.csnight.redis.monitor.utils.GUID;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel
+@ApiModel(value = "任务模型")
 public class JobConfig {
     @ApiModelProperty(notes = "工作名称", hidden = true)
     private String jobName = GUID.getUUID();

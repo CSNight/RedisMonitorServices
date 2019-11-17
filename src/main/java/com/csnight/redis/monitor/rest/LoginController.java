@@ -5,7 +5,7 @@ import com.csnight.redis.monitor.aop.LogBack;
 import com.csnight.redis.monitor.auth.service.LoginUserService;
 import com.csnight.redis.monitor.auth.service.SignUpUserService;
 import com.csnight.redis.monitor.db.jpa.SysUser;
-import com.csnight.redis.monitor.rest.dto.UserDto;
+import com.csnight.redis.monitor.rest.dto.UserSignDto;
 import com.csnight.redis.monitor.utils.BaseUtils;
 import com.csnight.redis.monitor.utils.JSONUtil;
 import com.csnight.redis.monitor.utils.RespTemplate;
@@ -74,7 +74,7 @@ public class LoginController {
     @LogBack
     @ApiOperation(value = "用户注册")
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public RespTemplate createUser(@ModelAttribute("user") @Valid UserDto userDto, BindingResult result) {
+    public RespTemplate createUser(@ModelAttribute("user") @Valid UserSignDto userSignDto, BindingResult result) {
         if (result.hasErrors()) {
             Map<String, List<String>> errors = new HashMap<>();
             for (FieldError error : result.getFieldErrors()) {
@@ -90,43 +90,43 @@ public class LoginController {
             return new RespTemplate(HttpStatus.BAD_REQUEST, errors);
         }
         //check name 是否已使用
-        if (signUpUserService.checkUserByName(userDto.getUsername())) {
+        if (signUpUserService.checkUserByName(userSignDto.getUsername())) {
             result.rejectValue("username", "error.user", "用户已存在");
-            userDto.setPassword("");
-            userDto.setMatch_password("");
-            userDto.setUsername("");
+            userSignDto.setPassword("");
+            userSignDto.setMatch_password("");
+            userSignDto.setUsername("");
             _log.error("用户已存在");
             return new RespTemplate(HttpStatus.CONFLICT, "User has already registered!");
         }
         //check email 是否已注册。
-        if (signUpUserService.checkUserByEmail(userDto.getEmail())) {
-            userDto.setPassword("");
-            userDto.setMatch_password("");
-            userDto.setEmail("");
+        if (signUpUserService.checkUserByEmail(userSignDto.getEmail())) {
+            userSignDto.setPassword("");
+            userSignDto.setMatch_password("");
+            userSignDto.setEmail("");
             result.rejectValue("email", "error.user", "Email已注册");
             _log.error("Email已注册");
             return new RespTemplate(HttpStatus.CONFLICT, "Email has already registered!");
         }
         //check password equal
-        if (!checkPassWordUniform(userDto.getPassword(), userDto.getMatch_password())) {
-            userDto.setPassword("");
-            userDto.setMatch_password("");
+        if (!checkPassWordUniform(userSignDto.getPassword(), userSignDto.getMatch_password())) {
+            userSignDto.setPassword("");
+            userSignDto.setMatch_password("");
             result.rejectValue("match_password", "error.user", "两次输入密码不一致");
             _log.error("两次输入密码不一致");
             return new RespTemplate(HttpStatus.NOT_ACCEPTABLE, "Password check failed!");
         }
 
         try {
-            createUserAccount(userDto);
+            createUserAccount(userSignDto);
         } catch (DataIntegrityViolationException e) {
             result.rejectValue("email", "error.user", "Email已注册");
             result.rejectValue("username", "error.user", "用户已存在");
             _log.error(e.getMessage());
         }
-        _log.info(userDto.getUsername() + ":注册成功！");
+        _log.info(userSignDto.getUsername() + ":注册成功！");
         JSONObject jo_res = new JSONObject();
         jo_res.put("msg", "success");
-        jo_res.put("username", userDto.getUsername());
+        jo_res.put("username", userSignDto.getUsername());
         return new RespTemplate(HttpStatus.OK, jo_res);
     }
 
@@ -150,8 +150,8 @@ public class LoginController {
                 verifyCode);
     }
 
-    private void createUserAccount(UserDto userDto) {
-        signUpUserService.registerNewAccount(userDto);
+    private void createUserAccount(UserSignDto userSignDto) {
+        signUpUserService.registerNewAccount(userSignDto);
     }
 
     private boolean checkPassWordUniform(String passWd, String matchPassWd) {

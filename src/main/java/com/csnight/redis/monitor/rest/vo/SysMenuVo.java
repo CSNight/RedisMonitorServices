@@ -1,5 +1,8 @@
 package com.csnight.redis.monitor.rest.vo;
 
+import io.swagger.annotations.ApiModel;
+
+@ApiModel(value = "角色菜单更新模型")
 public class SysMenuVo {
     private Long id;
 
