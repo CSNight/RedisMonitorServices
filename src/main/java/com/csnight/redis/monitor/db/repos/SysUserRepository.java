@@ -2,6 +2,7 @@ package com.csnight.redis.monitor.db.repos;
 
 import com.csnight.redis.monitor.db.jpa.SysUser;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -15,4 +16,12 @@ public interface SysUserRepository extends JpaRepository<SysUser, String> {
     SysUser findByPhone(String phone);
 
     List<SysUser> findAllByEnabled(boolean enable);
+
+    SysUser findByUsernameAndPassword(String username, String password);
+
+    @Query(value = "select * from sys_user where nick_name=?", nativeQuery = true)
+    SysUser findByNickName(String nickname);
+
+    @Query(value = "select * from sys_user where org_id=?", nativeQuery = true)
+    List<SysUser> findByOrgId(Long org_id);
 }

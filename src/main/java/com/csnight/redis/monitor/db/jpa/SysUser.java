@@ -51,7 +51,8 @@ public class SysUser implements UserDetails {
 
     @Column(name = "lock_by")
     private String lock_by;
-
+    @Column(name = "org_id")
+    private Long org_id;
     @Lob
     @Column(name = "head_img")
     private byte[] head_img;
@@ -176,6 +177,14 @@ public class SysUser implements UserDetails {
 
     public int getLogin_times() {
         return login_times;
+    }
+
+    public Long getOrg_id() {
+        return org_id;
+    }
+
+    public void setOrg_id(Long org_id) {
+        this.org_id = org_id;
     }
 
     public void setLogin_times(int login_times) {
