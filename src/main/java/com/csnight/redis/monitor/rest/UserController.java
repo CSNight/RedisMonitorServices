@@ -37,7 +37,7 @@ public class UserController {
 
     @LogBack
     @ApiOperation(value = "修改用户信息")
-    @RequestMapping(value = "/edit_org", method = RequestMethod.PUT)
+    @RequestMapping(value = "/edit_user", method = RequestMethod.PUT)
     public RespTemplate ModifyUserInfo(@Valid @RequestBody UserEditDto dto) throws ConflictsException {
         return new RespTemplate(HttpStatus.OK, userService.ModifyUser(dto));
     }

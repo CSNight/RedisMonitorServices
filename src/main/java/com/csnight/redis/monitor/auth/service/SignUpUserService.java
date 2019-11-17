@@ -62,6 +62,7 @@ public class SignUpUserService {
         sysUser.setPassword(passwordEncoder.encode(userSignDto.getPassword()));
         sysUser.setRoles(new HashSet<>(Collections.singletonList(sysRoleRepository.findByName("ROLE_USER"))));
         sysUser.setCreate_time(new Date());
+        sysUser.setLock_by("none");
         sysUser.setLast_login(new Date());
         save(sysUser);
     }

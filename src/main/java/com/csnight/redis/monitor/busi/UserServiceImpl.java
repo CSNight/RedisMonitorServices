@@ -1,7 +1,9 @@
 package com.csnight.redis.monitor.busi;
 
 import com.alibaba.fastjson.JSONObject;
+import com.csnight.redis.monitor.db.jpa.SysOrg;
 import com.csnight.redis.monitor.db.jpa.SysUser;
+import com.csnight.redis.monitor.db.repos.SysOrgRepository;
 import com.csnight.redis.monitor.db.repos.SysUserRepository;
 import com.csnight.redis.monitor.exception.ConflictsException;
 import com.csnight.redis.monitor.rest.dto.UserEditDto;
@@ -23,6 +25,9 @@ public class UserServiceImpl {
     @Resource
     private PasswordEncoder passwordEncoder;
 
+    @Resource
+    private SysOrgRepository sysOrgRepository;
+
     public List<SysUser> GetAllUser() {
         List<SysUser> users = sysUserRepository.findAll();
         for (SysUser user : users) {
@@ -34,6 +39,16 @@ public class UserServiceImpl {
 
     public List<SysUser> GetUsersByOrg(Long org_id) {
         List<SysUser> users = sysUserRepository.findByOrgId(org_id);
+        Optional<SysOrg> orgOpt = sysOrgRepository.findById(org_id);
+        if (orgOpt.isPresent()) {
+            SysOrg org = orgOpt.get();
+            if (org.getChildren().size() != 0) {
+                for (SysOrg ch : org.getChildren()) {
+                    List<SysUser> user_ch = sysUserRepository.findByOrgId(ch.getId());
+                    users.addAll(user_ch);
+                }
+            }
+        }
         for (SysUser user : users) {
             user.setPassword("");
             user.setHead_img(new byte[]{});
@@ -46,7 +61,7 @@ public class UserServiceImpl {
         if (user != null && CheckParams(dto, user)) {
             user.setUsername(dto.getUsername());
             user.setNick_name(dto.getNick_name());
-            user.setEnabled(dto.isEnable());
+            user.setEnabled(dto.isEnabled());
             user.setPhone(dto.getPhone());
             user.setEmail(dto.getEmail());
             user.setRoles(dto.getRoles());

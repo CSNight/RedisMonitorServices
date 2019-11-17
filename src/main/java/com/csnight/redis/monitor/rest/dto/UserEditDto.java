@@ -31,7 +31,7 @@ public class UserEditDto {
 
     private Set<SysRole> roles = new HashSet<>();
 
-    private boolean enable;
+    private boolean enabled;
     @Min(0)
     private Long org_id;
 
@@ -67,12 +67,12 @@ public class UserEditDto {
         this.phone = phone;
     }
 
-    public boolean isEnable() {
-        return enable;
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    public void setEnable(boolean enable) {
-        this.enable = enable;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public Long getOrg_id() {
