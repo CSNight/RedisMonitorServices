@@ -15,7 +15,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping(value = "roles")
+@RequestMapping(value = "users")
 @Api(tags = "用户管理API")
 public class UserController {
     @Resource
@@ -30,8 +30,8 @@ public class UserController {
 
     @LogBack
     @ApiOperation(value = "根据组织查询用户")
-    @RequestMapping(value = "/get_by_org", method = RequestMethod.GET)
-    public RespTemplate GetUserByOrg(String org_id) {
+    @RequestMapping(value = "/get_by_org/{org_id}", method = RequestMethod.GET)
+    public RespTemplate GetUserByOrg(@PathVariable String org_id) {
         return new RespTemplate(HttpStatus.OK, userService.GetUsersByOrg(Long.parseLong(org_id)));
     }
 

@@ -70,10 +70,12 @@ public class SysUser implements UserDetails {
         // TODO Auto-generated method stub
         List<GrantedAuthority> authorities = new ArrayList<>();
         Set<SysRole> roles = this.getRoles();
+        Set<String> permissions = new HashSet<>();
         for (SysRole role : roles) {
-            for (SysPermission permission : role.getPermission())
-                authorities.add(new SimpleGrantedAuthority(permission.getName()));
+            role.getPermission().forEach(permit -> permissions.add(permit.getName()));
         }
+        for (String permission : permissions)
+            authorities.add(new SimpleGrantedAuthority(permission));
         return authorities;
     }
 
