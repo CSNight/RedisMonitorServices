@@ -1,6 +1,8 @@
 package com.csnight.redis.monitor.db.jpa;
 
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -40,6 +42,11 @@ public class SysRole {
             inverseJoinColumns = {@JoinColumn(name = "menu_id", referencedColumnName = "id")},
             joinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
     private Set<SysMenu> menus = new HashSet<>();
+
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
+    @JsonIgnore
+    @JSONField(serialize = false)
+    private Set<SysUser> users = new HashSet<>();
 
     public String getId() {
         return id;
@@ -95,5 +102,13 @@ public class SysRole {
 
     public void setMenus(Set<SysMenu> menus) {
         this.menus = menus;
+    }
+
+    public Set<SysUser> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<SysUser> users) {
+        this.users = users;
     }
 }

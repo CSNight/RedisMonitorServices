@@ -24,7 +24,7 @@ public class RoleController {
     private RoleServiceImpl roleService;
 
     @LogBack
-    @ApiOperation(value = "查询权限")
+    @ApiOperation(value = "查询角色")
     @RequestMapping(value = "/query_roles", method = RequestMethod.GET)
     public RespTemplate PermitQuery(RoleQueryExp exp) {
         return new RespTemplate(HttpStatus.OK, roleService.QueryBy(exp));
