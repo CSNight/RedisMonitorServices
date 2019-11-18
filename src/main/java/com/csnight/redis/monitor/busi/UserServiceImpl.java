@@ -14,8 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserServiceImpl {
@@ -30,6 +29,7 @@ public class UserServiceImpl {
 
     public List<SysUser> GetAllUser() {
         List<SysUser> users = sysUserRepository.findAll();
+        users.sort(new ComparatorUser());
         for (SysUser user : users) {
             user.setPassword("");
             user.setHead_img(new byte[]{});
@@ -49,6 +49,7 @@ public class UserServiceImpl {
                 }
             }
         }
+        users.sort(new ComparatorUser());
         for (SysUser user : users) {
             user.setPassword("");
             user.setHead_img(new byte[]{});
@@ -139,5 +140,25 @@ public class UserServiceImpl {
             return "Delete cause exception";
         }
         return "failed";
+    }
+
+    private class ComparatorUser implements Comparator<SysUser> {
+
+        @Override
+        public int compare(SysUser t0, SysUser t1) {
+            List<Integer> t0_levels = new ArrayList<>();
+            t0.getRoles().forEach(r -> t0_levels.add(r.getLevel()));
+            List<Integer> t1_levels = new ArrayList<>();
+            t1.getRoles().forEach(r -> t1_levels.add(r.getLevel()));
+            if (t0_levels.size() == 0 || t1_levels.size() == 0) {
+                return t0_levels.size() == 0 ? 1 : -1;
+            }
+            int t0l = Collections.min(t0_levels);
+            int t1l = Collections.min(t1_levels);
+            if (t0l == t1l) {
+                return 0;
+            }
+            return t0l > t1l ? 1 : -1;
+        }
     }
 }
