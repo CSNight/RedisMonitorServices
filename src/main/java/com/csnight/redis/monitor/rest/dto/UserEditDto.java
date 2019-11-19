@@ -14,7 +14,7 @@ public class UserEditDto {
     @NotEmpty
     @NotNull
     private String username;
-    @ApiModelProperty(notes = "用户名")
+    @ApiModelProperty(notes = "昵称")
     @NotEmpty
     @NotNull
     private String nick_name;

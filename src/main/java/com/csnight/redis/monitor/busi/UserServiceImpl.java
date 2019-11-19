@@ -57,9 +57,28 @@ public class UserServiceImpl {
         return users;
     }
 
+    public UserVo NewUsr(UserEditDto dto) throws ConflictsException {
+        SysUser sysUser = new SysUser();
+        if (CheckParams(dto, sysUser, true)) {
+            sysUser.setUsername(dto.getUsername());
+            sysUser.setNick_name(dto.getNick_name());
+            sysUser.setEnabled(dto.isEnabled());
+            sysUser.setPassword(passwordEncoder.encode("123456"));
+            sysUser.setPhone(dto.getPhone());
+            sysUser.setEmail(dto.getEmail());
+            sysUser.setRoles(dto.getRoles());
+            sysUser.setOrg_id(dto.getOrg_id());
+            sysUser.setLock_by("none");
+            sysUser.setCreate_time(new Date());
+            SysUser user = sysUserRepository.save(sysUser);
+            return JSONObject.parseObject(JSONObject.toJSONString(user), UserVo.class);
+        }
+        return null;
+    }
+
     public UserVo ModifyUser(UserEditDto dto) throws ConflictsException {
         SysUser user = sysUserRepository.findByUsername(dto.getUsername());
-        if (user != null && CheckParams(dto, user)) {
+        if (user != null && CheckParams(dto, user, false)) {
             user.setUsername(dto.getUsername());
             user.setNick_name(dto.getNick_name());
             user.setEnabled(dto.isEnabled());
@@ -72,13 +91,13 @@ public class UserServiceImpl {
         return null;
     }
 
-    private boolean CheckParams(UserEditDto dto, SysUser user) throws ConflictsException {
-        if (!dto.getUsername().equals(user.getUsername())) {
+    private boolean CheckParams(UserEditDto dto, SysUser user, boolean isNew) throws ConflictsException {
+        if (!dto.getUsername().equals(user.getUsername()) || isNew) {
             if (sysUserRepository.findByUsername(dto.getUsername()) != null) {
                 throw new ConflictsException("Username already exists!");
             }
         }
-        if (!dto.getNick_name().equals(user.getNick_name())) {
+        if (!dto.getNick_name().equals(user.getNick_name()) || isNew) {
             if (sysUserRepository.findByNickName(dto.getNick_name()) != null) {
                 throw new ConflictsException("Nickname already exists!");
             }
@@ -86,12 +105,12 @@ public class UserServiceImpl {
         if (dto.getRoles().size() == 0) {
             throw new ConflictsException("Role must not be empty!");
         }
-        if (!dto.getEmail().equals(user.getEmail())) {
+        if (!dto.getEmail().equals(user.getEmail()) || isNew) {
             if (!BaseUtils.checkEmail(dto.getEmail()) || sysUserRepository.findByEmail(dto.getEmail()) != null) {
                 throw new ConflictsException("Email already exists or format wrong!");
             }
         }
-        if (!dto.getPhone().equals(user.getPhone())) {
+        if (!dto.getPhone().equals(user.getPhone()) || isNew) {
             if (!BaseUtils.checkPhone(dto.getPhone()) || sysUserRepository.findByPhone(dto.getPhone()) != null) {
                 throw new ConflictsException("Phone already exists or format wrong!");
             }
