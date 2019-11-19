@@ -2,11 +2,12 @@ package com.csnight.redis.monitor.db.repos;
 
 import com.csnight.redis.monitor.db.jpa.SysUser;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface SysUserRepository extends JpaRepository<SysUser, String> {
+public interface SysUserRepository extends JpaRepository<SysUser, String>, JpaSpecificationExecutor<SysUser> {
     SysUser findByUsernameOrEmail(String name, String email);
 
     SysUser findByEmail(String email);

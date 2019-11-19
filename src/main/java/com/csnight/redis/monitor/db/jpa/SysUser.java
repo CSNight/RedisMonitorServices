@@ -67,7 +67,6 @@ public class SysUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // TODO Auto-generated method stub
         List<GrantedAuthority> authorities = new ArrayList<>();
         Set<SysRole> roles = this.getRoles();
         Set<String> permissions = new HashSet<>();

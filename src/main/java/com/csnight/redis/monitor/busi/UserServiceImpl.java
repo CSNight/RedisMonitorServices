@@ -1,6 +1,8 @@
 package com.csnight.redis.monitor.busi;
 
 import com.alibaba.fastjson.JSONObject;
+import com.csnight.redis.monitor.busi.exp.UserQueryExp;
+import com.csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import com.csnight.redis.monitor.db.jpa.SysOrg;
 import com.csnight.redis.monitor.db.jpa.SysUser;
 import com.csnight.redis.monitor.db.repos.SysOrgRepository;
@@ -23,7 +25,6 @@ public class UserServiceImpl {
     private SysUserRepository sysUserRepository;
     @Resource
     private PasswordEncoder passwordEncoder;
-
     @Resource
     private SysOrgRepository sysOrgRepository;
 
@@ -32,8 +33,22 @@ public class UserServiceImpl {
         users.sort(new ComparatorUser());
         for (SysUser user : users) {
             user.setPassword("");
+            user.getRoles().forEach(role -> {
+                role.setMenus(new HashSet<>());
+            });
             user.setHead_img(new byte[]{});
         }
+        return users;
+    }
+
+    public List<SysUser> QueryBy(UserQueryExp exp) {
+        List<SysUser> users = sysUserRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder));
+        for (SysUser user : users) {
+            user.setPassword("");
+            user.getRoles().forEach(role -> role.setMenus(new HashSet<>()));
+            user.setHead_img(new byte[]{});
+        }
+        users.sort(new ComparatorUser());
         return users;
     }
 
@@ -41,9 +56,11 @@ public class UserServiceImpl {
         List<SysUser> users = sysUserRepository.findByOrgId(org_id);
         Optional<SysOrg> orgOpt = sysOrgRepository.findById(org_id);
         if (orgOpt.isPresent()) {
+            Set<SysOrg> ids = new HashSet<>();
             SysOrg org = orgOpt.get();
+            getOrgChildIds(org, ids);
             if (org.getChildren().size() != 0) {
-                for (SysOrg ch : org.getChildren()) {
+                for (SysOrg ch : ids) {
                     List<SysUser> user_ch = sysUserRepository.findByOrgId(ch.getId());
                     users.addAll(user_ch);
                 }
@@ -55,6 +72,15 @@ public class UserServiceImpl {
             user.setHead_img(new byte[]{});
         }
         return users;
+    }
+
+    private void getOrgChildIds(SysOrg sysOrg, Set<SysOrg> ids) {
+        for (SysOrg child : sysOrg.getChildren()) {
+            ids.add(child);
+            if (child.getChildren().size() > 0) {
+                getOrgChildIds(child, ids);
+            }
+        }
     }
 
     public UserVo NewUsr(UserEditDto dto) throws ConflictsException {
@@ -136,6 +162,7 @@ public class UserServiceImpl {
     }
 
     public String DeleteUserById(String id) {
+        //TODO 删除用户资源
         try {
             Optional<SysUser> userOpt = sysUserRepository.findById(id);
             if (userOpt.isPresent()) {
@@ -149,6 +176,7 @@ public class UserServiceImpl {
     }
 
     public String DeleteUserByName(String username) {
+        //TODO 删除用户资源
         try {
             SysUser user = sysUserRepository.findByUsername(username);
             if (user != null) {
