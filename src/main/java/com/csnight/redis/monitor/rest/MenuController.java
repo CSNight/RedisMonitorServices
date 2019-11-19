@@ -9,6 +9,7 @@ import com.csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -21,6 +22,7 @@ public class MenuController {
     @Resource
     private MenuServiceImpl menuService;
 
+    @PreAuthorize("hasAuthority('MENU_ICONS')")
     @ApiOperation(value = "获取系统图标库")
     @RequestMapping(value = "/get_icons", method = RequestMethod.GET)
     public RespTemplate GetIcons() {
@@ -28,7 +30,7 @@ public class MenuController {
     }
 
     @LogBack
-    // @PreAuthorize("hasAuthority('MENU_QUERY')")
+    @PreAuthorize("hasAuthority('MENU_QUERY')")
     @ApiOperation(value = "获取菜单目录树")
     @RequestMapping(value = "/get_menu_tree", method = RequestMethod.GET)
     public RespTemplate GetMenuTree() {
@@ -36,7 +38,7 @@ public class MenuController {
     }
 
     @LogBack
-    // @PreAuthorize("hasAuthority('MENU_QUERY')")
+    @PreAuthorize("hasAuthority('MENU_QUERY')")
     @ApiOperation(value = "获取菜单目录列表")
     @RequestMapping(value = "/get_menu_list", method = RequestMethod.GET)
     public RespTemplate GetMenuList() {
@@ -44,6 +46,7 @@ public class MenuController {
     }
 
     @LogBack
+    @PreAuthorize("hasAuthority('MENU_QUERY')")
     @ApiOperation(value = "通过父节点ID获取菜单目录")
     @RequestMapping(value = "/{pid}/get_menu", method = RequestMethod.GET)
     public RespTemplate GetMenuByPid(@PathVariable String pid) {
@@ -51,6 +54,7 @@ public class MenuController {
     }
 
     @LogBack
+    @PreAuthorize("hasAuthority('MENU_QUERY')")
     @ApiOperation(value = "查询菜单目录")
     @RequestMapping(value = "/query_menu", method = RequestMethod.GET)
     public RespTemplate MenuQuery(MenuQueryExp exp) {
@@ -58,6 +62,7 @@ public class MenuController {
     }
 
     @LogBack
+    @PreAuthorize("hasAuthority('MENU_QUERY') AND hasAuthority('MENU_ROUTE')")
     @ApiOperation(value = "查询菜单路由")
     @RequestMapping(value = "/menu_routers", method = RequestMethod.GET)
     public RespTemplate MenuRoutes() {
@@ -66,6 +71,7 @@ public class MenuController {
 
     @LogBack
     @ApiOperation(value = "修改菜单信息")
+    @PreAuthorize("hasAuthority('MENU_UPDATE')")
     @RequestMapping(value = "/modify_menu", method = RequestMethod.PUT)
     public RespTemplate ModifyMenuIns(@Valid @RequestBody MenuDto menuDto) throws ConflictsException {
         if (menuDto != null) {
@@ -76,6 +82,7 @@ public class MenuController {
 
     @LogBack
     @ApiOperation(value = "添加菜单项")
+    @PreAuthorize("hasAuthority('MENU_ADD')")
     @RequestMapping(value = "/new_menu", method = RequestMethod.POST)
     public RespTemplate NewMenuIns(@Valid @RequestBody MenuDto menuDto) throws ConflictsException {
         if (menuDto != null) {
@@ -86,6 +93,7 @@ public class MenuController {
 
     @LogBack
     @ApiOperation(value = "通过ID删除菜单")
+    @PreAuthorize("hasAuthority('MENU_DEL')")
     @RequestMapping(value = "/delete_menu/{id}", method = RequestMethod.DELETE)
     public RespTemplate DeleteMenuById(@PathVariable String id) {
         return new RespTemplate(HttpStatus.OK, menuService.DeleteMenuById(id));

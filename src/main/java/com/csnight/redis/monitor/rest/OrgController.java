@@ -11,6 +11,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,7 @@ public class OrgController {
     }
 
     @LogBack
+    @PreAuthorize("hasAuthority('ORG_QUERY')")
     @ApiOperation(value = "获取组织机构目录树")
     @RequestMapping(value = "/get_org_tree", method = RequestMethod.GET)
     public RespTemplate GetOrgTree() {
@@ -34,6 +36,7 @@ public class OrgController {
     }
 
     @LogBack
+    @PreAuthorize("hasAuthority('ORG_QUERY')")
     @ApiOperation(value = "获取组织机构目录列表")
     @RequestMapping(value = "/get_org_list", method = RequestMethod.GET)
     public RespTemplate GetOrgList() {
@@ -41,6 +44,7 @@ public class OrgController {
     }
 
     @LogBack
+    @PreAuthorize("hasAuthority('ORG_QUERY')")
     @ApiOperation(value = "查询组织机构")
     @RequestMapping(value = "/query_org", method = RequestMethod.GET)
     public RespTemplate OrgQuery(OrgQueryExp exp) {
@@ -48,6 +52,7 @@ public class OrgController {
     }
 
     @LogBack
+    @PreAuthorize("hasAuthority('ORG_QUERY')")
     @ApiOperation(value = "根据ID及状态查询组织机构")
     @RequestMapping(value = "/get_org_by", method = RequestMethod.GET)
     public RespTemplate OrgQueryBy(String id, boolean enabled) {
@@ -55,6 +60,7 @@ public class OrgController {
     }
 
     @LogBack
+    @PreAuthorize("hasAuthority('ORG_QUERY')")
     @ApiOperation(value = "通过父节点ID获取组织机构目录")
     @RequestMapping(value = "/{pid}/get_org", method = RequestMethod.GET)
     public RespTemplate GetOrgByPid(@PathVariable String pid) {
@@ -62,6 +68,7 @@ public class OrgController {
     }
 
     @LogBack
+    @PreAuthorize("hasAuthority('ORG_UPDATE')")
     @ApiOperation(value = "修改组织机构")
     @RequestMapping(value = "/modify_org", method = RequestMethod.PUT)
     public RespTemplate ModifyOrgIns(@RequestParam("org_ent") String org_ent) throws ConflictsException {
@@ -72,6 +79,7 @@ public class OrgController {
     }
 
     @LogBack
+    @PreAuthorize("hasAuthority('ORG_ADD')")
     @ApiOperation(value = "添加组织机构")
     @ApiImplicitParam(paramType = "query", name = "org_ent", value = "新组织", required = true, dataType = "String")
     @RequestMapping(value = "/new_org", method = RequestMethod.POST)
@@ -86,6 +94,7 @@ public class OrgController {
     }
 
     @LogBack
+    @PreAuthorize("hasAuthority('ORG_DEL')")
     @ApiOperation(value = "通过ID删除组织机构")
     @RequestMapping(value = "/delete_org/{id}", method = RequestMethod.DELETE)
     public RespTemplate DeleteOrgById(@PathVariable String id) {
