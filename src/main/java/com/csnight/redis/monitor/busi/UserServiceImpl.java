@@ -189,7 +189,7 @@ public class UserServiceImpl {
         return "failed";
     }
 
-    private class ComparatorUser implements Comparator<SysUser> {
+    private static class ComparatorUser implements Comparator<SysUser> {
 
         @Override
         public int compare(SysUser t0, SysUser t1) {

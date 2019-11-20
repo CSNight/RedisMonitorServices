@@ -1,8 +1,10 @@
 package com.csnight.redis.monitor.auth.service;
 
+import com.csnight.redis.monitor.db.jpa.SysOrg;
 import com.csnight.redis.monitor.db.jpa.SysPermission;
 import com.csnight.redis.monitor.db.jpa.SysRole;
 import com.csnight.redis.monitor.db.jpa.SysUser;
+import com.csnight.redis.monitor.db.repos.SysOrgRepository;
 import com.csnight.redis.monitor.db.repos.SysUserRepository;
 import com.csnight.redis.monitor.utils.BaseUtils;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,13 +15,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
 public class LoginUserService implements UserDetailsService {
     private final SysUserRepository userMapper;
+    @Resource
+    private SysOrgRepository orgRepository;
 
     public LoginUserService(SysUserRepository userMapper) {
         this.userMapper = userMapper;
@@ -38,7 +44,13 @@ public class LoginUserService implements UserDetailsService {
 
     public SysUser GetUserInfo(String username) {
         SysUser user = userMapper.findByUsername(username);
-        user.setPassword("");
+        Optional<SysOrg> org = orgRepository.findById(user.getOrg_id());
+        if (org.isPresent()) {
+            user.setPassword(org.get().getName());
+        } else {
+            user.setPassword("");
+        }
+
         return user;
     }
 

@@ -52,7 +52,6 @@ public class LoginController {
         if (sysUser == null) {
             return new RespTemplate(HttpStatus.NOT_FOUND, "failed");
         }
-        sysUser.setPassword("");
         return new RespTemplate(HttpStatus.OK, sysUser);
     }
 
