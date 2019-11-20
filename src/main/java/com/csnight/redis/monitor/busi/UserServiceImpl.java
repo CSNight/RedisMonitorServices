@@ -146,13 +146,15 @@ public class UserServiceImpl {
 
     public String ChangePassword(UserPassDto user) {
         try {
-            String passEncode = passwordEncoder.encode(user.getOld_password());
-            SysUser userExist = sysUserRepository.findByUsernameAndPassword(user.getUsername(), passEncode);
+            SysUser userExist = sysUserRepository.findByUsername(user.getUsername());
             if (userExist != null) {
-                user.setPassword(passwordEncoder.encode(user.getPassword()));
-                SysUser sysUser = sysUserRepository.save(userExist);
-                if (sysUser != null) {
-                    return "success";
+                boolean match = passwordEncoder.matches(user.getOld_password(), userExist.getPassword());
+                if(match){
+                    userExist.setPassword(passwordEncoder.encode(user.getPassword()));
+                    SysUser sysUser = sysUserRepository.save(userExist);
+                    if (sysUser != null) {
+                        return "success";
+                    }
                 }
             }
             return "User name or password mismatch";

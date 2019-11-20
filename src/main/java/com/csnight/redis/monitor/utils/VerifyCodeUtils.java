@@ -15,7 +15,7 @@ import java.util.Random;
 public class VerifyCodeUtils {
 
     //使用到Algerian字体，系统里没有的话需要安装字体，字体只显示大写，去掉了1,0,i,o几个容易混淆的字符
-    public static final String VERIFY_CODES = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+    private static final String VERIFY_CODES = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
     private static Random random = new Random();
 
 
@@ -36,7 +36,7 @@ public class VerifyCodeUtils {
      * @param sources    验证码字符源
      * @return
      */
-    public static String generateVerifyCode(int verifySize, String sources) {
+    private static String generateVerifyCode(int verifySize, String sources) {
         if (sources == null || sources.length() == 0) {
             sources = VERIFY_CODES;
         }
@@ -250,16 +250,6 @@ public class VerifyCodeUtils {
                 g.drawLine(i, (int) d, i, 0);
                 g.drawLine(i, (int) d + h1, i, h1);
             }
-        }
-    }
-
-    public static void main(String[] args) throws IOException {
-        File dir = new File("F:/verifies");
-        int w = 200, h = 80;
-        for (int i = 0; i < 50; i++) {
-            String verifyCode = generateVerifyCode(4);
-            File file = new File(dir, verifyCode + ".jpg");
-            outputImage(w, h, file, verifyCode);
         }
     }
 }
