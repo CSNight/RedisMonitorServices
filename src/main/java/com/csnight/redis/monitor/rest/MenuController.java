@@ -22,6 +22,7 @@ public class MenuController {
     @Resource
     private MenuServiceImpl menuService;
 
+    @LogBack
     @PreAuthorize("hasAuthority('MENU_ICONS')")
     @ApiOperation(value = "获取系统图标库")
     @RequestMapping(value = "/get_icons", method = RequestMethod.GET)
@@ -62,7 +63,7 @@ public class MenuController {
     }
 
     @LogBack
-    @PreAuthorize("hasAuthority('MENU_QUERY') AND hasAuthority('MENU_ROUTE')")
+    @PreAuthorize("hasAuthority('MENU_ROUTE')")
     @ApiOperation(value = "查询菜单路由")
     @RequestMapping(value = "/menu_routers", method = RequestMethod.GET)
     public RespTemplate MenuRoutes() {

@@ -4,7 +4,7 @@ server:
     context-path: /
   ssl:
     key-store: classpath:www.csnight.xyz.pfx
-    key-store-password: *******
+    key-store-password: myJ5h6ik
     key-store-type: PKCS12
 spring:
   jpa:

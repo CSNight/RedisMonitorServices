@@ -79,9 +79,16 @@ public class LogAspectAnnotation {
         } else {
             wrapRes = result;
         }
-        logger.info("\r\nCost:{}ms Status:" + rep.getStatus() +
-                "\r\nClass:{}=>{}\r\n" +
-                "Response => {}", costTime, className, methodName, wrapRes);
+        if (methodName.equals("GetIcons")) {
+            logger.info("\r\nCost:{}ms Status:" + rep.getStatus() +
+                    "\r\nClass:{}=>{}\r\n" +
+                    "Response => {}", costTime, className, methodName, "icons");
+        } else {
+            logger.info("\r\nCost:{}ms Status:" + rep.getStatus() +
+                    "\r\nClass:{}=>{}\r\n" +
+                    "Response => {}", costTime, className, methodName, wrapRes);
+        }
+
         return result;
     }
 

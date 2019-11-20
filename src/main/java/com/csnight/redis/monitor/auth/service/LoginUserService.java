@@ -50,7 +50,6 @@ public class LoginUserService implements UserDetailsService {
         } else {
             user.setPassword("");
         }
-
         return user;
     }
 
