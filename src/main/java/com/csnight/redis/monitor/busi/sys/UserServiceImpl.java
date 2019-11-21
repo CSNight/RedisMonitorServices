@@ -13,6 +13,7 @@ import com.csnight.redis.monitor.rest.sys.dto.UserPassDto;
 import com.csnight.redis.monitor.rest.sys.vo.UserVo;
 import com.csnight.redis.monitor.utils.BaseUtils;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +31,7 @@ public class UserServiceImpl {
     @Resource
     private SysOrgRepository sysOrgRepository;
 
+    @Cacheable(value = "users")
     public List<SysUser> GetAllUser() {
         List<SysUser> users = sysUserRepository.findAll();
         users.sort(new ComparatorUser());
@@ -54,6 +56,7 @@ public class UserServiceImpl {
         return users;
     }
 
+    @CacheEvict(value = "users", beforeInvocation = true, allEntries = true)
     public List<SysUser> GetUsersByOrg(Long org_id) {
         List<SysUser> users = sysUserRepository.findByOrgId(org_id);
         Optional<SysOrg> orgOpt = sysOrgRepository.findById(org_id);
@@ -85,6 +88,7 @@ public class UserServiceImpl {
         }
     }
 
+    @CacheEvict(value = "users", beforeInvocation = true, allEntries = true)
     public UserVo NewUsr(UserEditDto dto) throws ConflictsException {
         SysUser sysUser = new SysUser();
         if (CheckParams(dto, sysUser, true)) {
@@ -104,7 +108,7 @@ public class UserServiceImpl {
         return null;
     }
 
-    @CacheEvict(value = "user_info", key = "#dto.username")
+    @CacheEvict(value = {"user_info", "users"}, beforeInvocation = true, allEntries = true)
     public UserVo ModifyUser(UserEditDto dto) throws ConflictsException {
         SysUser user = sysUserRepository.findByUsername(dto.getUsername());
         if (user != null && CheckParams(dto, user, false)) {
@@ -186,6 +190,7 @@ public class UserServiceImpl {
         }
     }
 
+    @CacheEvict(value = "users", beforeInvocation = true, allEntries = true)
     public String DeleteUserById(String id) {
         //TODO 删除用户资源
         try {
@@ -216,7 +221,6 @@ public class UserServiceImpl {
     }
 
     private static class ComparatorUser implements Comparator<SysUser> {
-
         @Override
         public int compare(SysUser t0, SysUser t1) {
             List<Integer> t0_levels = new ArrayList<>();

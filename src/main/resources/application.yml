@@ -4,7 +4,7 @@ server:
     context-path: /
   ssl:
     key-store: classpath:www.csnight.xyz.pfx
-    key-store-password: 8888888
+    key-store-password: myJ5h6ik
     key-store-type: PKCS12
 spring:
   jpa:
@@ -47,17 +47,6 @@ spring:
   cache:
     type: caffeine
     caffeine:
-      spec: initialCapacity=1000,maximumSize=2000,expireAfterWrite=60s
+      spec: initialCapacity=1000,maximumSize=2000,expireAfterWrite=60s,recordStats
 logging:
   config: classpath:logback-config.xml
-#security:
-#  oauth2:
-#    client:
-#      id: rms
-#      client-id: rms
-#      client-secret: csnight
-#      grant-type: authorization_code
-#      accessTokenUri: http://localhost:8030/oauth/token
-#      userAuthorizationUri: http://localhost:8030/oauth/authorize
-#    resource:
-#      token-info-uri: http://localhost:8030/oauth/check_token

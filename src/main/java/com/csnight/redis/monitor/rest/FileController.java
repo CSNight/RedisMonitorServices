@@ -1,6 +1,5 @@
 package com.csnight.redis.monitor.rest;
 
-import com.csnight.redis.monitor.aop.LogBack;
 import com.csnight.redis.monitor.utils.BaseUtils;
 import com.csnight.redis.monitor.utils.GUID;
 import com.csnight.redis.monitor.utils.RespTemplate;
@@ -16,7 +15,6 @@ import java.io.File;
 @RestController
 public class FileController {
 
-    @LogBack
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public RespTemplate upload(MultipartFile file) {
         // 获取文件名

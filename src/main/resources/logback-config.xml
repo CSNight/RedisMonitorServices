@@ -4,7 +4,11 @@
     <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/spring.log}"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
     <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
-    <appender name="DBLog" class="ch.qos.logback.classic.db.DBAppender">
+    <!--日志异步到数据库 -->
+    <appender name="DB_APPENDER" class="ch.qos.logback.classic.db.DBAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
         <connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">
             <dataSource class="com.alibaba.druid.pool.DruidDataSource">
                 <driverClassName>com.mysql.cj.jdbc.Driver</driverClassName>
@@ -13,13 +17,15 @@
                 <password>qnyh@123</password>
             </dataSource>
         </connectionSource>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
+    </appender>
+    <!-- 异步日志记录 -->
+    <appender name="ASYNC_APPENDER" class="ch.qos.logback.classic.AsyncAppender">
+        　　<appender-ref ref="DB_APPENDER" />
+        　　<includeCallerData>true</includeCallerData>
     </appender>
     <root level="INFO">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="FILE" />
-        <appender-ref ref="DBLog" />
+        <appender-ref ref="ASYNC_APPENDER" />
     </root>
 </configuration>
