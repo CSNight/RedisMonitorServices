@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.rest;
+package com.csnight.redis.monitor.rest.sys;
 
 import com.csnight.redis.monitor.aop.LogBack;
 import com.csnight.redis.monitor.busi.MenuServiceImpl;
@@ -8,6 +8,7 @@ import com.csnight.redis.monitor.rest.dto.MenuDto;
 import com.csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ public class MenuController {
     private MenuServiceImpl menuService;
 
     @LogBack
+
     @PreAuthorize("hasAuthority('MENU_ICONS')")
     @ApiOperation(value = "获取系统图标库")
     @RequestMapping(value = "/get_icons", method = RequestMethod.GET)

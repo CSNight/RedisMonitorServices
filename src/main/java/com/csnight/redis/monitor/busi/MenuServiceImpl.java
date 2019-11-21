@@ -14,6 +14,8 @@ import com.csnight.redis.monitor.db.repos.SysUserRepository;
 import com.csnight.redis.monitor.exception.ConflictsException;
 import com.csnight.redis.monitor.rest.dto.MenuDto;
 import com.csnight.redis.monitor.utils.BaseUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +31,13 @@ public class MenuServiceImpl {
     @Resource
     private SysUserRepository sysUserRepository;
 
+    @Cacheable(value = "icons")
     public List<SysIcons> GetIconList() {
+        System.gc();
         return sysIconRepository.findAll();
     }
 
+    @Cacheable(value = "menus_list")
     public List<SysMenu> GetMenuList() {
         List<SysMenu> menuList = sysMenuRepository.findAll(Sort.by("sort"));
         for (SysMenu sysMenu : menuList) {
@@ -49,6 +54,7 @@ public class MenuServiceImpl {
         return menuList;
     }
 
+    @Cacheable(value = "menus_tree")
     public List<SysMenu> GetMenuTree() {
         return sysMenuRepository.findByPidOrderBySortAsc(0L);
     }
@@ -94,6 +100,7 @@ public class MenuServiceImpl {
         return list;
     }
 
+    @CacheEvict(value = {"menus_tree", "menus_list"}, beforeInvocation = true, allEntries = true)
     public SysMenu ModifyMenu(MenuDto menuDto) throws ConflictsException {
         Optional<SysMenu> sysMenu = sysMenuRepository.findById(menuDto.getId());
         if (sysMenu.isPresent()) {
@@ -134,6 +141,7 @@ public class MenuServiceImpl {
         return null;
     }
 
+    @CacheEvict(value = {"menus_tree", "menus_list"}, beforeInvocation = true, allEntries = true)
     public SysMenu NewMenu(MenuDto menuDto) throws ConflictsException {
         SysMenu new_menu = new SysMenu();
         if (menuDto.getPid().equals(0L) && !menuDto.isIframe()) {
@@ -160,6 +168,7 @@ public class MenuServiceImpl {
         }
     }
 
+    @CacheEvict(value = {"menus_tree", "menus_list"}, beforeInvocation = true, allEntries = true)
     public String DeleteMenuById(String id) {
         Optional<SysMenu> sysMenuOpt = sysMenuRepository.findById(Long.parseLong(id));
         if (sysMenuOpt.isPresent()) {

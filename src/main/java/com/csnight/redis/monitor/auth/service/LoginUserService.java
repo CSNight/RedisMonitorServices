@@ -7,6 +7,7 @@ import com.csnight.redis.monitor.db.jpa.SysUser;
 import com.csnight.redis.monitor.db.repos.SysOrgRepository;
 import com.csnight.redis.monitor.db.repos.SysUserRepository;
 import com.csnight.redis.monitor.utils.BaseUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -42,6 +43,7 @@ public class LoginUserService implements UserDetailsService {
                 user.isCredentialsNonExpired(), user.isAccountNonLocked(), simpleGrantedAuthorities);
     }
 
+    @Cacheable(value = "user_info", key = "#username")
     public SysUser GetUserInfo(String username) {
         SysUser user = userMapper.findByUsername(username);
         Optional<SysOrg> org = orgRepository.findById(user.getOrg_id());

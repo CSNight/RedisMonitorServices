@@ -8,6 +8,8 @@ import com.csnight.redis.monitor.db.repos.SysMenuRepository;
 import com.csnight.redis.monitor.db.repos.SysPermissionRepository;
 import com.csnight.redis.monitor.exception.ConflictsException;
 import com.csnight.redis.monitor.rest.dto.PermissionDto;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -26,10 +28,12 @@ public class PermissionServiceImpl {
         return permissionRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder));
     }
 
+    @Cacheable(value = "permits")
     public List<SysPermission> GetAllPermission() {
         return permissionRepository.findAll();
     }
 
+    @CacheEvict(value = "permits", beforeInvocation = true, allEntries = true)
     public SysPermission NewPermission(PermissionDto dto, String username) throws ConflictsException {
         SysPermission permission = new SysPermission();
         permission.setName(dto.getName());
@@ -43,7 +47,7 @@ public class PermissionServiceImpl {
             throw new ConflictsException("Permission with same name already exists or menu belongs dosen't exists!");
         }
     }
-
+    @CacheEvict(value = "permits", beforeInvocation = true, allEntries = true)
     public String DeletePermitById(String id) {
         Optional<SysPermission> optPermit = permissionRepository.findById(id);
         if (optPermit.isPresent()) {
@@ -52,7 +56,7 @@ public class PermissionServiceImpl {
         }
         return "failed";
     }
-
+    @CacheEvict(value = "permits", beforeInvocation = true, allEntries = true)
     public SysPermission ModifyPermission(PermissionDto dto) throws ConflictsException {
         Optional<SysPermission> optPermit = permissionRepository.findById(dto.getId());
         if (optPermit.isPresent()) {

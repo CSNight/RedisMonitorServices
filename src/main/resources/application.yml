@@ -41,6 +41,13 @@ spring:
     jdbc:
       initialize-schema: never
       schema: classpath:qrtz.sql
+  servlet:
+    multipart:
+      max-file-size: 2MB
+  cache:
+    type: caffeine
+    caffeine:
+      spec: initialCapacity=1000,maximumSize=2000,expireAfterWrite=60s
 logging:
   config: classpath:logback-config.xml
 #security:

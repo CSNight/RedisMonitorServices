@@ -20,6 +20,9 @@ public class RespTemplate {
         if (message == null) {
             message = "failed";
         }
+        if (code.equals(HttpStatus.OK)) {
+            this.status = 200;
+        }
     }
 
     public RespTemplate(int status, HttpStatus code, Object msg, String uri, String method) {

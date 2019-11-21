@@ -8,6 +8,8 @@ import com.csnight.redis.monitor.db.repos.SysRoleRepository;
 import com.csnight.redis.monitor.exception.ConflictsException;
 import com.csnight.redis.monitor.rest.dto.RoleDto;
 import com.csnight.redis.monitor.rest.vo.SysMenuVo;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -28,7 +30,7 @@ public class RoleServiceImpl {
         return roles;
     }
 
-
+    @Cacheable(value = "roles")
     public List<SysRole> GetAllRole() {
         List<SysRole> roles = sysRoleRepository.findAll();
         for (SysRole role : roles) {
@@ -39,6 +41,7 @@ public class RoleServiceImpl {
         return roles;
     }
 
+    @CacheEvict(value = "roles", beforeInvocation = true, allEntries = true)
     public SysRole NewRole(RoleDto dto) throws ConflictsException {
         SysRole role = new SysRole();
         role.setName(dto.getName());
@@ -53,6 +56,7 @@ public class RoleServiceImpl {
         }
     }
 
+    @CacheEvict(value = "roles", beforeInvocation = true, allEntries = true)
     public String DeleteRoleById(String id) {
         Optional<SysRole> optRole = sysRoleRepository.findById(id);
         if (optRole.isPresent()) {
@@ -62,6 +66,7 @@ public class RoleServiceImpl {
         return "failed";
     }
 
+    @CacheEvict(value = "roles", beforeInvocation = true, allEntries = true)
     public SysRole ModifyRole(RoleDto dto) throws ConflictsException {
         Optional<SysRole> optRole = sysRoleRepository.findById(dto.getId());
         if (optRole.isPresent()) {
@@ -78,6 +83,7 @@ public class RoleServiceImpl {
         return null;
     }
 
+    @CacheEvict(value = "roles", beforeInvocation = true, allEntries = true)
     public SysRole UpdateRoleMenus(RoleDto dto) {
         Optional<SysRole> optRole = sysRoleRepository.findById(dto.getId());
         if (optRole.isPresent()) {
@@ -98,6 +104,7 @@ public class RoleServiceImpl {
         return null;
     }
 
+    @CacheEvict(value = "roles", beforeInvocation = true, allEntries = true)
     public SysRole UpdateRolePermissions(RoleDto dto) {
         Optional<SysRole> optRole = sysRoleRepository.findById(dto.getId());
         if (optRole.isPresent()) {

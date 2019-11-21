@@ -7,6 +7,8 @@ import com.csnight.redis.monitor.db.jpa.SysOrg;
 import com.csnight.redis.monitor.db.repos.SysOrgRepository;
 import com.csnight.redis.monitor.exception.ConflictsException;
 import com.csnight.redis.monitor.utils.BaseUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -19,11 +21,13 @@ public class OrgServiceImpl {
         this.sysOrgRepository = sysOrgRepository;
     }
 
+    @Cacheable(value = "orgTree")
     public SysOrg GetOrgTree() {
         Optional<SysOrg> sysOrg = sysOrgRepository.findById(1L);
         return sysOrg.orElse(null);
     }
 
+    @Cacheable(value = "orgList")
     public List<SysOrg> GetOrgList() {
         List<SysOrg> orgList = sysOrgRepository.findAll();
         for (SysOrg sysOrg : orgList) {
@@ -55,6 +59,7 @@ public class OrgServiceImpl {
         return copy_org;
     }
 
+    @CacheEvict(value = {"orgTree", "orgList"}, beforeInvocation = true, allEntries = true)
     public SysOrg ModifyOrg(JSONObject jo_org) throws ConflictsException {
         if (jo_org.containsKey("id")) {
             Optional<SysOrg> sysOrg = sysOrgRepository.findById(jo_org.getLong("id"));
@@ -84,6 +89,7 @@ public class OrgServiceImpl {
         return null;
     }
 
+    @CacheEvict(value = {"orgTree", "orgList"}, beforeInvocation = true, allEntries = true)
     public SysOrg NewOrg(JSONObject jo_org, String user) throws ConflictsException {
         if (jo_org.containsKey("pid")) {
             SysOrg sysOrg = new SysOrg();
@@ -101,6 +107,7 @@ public class OrgServiceImpl {
         return null;
     }
 
+    @CacheEvict(value = {"orgTree", "orgList"}, beforeInvocation = true, allEntries = true)
     public String DeleteOrgById(String id) {
         Optional<SysOrg> sysOrgOpt = sysOrgRepository.findById(Long.parseLong(id));
         if (sysOrgOpt.isPresent()) {

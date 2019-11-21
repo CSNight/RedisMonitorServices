@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.rest;
+package com.csnight.redis.monitor.rest.sys;
 
 import com.alibaba.fastjson.JSONObject;
 import com.csnight.redis.monitor.aop.LogBack;

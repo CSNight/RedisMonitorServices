@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.rest;
+package com.csnight.redis.monitor.rest.sys;
 
 import com.csnight.redis.monitor.aop.LogBack;
 import com.csnight.redis.monitor.busi.UserServiceImpl;
@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -69,6 +70,14 @@ public class UserController {
     @RequestMapping(value = "/change_pwd", method = RequestMethod.PUT)
     public RespTemplate ModifyUserInfo(@Valid @RequestBody UserPassDto dto) {
         return new RespTemplate(HttpStatus.OK, userService.ChangePassword(dto));
+    }
+
+    @LogBack
+    @PreAuthorize("hasAuthority('USER_INFO_EDIT')")
+    @ApiOperation(value = "修改用户头像")
+    @RequestMapping(value = "/change_avatar", method = RequestMethod.POST)
+    public RespTemplate ChangeUserAvatar(MultipartFile file) {
+        return new RespTemplate(HttpStatus.OK, userService.changeAvatar(file));
     }
 
     @LogBack

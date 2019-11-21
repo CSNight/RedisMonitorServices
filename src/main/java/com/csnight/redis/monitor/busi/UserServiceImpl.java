@@ -12,10 +12,14 @@ import com.csnight.redis.monitor.rest.dto.UserEditDto;
 import com.csnight.redis.monitor.rest.dto.UserPassDto;
 import com.csnight.redis.monitor.rest.vo.UserVo;
 import com.csnight.redis.monitor.utils.BaseUtils;
+import com.csnight.redis.monitor.utils.GUID;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.*;
 
 @Service
@@ -149,7 +153,7 @@ public class UserServiceImpl {
             SysUser userExist = sysUserRepository.findByUsername(user.getUsername());
             if (userExist != null) {
                 boolean match = passwordEncoder.matches(user.getOld_password(), userExist.getPassword());
-                if(match){
+                if (match) {
                     userExist.setPassword(passwordEncoder.encode(user.getPassword()));
                     SysUser sysUser = sysUserRepository.save(userExist);
                     if (sysUser != null) {
@@ -160,6 +164,40 @@ public class UserServiceImpl {
             return "User name or password mismatch";
         } catch (Exception ex) {
             return "Password change failed";
+        }
+    }
+
+    public String changeAvatar(MultipartFile file) {
+        File f = null;
+        try {
+            String Dir = BaseUtils.getResourceDir() + "tmpFile/";
+            File dir = new File(Dir);
+            if (!dir.exists()) {
+                dir.mkdir();
+            }
+            String fn = file.getOriginalFilename();
+            assert fn != null;
+            String ext = fn.substring(fn.lastIndexOf(".") + 1);
+            f = new File(Dir + GUID.getUUID() + "." + ext);
+            file.transferTo(f);
+            if (f.exists()) {
+                FileInputStream fs = new FileInputStream(f);
+                byte[] fb = fs.readAllBytes();
+                fs.close();
+                SysUser user = sysUserRepository.findByUsername(BaseUtils.GetUserFromContext());
+                if (user != null && fb.length != 0) {
+                    user.setHead_img(BaseUtils.bytesToBase64(fb, ext).getBytes());
+                    sysUserRepository.save(user);
+                    return "success";
+                }
+            }
+            return "failed";
+        } catch (Exception ex) {
+            return "failed";
+        } finally {
+            if (f != null) {
+                f.delete();
+            }
         }
     }
 
