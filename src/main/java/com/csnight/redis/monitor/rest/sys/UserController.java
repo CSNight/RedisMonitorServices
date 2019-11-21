@@ -6,6 +6,7 @@ import com.csnight.redis.monitor.busi.exp.UserQueryExp;
 import com.csnight.redis.monitor.exception.ConflictsException;
 import com.csnight.redis.monitor.rest.dto.UserEditDto;
 import com.csnight.redis.monitor.rest.dto.UserPassDto;
+import com.csnight.redis.monitor.utils.BaseUtils;
 import com.csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -68,7 +69,7 @@ public class UserController {
     @PreAuthorize("hasAuthority('USER_INFO_EDIT')")
     @ApiOperation(value = "修改用户密码")
     @RequestMapping(value = "/change_pwd", method = RequestMethod.PUT)
-    public RespTemplate ModifyUserInfo(@Valid @RequestBody UserPassDto dto) {
+    public RespTemplate ModifyUserPass(@Valid @RequestBody UserPassDto dto) {
         return new RespTemplate(HttpStatus.OK, userService.ChangePassword(dto));
     }
 
@@ -77,7 +78,7 @@ public class UserController {
     @ApiOperation(value = "修改用户头像")
     @RequestMapping(value = "/change_avatar", method = RequestMethod.POST)
     public RespTemplate ChangeUserAvatar(MultipartFile file) {
-        return new RespTemplate(HttpStatus.OK, userService.changeAvatar(file));
+        return new RespTemplate(HttpStatus.OK, userService.changeAvatar(file, BaseUtils.GetUserFromContext()));
     }
 
     @LogBack

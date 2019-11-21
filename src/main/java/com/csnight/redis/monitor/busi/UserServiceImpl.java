@@ -12,14 +12,12 @@ import com.csnight.redis.monitor.rest.dto.UserEditDto;
 import com.csnight.redis.monitor.rest.dto.UserPassDto;
 import com.csnight.redis.monitor.rest.vo.UserVo;
 import com.csnight.redis.monitor.utils.BaseUtils;
-import com.csnight.redis.monitor.utils.GUID;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.*;
 
 @Service
@@ -106,6 +104,7 @@ public class UserServiceImpl {
         return null;
     }
 
+    @CacheEvict(value = "user_info", key = "#dto.username")
     public UserVo ModifyUser(UserEditDto dto) throws ConflictsException {
         SysUser user = sysUserRepository.findByUsername(dto.getUsername());
         if (user != null && CheckParams(dto, user, false)) {
@@ -167,37 +166,23 @@ public class UserServiceImpl {
         }
     }
 
-    public String changeAvatar(MultipartFile file) {
-        File f = null;
+    @CacheEvict(value = "user_info", key = "#username")
+    public String changeAvatar(MultipartFile file, String username) {
         try {
-            String Dir = BaseUtils.getResourceDir() + "tmpFile/";
-            File dir = new File(Dir);
-            if (!dir.exists()) {
-                dir.mkdir();
-            }
             String fn = file.getOriginalFilename();
             assert fn != null;
             String ext = fn.substring(fn.lastIndexOf(".") + 1);
-            f = new File(Dir + GUID.getUUID() + "." + ext);
-            file.transferTo(f);
-            if (f.exists()) {
-                FileInputStream fs = new FileInputStream(f);
-                byte[] fb = fs.readAllBytes();
-                fs.close();
-                SysUser user = sysUserRepository.findByUsername(BaseUtils.GetUserFromContext());
-                if (user != null && fb.length != 0) {
-                    user.setHead_img(BaseUtils.bytesToBase64(fb, ext).getBytes());
-                    sysUserRepository.save(user);
-                    return "success";
-                }
+            byte[] fb = file.getBytes();
+            SysUser user = sysUserRepository.findByUsername(username);
+            if (user != null && fb.length != 0) {
+                user.setHead_img(BaseUtils.bytesToBase64(fb, ext).getBytes());
+                sysUserRepository.save(user);
+                System.gc();
+                return "success";
             }
             return "failed";
         } catch (Exception ex) {
             return "failed";
-        } finally {
-            if (f != null) {
-                f.delete();
-            }
         }
     }
 
@@ -215,6 +200,7 @@ public class UserServiceImpl {
         return "failed";
     }
 
+    @CacheEvict(value = "user_info", key = "#username")
     public String DeleteUserByName(String username) {
         //TODO 删除用户资源
         try {
