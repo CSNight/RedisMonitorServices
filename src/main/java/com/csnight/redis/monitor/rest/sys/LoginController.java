@@ -2,10 +2,10 @@ package com.csnight.redis.monitor.rest.sys;
 
 import com.alibaba.fastjson.JSONObject;
 import com.csnight.redis.monitor.aop.LogBack;
-import com.csnight.redis.monitor.auth.service.LoginUserService;
-import com.csnight.redis.monitor.auth.service.SignUpUserService;
+import com.csnight.redis.monitor.busi.sys.LoginUserService;
+import com.csnight.redis.monitor.busi.sys.SignUpUserService;
 import com.csnight.redis.monitor.db.jpa.SysUser;
-import com.csnight.redis.monitor.rest.dto.UserSignDto;
+import com.csnight.redis.monitor.rest.sys.dto.UserSignDto;
 import com.csnight.redis.monitor.utils.BaseUtils;
 import com.csnight.redis.monitor.utils.JSONUtil;
 import com.csnight.redis.monitor.utils.RespTemplate;
@@ -66,7 +66,6 @@ public class LoginController {
         if (sysUser == null) {
             return new RespTemplate(HttpStatus.NOT_FOUND, "failed");
         }
-        sysUser.setPassword("");
         return new RespTemplate(HttpStatus.OK, new String(sysUser.getHead_img()));
     }
 

@@ -1,10 +1,10 @@
 package com.csnight.redis.monitor.rest.sys;
 
 import com.csnight.redis.monitor.aop.LogBack;
-import com.csnight.redis.monitor.busi.PermissionServiceImpl;
-import com.csnight.redis.monitor.busi.exp.PermitQueryExp;
+import com.csnight.redis.monitor.busi.sys.PermissionServiceImpl;
+import com.csnight.redis.monitor.busi.sys.exp.PermitQueryExp;
 import com.csnight.redis.monitor.exception.ConflictsException;
-import com.csnight.redis.monitor.rest.dto.PermissionDto;
+import com.csnight.redis.monitor.rest.sys.dto.PermissionDto;
 import com.csnight.redis.monitor.utils.BaseUtils;
 import com.csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;

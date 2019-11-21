@@ -1,13 +1,13 @@
-package com.csnight.redis.monitor.busi;
+package com.csnight.redis.monitor.busi.sys;
 
-import com.csnight.redis.monitor.busi.exp.PermitQueryExp;
+import com.csnight.redis.monitor.busi.sys.exp.PermitQueryExp;
 import com.csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import com.csnight.redis.monitor.db.jpa.SysMenu;
 import com.csnight.redis.monitor.db.jpa.SysPermission;
 import com.csnight.redis.monitor.db.repos.SysMenuRepository;
 import com.csnight.redis.monitor.db.repos.SysPermissionRepository;
 import com.csnight.redis.monitor.exception.ConflictsException;
-import com.csnight.redis.monitor.rest.dto.PermissionDto;
+import com.csnight.redis.monitor.rest.sys.dto.PermissionDto;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;

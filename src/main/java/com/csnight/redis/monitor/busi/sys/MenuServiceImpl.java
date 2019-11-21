@@ -1,8 +1,8 @@
-package com.csnight.redis.monitor.busi;
+package com.csnight.redis.monitor.busi.sys;
 
 import com.alibaba.fastjson.JSONArray;
-import com.csnight.redis.monitor.busi.exp.MenuItem;
-import com.csnight.redis.monitor.busi.exp.MenuQueryExp;
+import com.csnight.redis.monitor.busi.sys.exp.MenuItem;
+import com.csnight.redis.monitor.busi.sys.exp.MenuQueryExp;
 import com.csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import com.csnight.redis.monitor.db.jpa.SysIcons;
 import com.csnight.redis.monitor.db.jpa.SysMenu;
@@ -12,7 +12,7 @@ import com.csnight.redis.monitor.db.repos.SysIconRepository;
 import com.csnight.redis.monitor.db.repos.SysMenuRepository;
 import com.csnight.redis.monitor.db.repos.SysUserRepository;
 import com.csnight.redis.monitor.exception.ConflictsException;
-import com.csnight.redis.monitor.rest.dto.MenuDto;
+import com.csnight.redis.monitor.rest.sys.dto.MenuDto;
 import com.csnight.redis.monitor.utils.BaseUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;

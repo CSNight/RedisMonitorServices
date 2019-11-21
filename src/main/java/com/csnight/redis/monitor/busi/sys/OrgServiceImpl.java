@@ -1,7 +1,7 @@
-package com.csnight.redis.monitor.busi;
+package com.csnight.redis.monitor.busi.sys;
 
 import com.alibaba.fastjson.JSONObject;
-import com.csnight.redis.monitor.busi.exp.OrgQueryExp;
+import com.csnight.redis.monitor.busi.sys.exp.OrgQueryExp;
 import com.csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import com.csnight.redis.monitor.db.jpa.SysOrg;
 import com.csnight.redis.monitor.db.repos.SysOrgRepository;

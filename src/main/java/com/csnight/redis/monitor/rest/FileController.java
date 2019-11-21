@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.rest.sys;
+package com.csnight.redis.monitor.rest;
 
 import com.csnight.redis.monitor.aop.LogBack;
 import com.csnight.redis.monitor.utils.BaseUtils;

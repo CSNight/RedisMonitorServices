@@ -1,7 +1,7 @@
-package com.csnight.redis.monitor.rest.dto;
+package com.csnight.redis.monitor.rest.sys.dto;
 
 import com.csnight.redis.monitor.db.jpa.SysPermission;
-import com.csnight.redis.monitor.rest.vo.SysMenuVo;
+import com.csnight.redis.monitor.rest.sys.vo.SysMenuVo;
 import io.swagger.annotations.ApiModel;
 
 import javax.validation.constraints.Max;

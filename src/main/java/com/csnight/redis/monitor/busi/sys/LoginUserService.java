@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.auth.service;
+package com.csnight.redis.monitor.busi.sys;
 
 import com.csnight.redis.monitor.db.jpa.SysOrg;
 import com.csnight.redis.monitor.db.jpa.SysPermission;

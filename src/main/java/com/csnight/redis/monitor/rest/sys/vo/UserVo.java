@@ -1,38 +1,18 @@
-package com.csnight.redis.monitor.rest.dto;
+package com.csnight.redis.monitor.rest.sys.vo;
 
-import com.csnight.redis.monitor.db.jpa.SysRole;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
-import javax.validation.constraints.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Date;
 
-@ApiModel(value = "用户修改模型")
-public class UserEditDto {
-    @ApiModelProperty(notes = "用户名")
-    @NotEmpty
-    @NotNull
+@ApiModel(value = "用户信息模型")
+public class UserVo {
     private String username;
-    @ApiModelProperty(notes = "昵称")
-    @NotEmpty
-    @NotNull
     private String nick_name;
-    @ApiModelProperty(notes = "邮箱")
-    @NotEmpty
-    @NotNull
-    @Email
     private String email;
-    @ApiModelProperty(notes = "电话")
-    @NotEmpty
-    @NotNull
-    @Size(min = 11, max = 11)
     private String phone;
-
-    private Set<SysRole> roles = new HashSet<>();
-
+    private int login_times;
+    private Date last_login;
     private boolean enabled;
-    @Min(0)
     private Long org_id;
 
     public String getUsername() {
@@ -67,6 +47,22 @@ public class UserEditDto {
         this.phone = phone;
     }
 
+    public int getLogin_times() {
+        return login_times;
+    }
+
+    public void setLogin_times(int login_times) {
+        this.login_times = login_times;
+    }
+
+    public Date getLast_login() {
+        return last_login;
+    }
+
+    public void setLast_login(Date last_login) {
+        this.last_login = last_login;
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -81,13 +77,5 @@ public class UserEditDto {
 
     public void setOrg_id(Long org_id) {
         this.org_id = org_id;
-    }
-
-    public Set<SysRole> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<SysRole> roles) {
-        this.roles = roles;
     }
 }

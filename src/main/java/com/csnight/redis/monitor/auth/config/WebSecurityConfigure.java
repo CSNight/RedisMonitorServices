@@ -4,7 +4,7 @@ import com.csnight.redis.monitor.auth.handler.CusLogoutSuccessHandler;
 import com.csnight.redis.monitor.auth.handler.LoginSuccessHandler;
 import com.csnight.redis.monitor.auth.handler.SignOutHandler;
 import com.csnight.redis.monitor.auth.handler.ValidationHandler;
-import com.csnight.redis.monitor.auth.service.LoginUserService;
+import com.csnight.redis.monitor.busi.sys.LoginUserService;
 import com.csnight.redis.monitor.db.jpa.SysUser;
 import com.csnight.redis.monitor.db.repos.SysUserRepository;
 import org.springframework.context.annotation.Bean;

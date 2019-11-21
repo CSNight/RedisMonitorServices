@@ -1,9 +1,9 @@
-package com.csnight.redis.monitor.busi.exp;
+package com.csnight.redis.monitor.busi.sys.exp;
 
 import com.csnight.redis.monitor.db.blurry.Query;
 
-public class UserQueryExp {
-    @Query(blurry = "username,phone")
+public class PermitQueryExp {
+    @Query(blurry = "name,description")
     private String blurry;
 
     public String getBlurry() {

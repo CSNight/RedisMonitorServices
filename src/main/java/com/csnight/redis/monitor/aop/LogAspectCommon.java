@@ -11,32 +11,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-
 @Component
 @Aspect
 @Order(1)
 public class LogAspectCommon {
     private Logger logger = LoggerFactory.getLogger(LogAspectCommon.class);
 
-    private ThreadLocal<Long> startTime = new ThreadLocal<>();
-
-    @Pointcut("execution(public * com.csnight.redis.monitor.controller..*(..))")
+    @Pointcut("execution(public * com.csnight.redis.monitor.rest..*(..))")
     public void aop_cut() {
     }
 
     @Before("aop_cut()")
-    private void doBefore(JoinPoint joinPoint) throws Throwable {
+    private void doBefore(JoinPoint joinPoint) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        assert attributes != null;
-        HttpServletRequest req = attributes.getRequest();
-        Object[] args = joinPoint.getArgs();
-        StringBuilder params = new StringBuilder();
-        for (Object arg : args) {
-            params.append(arg.toString());
-            params.append(";");
-        }
-        startTime.set(System.currentTimeMillis());
-        logger.info(req.getRemoteAddr() + " " + req.getMethod() + " " + req.getRequestURI() + " Parameters => {}", params.toString());
     }
 }

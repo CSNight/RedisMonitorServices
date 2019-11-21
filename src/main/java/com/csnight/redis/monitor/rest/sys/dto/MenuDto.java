@@ -1,4 +1,4 @@
-package com.csnight.redis.monitor.rest.dto;
+package com.csnight.redis.monitor.rest.sys.dto;
 
 import io.swagger.annotations.ApiModel;
 
