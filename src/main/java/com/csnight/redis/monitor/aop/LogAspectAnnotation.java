@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Component
 @Aspect
 @Order(1)
@@ -24,5 +26,9 @@ public class LogAspectAnnotation {
     @Before("aop_cut()")
     private void doBefore(JoinPoint joinPoint) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        assert attributes != null;
+        HttpServletRequest req = attributes.getRequest();
+        String s = req.getRemoteAddr() + " " + req.getMethod() + " " + req.getRequestURI() + " Parameters => {}";
+        LogAsyncPool.getIns().offer(s);
     }
 }
