@@ -1,5 +1,7 @@
 package com.csnight.redis.monitor.db.jpa;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -7,8 +9,9 @@ import java.util.Date;
 @Table(name = "sys_operation_log")
 public class SysOpLog {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @GenericGenerator(name = "jpa-uuid", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(generator = "jpa-uuid")
+    @Column(name = "id", length = 50)
     private String id;
     @Column(name = "username")
     private String username;
