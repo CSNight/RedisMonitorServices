@@ -1,8 +1,10 @@
 package com.csnight.redis.monitor.aop;
 
+import com.csnight.redis.monitor.db.jpa.SysOpLog;
 import com.csnight.redis.monitor.utils.JSONUtil;
 import com.csnight.redis.monitor.utils.RespTemplate;
 import com.csnight.redis.monitor.utils.ThrowableUtil;
+import io.swagger.annotations.ApiOperation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -31,12 +33,16 @@ public class LogAspectHttp {
 
     private ThreadLocal<Long> startTime = new ThreadLocal<>();
 
-    @Pointcut("execution(public * com.csnight.redis.monitor.rest..*(..))")
-    public void webLog() {
+    //@Pointcut("execution(public * com.csnight.redis.monitor.rest..*(..))")
+    @Pointcut(value = "@annotation(com.csnight.redis.monitor.aop.LogAsync)")
+    public void aop_cut() {
     }
 
-    @Around("webLog()")
-    public Object logHandler(ProceedingJoinPoint process) {
+    @Around(value = "aop_cut()&& @annotation(logAsync)&&@annotation(api)", argNames = "process,logAsync,api")
+    public Object logHandler(ProceedingJoinPoint process, LogAsync logAsync, ApiOperation api) {
+        String module = logAsync.module();
+        String auth = logAsync.op();
+        String op = api.value();
         MethodSignature methodSignature = (MethodSignature) process.getSignature();
         Method method = methodSignature.getMethod();
         String methodName = method.getName();
@@ -53,17 +59,16 @@ public class LogAspectHttp {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         assert attributes != null;
         HttpServletRequest req = attributes.getRequest();
-        logger.info(req.getRemoteAddr() + " " + req.getMethod() + " " + req.getRequestURI() + " Parameters => {}", params.toString());
-        Object result = null;
+        Object result;
+        long costTime;
         try {
             result = process.proceed();
         } catch (Throwable throwable) {
             HttpServletResponse rep = attributes.getResponse();
-            long costTime = System.currentTimeMillis() - startTime.get();
+            costTime = System.currentTimeMillis() - startTime.get();
             assert rep != null;
-            logger.error("\r\nCost:{}ms Status:" + rep.getStatus() +
-                    "\r\nClass:{} => {}\r\n" +
-                    "Error => {}", costTime, className, methodName, throwable.getMessage());
+            logger.error("{} {} {} {} {} Params:{}\r\nCost:{}ms\r\nError => {}", req.getRemoteHost(), req.getMethod(),
+                    req.getRequestURI(), methodName, params, rep.getStatus(), costTime, throwable.getMessage());
             if (throwable instanceof AccessDeniedException) {
                 result = new RespTemplate(403, HttpStatus.FORBIDDEN, throwable.getMessage(), req.getRequestURI(), req.getMethod());
             } else {
@@ -71,7 +76,7 @@ public class LogAspectHttp {
             }
         }
         HttpServletResponse rep = attributes.getResponse();
-        long costTime = System.currentTimeMillis() - startTime.get();
+        costTime = System.currentTimeMillis() - startTime.get();
         assert rep != null;
         Object wrapRes = "";
         if (result instanceof RespTemplate) {
@@ -80,15 +85,19 @@ public class LogAspectHttp {
             wrapRes = result;
         }
         if (methodName.equals("GetIcons")) {
-            logger.info("\r\nCost:{}ms Status:" + rep.getStatus() +
-                    "\r\nClass:{}=>{}\r\n" +
-                    "Response => {}", costTime, className, methodName, "icons");
+            logger.info("{} {} {} {} {} Params:{}\r\nCost:{}ms\r\nResponse => {}", req.getRemoteHost(), req.getMethod(),
+                    req.getRequestURI(), methodName, params, rep.getStatus(), costTime, "icons");
         } else {
-            logger.info("\r\nCost:{}ms Status:" + rep.getStatus() +
-                    "\r\nClass:{}=>{}\r\n" +
-                    "Response => {}", costTime, className, methodName, wrapRes);
+            logger.info("{} {} {} {} {} Params:{}\r\nCost:{}ms\r\nResponse => {}", req.getRemoteHost(), req.getMethod(),
+                    req.getRequestURI(), methodName, params, rep.getStatus(), costTime, wrapRes);
         }
+        try {
+            String user = req.getUserPrincipal().getName();
+            SysOpLog opLog = new SysOpLog(user, op, req.getRemoteHost(), module, rep.getStatus(), auth, costTime);
+            LogAsyncPool.getIns().offer(opLog);
+        } catch (Exception ignored) {
 
+        }
         return result;
     }
 
@@ -98,7 +107,7 @@ public class LogAspectHttp {
      * @param joinPoint join point for advice
      * @param e         exception
      */
-    @AfterThrowing(pointcut = "webLog()", throwing = "e")
+    @AfterThrowing(pointcut = "aop_cut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
         logger.error(ThrowableUtil.getStackTrace(e));
     }

@@ -27,7 +27,7 @@ public class OrgController {
         this.userService = userService;
     }
 
-    @LogAsync
+    @LogAsync(module = "DEPARTS", op = "ORG_QUERY")
     @PreAuthorize("hasAuthority('ORG_QUERY')")
     @ApiOperation(value = "获取组织机构目录树")
     @RequestMapping(value = "/get_org_tree", method = RequestMethod.GET)
@@ -35,7 +35,7 @@ public class OrgController {
         return new RespTemplate(HttpStatus.OK, userService.GetOrgTree());
     }
 
-    @LogAsync
+    @LogAsync(module = "DEPARTS", op = "ORG_QUERY")
     @PreAuthorize("hasAuthority('ORG_QUERY')")
     @ApiOperation(value = "获取组织机构目录列表")
     @RequestMapping(value = "/get_org_list", method = RequestMethod.GET)
@@ -43,7 +43,7 @@ public class OrgController {
         return new RespTemplate(HttpStatus.OK, userService.GetOrgList());
     }
 
-    @LogAsync
+    @LogAsync(module = "DEPARTS", op = "ORG_QUERY")
     @PreAuthorize("hasAuthority('ORG_QUERY')")
     @ApiOperation(value = "查询组织机构")
     @RequestMapping(value = "/query_org", method = RequestMethod.GET)
@@ -51,7 +51,7 @@ public class OrgController {
         return new RespTemplate(HttpStatus.OK, userService.QueryBy(exp));
     }
 
-    @LogAsync
+    @LogAsync(module = "DEPARTS", op = "ORG_QUERY")
     @PreAuthorize("hasAuthority('ORG_QUERY')")
     @ApiOperation(value = "根据ID及状态查询组织机构")
     @RequestMapping(value = "/get_org_by", method = RequestMethod.GET)
@@ -59,7 +59,7 @@ public class OrgController {
         return new RespTemplate(HttpStatus.OK, userService.GetOrgByIdAndEnabled(id, enabled));
     }
 
-    @LogAsync
+    @LogAsync(module = "DEPARTS", op = "ORG_QUERY")
     @PreAuthorize("hasAuthority('ORG_QUERY')")
     @ApiOperation(value = "通过父节点ID获取组织机构目录")
     @RequestMapping(value = "/{pid}/get_org", method = RequestMethod.GET)
@@ -67,7 +67,7 @@ public class OrgController {
         return new RespTemplate(HttpStatus.OK, userService.GetOrgByPid(pid));
     }
 
-    @LogAsync
+    @LogAsync(module = "DEPARTS", op = "ORG_UPDATE")
     @PreAuthorize("hasAuthority('ORG_UPDATE')")
     @ApiOperation(value = "修改组织机构")
     @RequestMapping(value = "/modify_org", method = RequestMethod.PUT)
@@ -78,7 +78,7 @@ public class OrgController {
         return new RespTemplate(HttpStatus.BAD_REQUEST, "");
     }
 
-    @LogAsync
+    @LogAsync(module = "DEPARTS", op = "ORG_ADD")
     @PreAuthorize("hasAuthority('ORG_ADD')")
     @ApiOperation(value = "添加组织机构")
     @ApiImplicitParam(paramType = "query", name = "org_ent", value = "新组织", required = true, dataType = "String")
@@ -93,7 +93,7 @@ public class OrgController {
         return new RespTemplate(HttpStatus.BAD_REQUEST, "");
     }
 
-    @LogAsync
+    @LogAsync(module = "DEPARTS", op = "ORG_DEL")
     @PreAuthorize("hasAuthority('ORG_DEL')")
     @ApiOperation(value = "通过ID删除组织机构")
     @RequestMapping(value = "/delete_org/{id}", method = RequestMethod.DELETE)

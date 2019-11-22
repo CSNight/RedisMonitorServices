@@ -24,7 +24,7 @@ public class PermitController {
     @Resource
     private PermissionServiceImpl permissionService;
 
-    @LogAsync
+    @LogAsync(module = "PERMITS", op = "RIGHTS_QUERY")
     @PreAuthorize("hasAuthority('RIGHTS_QUERY')")
     @ApiOperation(value = "查询权限")
     @RequestMapping(value = "/query_permit", method = RequestMethod.GET)
@@ -32,7 +32,7 @@ public class PermitController {
         return new RespTemplate(HttpStatus.OK, permissionService.QueryBy(exp));
     }
 
-    @LogAsync
+    @LogAsync(module = "PERMITS", op = "RIGHTS_QUERY")
     @PreAuthorize("hasAuthority('RIGHTS_QUERY')")
     @ApiOperation(value = "获取权限列表")
     @RequestMapping(value = "/get_permits", method = RequestMethod.GET)
@@ -40,7 +40,7 @@ public class PermitController {
         return new RespTemplate(HttpStatus.OK, permissionService.GetAllPermission());
     }
 
-    @LogAsync
+    @LogAsync(module = "PERMITS", op = "RIGHTS_ADD")
     @PreAuthorize("hasAuthority('RIGHTS_ADD')")
     @ApiOperation(value = "创建权限")
     @RequestMapping(value = "/create_permit", method = RequestMethod.POST)
@@ -49,7 +49,7 @@ public class PermitController {
         return new RespTemplate(HttpStatus.OK, permissionService.NewPermission(dto, username));
     }
 
-    @LogAsync
+    @LogAsync(module = "PERMITS", op = "RIGHTS_DEL")
     @PreAuthorize("hasAuthority('RIGHTS_DEL')")
     @ApiOperation(value = "删除权限")
     @RequestMapping(value = "/delete_permit/{id}", method = RequestMethod.DELETE)
@@ -57,7 +57,7 @@ public class PermitController {
         return new RespTemplate(HttpStatus.OK, permissionService.DeletePermitById(id));
     }
 
-    @LogAsync
+    @LogAsync(module = "PERMITS", op = "RIGHTS_UPDATE")
     @PreAuthorize("hasAuthority('RIGHTS_UPDATE')")
     @ApiOperation(value = "修改权限")
     @RequestMapping(value = "/edit_permit", method = RequestMethod.PUT)

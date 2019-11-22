@@ -2,9 +2,12 @@ package com.csnight.redis.monitor.aop;
 
 import java.lang.annotation.*;
 
-@Documented
-@Target(ElementType.METHOD)
+
+@Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
+@Documented
 public @interface LogAsync {
-    String value() default "";
+    String module() default "";
+
+    String op() default "";
 }

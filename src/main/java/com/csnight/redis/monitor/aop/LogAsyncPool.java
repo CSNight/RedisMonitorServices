@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
@@ -20,7 +19,7 @@ public class LogAsyncPool {
     private OpLogServiceImpl opLogService;
     private static LogAsyncPool ourInstance;
     private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
-    private ConcurrentLinkedQueue<String> queue = new ConcurrentLinkedQueue<>();
+    private ConcurrentLinkedQueue<SysOpLog> queue = new ConcurrentLinkedQueue<>();
 
     public static LogAsyncPool getIns() {
         if (ourInstance == null) {
@@ -41,7 +40,7 @@ public class LogAsyncPool {
         opLogService = ReflectUtils.getBean(OpLogServiceImpl.class);
     }
 
-    public boolean offer(String ins) {
+    public boolean offer(SysOpLog ins) {
         return queue.offer(ins);
     }
 
@@ -51,13 +50,9 @@ public class LogAsyncPool {
             if (!queue.isEmpty()) {
                 List<SysOpLog> ins = new ArrayList<>();
                 while (!queue.isEmpty()) {
-                    SysOpLog aa = new SysOpLog();
-                    aa.setCt(new Date());
-                    aa.setOperation(queue.poll());
-                    ins.add(aa);
+                    ins.add(queue.poll());
                 }
                 opLogService.SaveAll(ins);
-                System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"+ins.size());
                 ins.clear();
                 ins = null;
             }

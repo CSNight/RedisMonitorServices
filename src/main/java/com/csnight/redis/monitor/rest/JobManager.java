@@ -22,13 +22,13 @@ public class JobManager {
         this.jobFactory = jobFactory;
     }
 
-    @LogAsync
+    @LogAsync(module = "TASKS")
     @RequestMapping(value = "/addJob", method = RequestMethod.POST)
     public String addjob(@Valid @RequestBody JobConfig jobConfig) throws Exception {
         return jobFactory.AddJob(jobConfig, JobInstance.class);
     }
 
-    @LogAsync
+    @LogAsync(module = "TASKS")
     @RequestMapping(value = "/delJob", method = RequestMethod.DELETE)
     public void deljob() throws Exception {
         JobConfig jobConfigBase = new JobConfig();
