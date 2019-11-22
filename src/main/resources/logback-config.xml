@@ -7,7 +7,7 @@
     <!--日志异步到数据库 -->
     <appender name="DB_APPENDER" class="ch.qos.logback.classic.db.DBAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
+            <level>WARN</level>
         </filter>
         <connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">
             <dataSource class="com.alibaba.druid.pool.DruidDataSource">

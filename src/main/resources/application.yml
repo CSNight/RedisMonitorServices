@@ -11,9 +11,14 @@ spring:
     open-in-view: false
     properties:
       hibernate:
+        # generate_statistics: true sql统计
+        jdbc:
+          batch_size: 100
+        order_inserts: true
+        order_updates: true
         dialect: org.hibernate.dialect.MySQL8Dialect
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/rmsdb?serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://127.0.0.1:3306/rmsdb?serverTimezone=Asia/Shanghai&&rewriteBatchedStatements=true
     username: csnight
     password: qnyh@123
     driver-class-name: com.mysql.cj.jdbc.Driver
