@@ -1,6 +1,6 @@
 package com.csnight.redis.monitor.rest.sys;
 
-import com.csnight.redis.monitor.aop.LogBack;
+import com.csnight.redis.monitor.aop.LogAsync;
 import com.csnight.redis.monitor.busi.sys.RoleServiceImpl;
 import com.csnight.redis.monitor.busi.sys.exp.RoleQueryExp;
 import com.csnight.redis.monitor.db.jpa.SysRole;
@@ -24,7 +24,7 @@ public class RoleController {
     @Resource
     private RoleServiceImpl roleService;
 
-    @LogBack
+    @LogAsync
     @PreAuthorize("hasAuthority('ROLE_QUERY')")
     @ApiOperation(value = "查询角色")
     @RequestMapping(value = "/query_roles", method = RequestMethod.GET)
@@ -32,7 +32,7 @@ public class RoleController {
         return new RespTemplate(HttpStatus.OK, roleService.QueryBy(exp));
     }
 
-    @LogBack
+    @LogAsync
     @PreAuthorize("hasAuthority('ROLE_QUERY')")
     @ApiOperation(value = "获取角色列表")
     @RequestMapping(value = "/get_roles", method = RequestMethod.GET)
@@ -45,7 +45,7 @@ public class RoleController {
         }
     }
 
-    @LogBack
+    @LogAsync
     @PreAuthorize("hasAuthority('ROLE_ADD')")
     @ApiOperation(value = "新建角色")
     @RequestMapping(value = "/new_role", method = RequestMethod.POST)
@@ -53,7 +53,7 @@ public class RoleController {
         return new RespTemplate(HttpStatus.OK, roleService.NewRole(dto));
     }
 
-    @LogBack
+    @LogAsync
     @PreAuthorize("hasAuthority('ROLE_UPDATE')")
     @ApiOperation(value = "编辑角色")
     @RequestMapping(value = "/modify_role", method = RequestMethod.PUT)
@@ -61,7 +61,7 @@ public class RoleController {
         return new RespTemplate(HttpStatus.OK, roleService.ModifyRole(dto));
     }
 
-    @LogBack
+    @LogAsync
     @PreAuthorize("hasAuthority('ROLE_ACCESS') AND hasAuthority('MENU_QUERY')")
     @ApiOperation(value = "编辑角色菜单")
     @RequestMapping(value = "/update_role_menus", method = RequestMethod.PUT)
@@ -69,7 +69,7 @@ public class RoleController {
         return new RespTemplate(HttpStatus.OK, roleService.UpdateRoleMenus(dto));
     }
 
-    @LogBack
+    @LogAsync
     @PreAuthorize("hasAuthority('ROLE_ACCESS') AND hasAuthority('RIGHTS_QUERY')")
     @ApiOperation(value = "编辑角色权限")
     @RequestMapping(value = "/update_role_permits", method = RequestMethod.PUT)
@@ -77,7 +77,7 @@ public class RoleController {
         return new RespTemplate(HttpStatus.OK, roleService.UpdateRolePermissions(dto));
     }
 
-    @LogBack
+    @LogAsync
     @PreAuthorize("hasAuthority('ROLE_DEL')")
     @ApiOperation(value = "删除角色")
     @RequestMapping(value = "/delete_role/{id}", method = RequestMethod.DELETE)

@@ -1,10 +1,11 @@
 package com.csnight.redis.monitor.rest.sys;
 
 import com.alibaba.fastjson.JSONObject;
-import com.csnight.redis.monitor.aop.LogBack;
+import com.csnight.redis.monitor.aop.LogAsync;
 import com.csnight.redis.monitor.busi.sys.LoginUserService;
 import com.csnight.redis.monitor.busi.sys.SignUpUserService;
 import com.csnight.redis.monitor.db.jpa.SysUser;
+import com.csnight.redis.monitor.db.repos.SysLogRepository;
 import com.csnight.redis.monitor.rest.sys.dto.UserSignDto;
 import com.csnight.redis.monitor.utils.BaseUtils;
 import com.csnight.redis.monitor.utils.JSONUtil;
@@ -41,7 +42,7 @@ public class LoginController {
     private LoginUserService loginUserService;
     private static Logger _log = LoggerFactory.getLogger(LoginController.class);
 
-    @LogBack
+    @LogAsync
     @ApiOperation(value = "获取用户详情")
     @RequestMapping(value = "user_info", method = RequestMethod.GET)
     public RespTemplate UserInfo(String username) {
@@ -55,7 +56,7 @@ public class LoginController {
         return new RespTemplate(HttpStatus.OK, sysUser);
     }
 
-    @LogBack
+    @LogAsync
     @ApiOperation(value = "获取用户头像")
     @RequestMapping(value = "user_avatar", method = RequestMethod.GET)
     public RespTemplate GetHeader(String username) {
@@ -69,7 +70,7 @@ public class LoginController {
         return new RespTemplate(HttpStatus.OK, new String(sysUser.getHead_img()));
     }
 
-    @LogBack
+    @LogAsync
     @ApiOperation(value = "用户注册")
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public RespTemplate createUser(@ModelAttribute("user") @Valid UserSignDto userSignDto, BindingResult result) {
@@ -128,7 +129,7 @@ public class LoginController {
         return new RespTemplate(HttpStatus.OK, jo_res);
     }
 
-    @LogBack
+    @LogAsync
     @GetMapping("/code")
     public void getAuthImage(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setHeader("Pragma", "No-cache");

@@ -1,7 +1,7 @@
 package com.csnight.redis.monitor.rest;
 
 import com.alibaba.fastjson.JSONObject;
-import com.csnight.redis.monitor.aop.LogBack;
+import com.csnight.redis.monitor.aop.LogAsync;
 import com.csnight.redis.monitor.quartz.JobFactory;
 import com.csnight.redis.monitor.quartz.config.JobConfig;
 import com.csnight.redis.monitor.quartz.jobs.JobInstance;
@@ -22,13 +22,13 @@ public class JobManager {
         this.jobFactory = jobFactory;
     }
 
-    @LogBack
+    @LogAsync
     @RequestMapping(value = "/addJob", method = RequestMethod.POST)
     public String addjob(@Valid @RequestBody JobConfig jobConfig) throws Exception {
         return jobFactory.AddJob(jobConfig, JobInstance.class);
     }
 
-    @LogBack
+    @LogAsync
     @RequestMapping(value = "/delJob", method = RequestMethod.DELETE)
     public void deljob() throws Exception {
         JobConfig jobConfigBase = new JobConfig();
