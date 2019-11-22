@@ -15,6 +15,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -73,8 +75,13 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 .failureHandler(loginFailureHandler).and()
                 .logout().logoutUrl("/auth/logout").addLogoutHandler(signOutHandler).logoutSuccessHandler(logoutSuccessHandler).permitAll()
                 .and().rememberMe().tokenRepository(jdbcTokenRepositoryExt).tokenValiditySeconds(60 * 60 * 24 * 7);
-        http.sessionManagement().maximumSessions(1);
+        http.sessionManagement().maximumSessions(1).sessionRegistry(sessionRegistry());
         http.headers().frameOptions().sameOrigin();
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
     }
 
     @Bean

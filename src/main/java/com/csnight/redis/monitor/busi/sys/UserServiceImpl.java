@@ -1,6 +1,7 @@
 package com.csnight.redis.monitor.busi.sys;
 
 import com.alibaba.fastjson.JSONObject;
+import com.csnight.redis.monitor.auth.config.JdbcTokenRepositoryExt;
 import com.csnight.redis.monitor.busi.sys.exp.UserQueryExp;
 import com.csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import com.csnight.redis.monitor.db.jpa.SysOrg;
@@ -14,7 +15,11 @@ import com.csnight.redis.monitor.rest.sys.vo.UserVo;
 import com.csnight.redis.monitor.utils.BaseUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +35,10 @@ public class UserServiceImpl {
     private PasswordEncoder passwordEncoder;
     @Resource
     private SysOrgRepository sysOrgRepository;
+    @Resource
+    private SessionRegistry registry;
+    @Resource
+    private JdbcTokenRepositoryExt tokenRepositoryExt;
 
     @Cacheable(value = "users")
     public List<SysUser> GetAllUser() {
@@ -115,6 +124,9 @@ public class UserServiceImpl {
             user.setUsername(dto.getUsername());
             user.setNick_name(dto.getNick_name());
             user.setEnabled(dto.isEnabled());
+            if (!dto.isEnabled()) {
+                CheckEnable(dto.getUsername());
+            }
             user.setPhone(dto.getPhone());
             user.setEmail(dto.getEmail());
             user.setRoles(dto.getRoles());
@@ -122,6 +134,27 @@ public class UserServiceImpl {
             return JSONObject.parseObject(JSONObject.toJSONString(sysUserRepository.save(user)), UserVo.class);
         }
         return null;
+    }
+
+    private void CheckEnable(String username) {
+        List<Object> userList = registry.getAllPrincipals();
+        for (Object o : userList) {
+            UserDetails userTemp = (UserDetails) o;
+            if (userTemp.getUsername().equals(username)) {
+                List<SessionInformation> sessionInformationList = registry.getAllSessions(userTemp, false);
+                if (sessionInformationList != null) {
+                    for (SessionInformation sessionInformation : sessionInformationList) {
+                        sessionInformation.expireNow();
+                    }
+                    List<PersistentRememberMeToken> extTokenForName = tokenRepositoryExt.getTokenForName(username);
+                    for (PersistentRememberMeToken persistentRememberMeToken : extTokenForName) {
+                        String name = persistentRememberMeToken.getUsername();
+                        String token = persistentRememberMeToken.getTokenValue();
+                        tokenRepositoryExt.removeUserOldToken(name, token);
+                    }
+                }
+            }
+        }
     }
 
     private boolean CheckParams(UserEditDto dto, SysUser user, boolean isNew) throws ConflictsException {
