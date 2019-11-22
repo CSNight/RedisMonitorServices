@@ -96,7 +96,6 @@ public class LogAspectHttp {
             SysOpLog opLog = new SysOpLog(user, op, req.getRemoteHost(), module, rep.getStatus(), auth, costTime);
             LogAsyncPool.getIns().offer(opLog);
         } catch (Exception ignored) {
-
         }
         return result;
     }

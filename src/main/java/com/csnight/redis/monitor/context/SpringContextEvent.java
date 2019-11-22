@@ -1,6 +1,5 @@
 package com.csnight.redis.monitor.context;
 
-import com.csnight.redis.monitor.aop.LogAsync;
 import com.csnight.redis.monitor.aop.LogAsyncPool;
 import com.csnight.redis.monitor.quartz.JobFactory;
 import com.csnight.redis.monitor.utils.ReflectUtils;
@@ -8,16 +7,17 @@ import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
-import org.springframework.boot.context.event.ApplicationStartingEvent;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.ServletRequestHandledEvent;
 
+@Component
 public class SpringContextEvent implements ApplicationListener {
     private static Logger _log = LoggerFactory.getLogger(SpringContextEvent.class);
-    private LogAsyncPool logAsyncPool=LogAsyncPool.getIns();
+    private LogAsyncPool logAsyncPool = LogAsyncPool.getIns();
 
     @Override
     public void onApplicationEvent(ApplicationEvent applicationEvent) {
