@@ -4,6 +4,7 @@ import com.csnight.redis.monitor.busi.sys.OpLogServiceImpl;
 import com.csnight.redis.monitor.busi.sys.exp.OpLogQueryExp;
 import com.csnight.redis.monitor.db.jpa.SysOpLog;
 import com.csnight.redis.monitor.utils.RespTemplate;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import javax.annotation.Resource;
 
 @RestController
 @RequestMapping("logs")
+@Api(tags = "操作日志API")
 public class LogOpController {
     @Resource
     private OpLogServiceImpl opLogService;

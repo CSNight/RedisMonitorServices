@@ -3,6 +3,7 @@ package com.csnight.redis.monitor.rest;
 import com.csnight.redis.monitor.utils.BaseUtils;
 import com.csnight.redis.monitor.utils.GUID;
 import com.csnight.redis.monitor.utils.RespTemplate;
+import io.swagger.annotations.Api;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -13,6 +14,7 @@ import java.io.File;
 
 @RequestMapping("files")
 @RestController
+@Api(tags = "文件管理API")
 public class FileController {
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
