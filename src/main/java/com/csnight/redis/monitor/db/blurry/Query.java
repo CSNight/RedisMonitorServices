@@ -27,7 +27,7 @@ public @interface Query {
 
     enum Type {
         // jie 2019/6/4 相等
-        EQUAL, GREATER_THAN, LESS_THAN, INNER_LIKE, LEFT_LIKE, RIGHT_LIKE, LESS_THAN_NQ, IN
+        EQUAL, GREATER_THAN, LESS_THAN, INNER_LIKE, LEFT_LIKE, RIGHT_LIKE, LESS_THAN_NQ, GREATER_THAN_NQ, IN
     }
 
     /**
