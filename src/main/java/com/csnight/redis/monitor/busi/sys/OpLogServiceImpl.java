@@ -6,6 +6,7 @@ import com.csnight.redis.monitor.db.jpa.SysOpLog;
 import com.csnight.redis.monitor.db.jpa.SysUser;
 import com.csnight.redis.monitor.db.repos.SysLogRepository;
 import com.csnight.redis.monitor.db.repos.SysUserRepository;
+import com.csnight.redis.monitor.utils.BaseUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -37,25 +39,32 @@ public class OpLogServiceImpl {
 
     public Page<SysOpLog> QueryLogsByCond(OpLogQueryExp exp) {
         SysUser user = userRepository.findByUsername(exp.getUn());
-        if (user != null) {
-            Sort sort;
-            if (exp.getSort() == null) {
-                sort = Sort.by(Sort.Direction.ASC, "ct");
-            } else {
-                sort = Sort.by(Sort.Direction.fromString(exp.getDirect()), exp.getSort());
+        if (user == null) {
+            String username = BaseUtils.GetUserFromContext();
+            SysUser cur_user = userRepository.findByUsername(username);
+            List<String> roles = new ArrayList<>();
+            cur_user.getRoles().forEach(role -> roles.add(role.getCode()));
+            if (!roles.contains("ROLE_DEV") && !roles.contains("ROLE_SUPER")) {
+                return null;
             }
-            int cur = exp.getCur() - 1;
-            int size = exp.getSize();
-            if (cur < 0) {
-                cur = 0;
-            }
-            if (exp.getSize() < 1) {
-                size = 5;
-            }
-            Pageable pageable = PageRequest.of(cur, size, sort);
-            return sysLogRepository.findAll((root, criteriaQuery, criteriaBuilder) ->
-                    QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder), pageable);
         }
-        return null;
+        Sort sort;
+        if (exp.getSort() == null) {
+            sort = Sort.by(Sort.Direction.ASC, "ct");
+        } else {
+            sort = Sort.by(Sort.Direction.fromString(exp.getDirect()), exp.getSort());
+        }
+        int cur = exp.getCur() - 1;
+        int size = exp.getSize();
+        if (cur < 0) {
+            cur = 0;
+        }
+        if (exp.getSize() < 1) {
+            size = 5;
+        }
+        Pageable pageable = PageRequest.of(cur, size, sort);
+        return sysLogRepository.findAll((root, criteriaQuery, criteriaBuilder) ->
+                QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder), pageable);
+
     }
 }

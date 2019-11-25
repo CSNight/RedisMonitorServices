@@ -9,14 +9,16 @@ public class OpLogQueryExp {
     private String un;
     @Query(type = Query.Type.INNER_LIKE)
     private String op;
-    @Query(type = Query.Type.EQUAL)
+    @Query(type = Query.Type.INNER_LIKE)
     private String mo;
     @Query(type = Query.Type.INNER_LIKE)
     private String ip;
+    @Query(type = Query.Type.EQUAL)
+    private int st;
     @Query(type = Query.Type.GREATER_THAN, propName = "ct")
-    private Date st;
+    private Date std;
     @Query(type = Query.Type.LESS_THAN, propName = "ct")
-    private Date et;
+    private Date etd;
 
     private String sort;
     private String direct;
@@ -55,20 +57,28 @@ public class OpLogQueryExp {
         this.ip = ip;
     }
 
-    public Date getSt() {
+    public int getSt() {
         return st;
     }
 
-    public void setSt(Date st) {
+    public void setSt(int st) {
         this.st = st;
     }
 
-    public Date getEt() {
-        return et;
+    public Date getStd() {
+        return std;
     }
 
-    public void setEt(Date et) {
-        this.et = et;
+    public void setStd(Date std) {
+        this.std = std;
+    }
+
+    public Date getEtd() {
+        return etd;
+    }
+
+    public void setEtd(Date etd) {
+        this.etd = etd;
     }
 
     public String getSort() {
