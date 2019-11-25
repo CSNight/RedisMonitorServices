@@ -88,6 +88,10 @@ public class QueryAnnotationProcess {
                             list.add(cb.lessThan(getExpression(attributeName, join, root)
                                     .as((Class<? extends Comparable>) fieldType), (Comparable) val));
                             break;
+                        case GREATER_THAN_NQ:
+                            list.add(cb.greaterThan(getExpression(attributeName, join, root)
+                                    .as((Class<? extends Comparable>) fieldType), (Comparable) val));
+                            break;
                         case INNER_LIKE:
 
                             list.add(cb.like(getExpression(attributeName, join, root)
