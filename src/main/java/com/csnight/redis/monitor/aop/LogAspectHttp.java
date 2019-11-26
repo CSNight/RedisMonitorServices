@@ -68,7 +68,7 @@ public class LogAspectHttp {
             costTime = System.currentTimeMillis() - startTime.get();
             assert rep != null;
             logger.error("{} {} {} {} {} Params:{}\r\nCost:{}ms\r\nError => {}", req.getRemoteHost(), req.getMethod(),
-                    req.getRequestURI(), methodName, params, rep.getStatus(), costTime, throwable.getMessage());
+                    rep.getStatus(), req.getRequestURI(), methodName, params, costTime, throwable.getMessage());
             if (throwable instanceof AccessDeniedException) {
                 result = new RespTemplate(403, HttpStatus.FORBIDDEN, throwable.getMessage(), req.getRequestURI(), req.getMethod());
             } else {
@@ -86,10 +86,10 @@ public class LogAspectHttp {
         }
         if (methodName.equals("GetIcons")) {
             logger.info("{} {} {} {} {} Params:{}\r\nCost:{}ms\r\nResponse => {}", req.getRemoteHost(), req.getMethod(),
-                    req.getRequestURI(), methodName, params, rep.getStatus(), costTime, "icons");
+                    rep.getStatus(), req.getRequestURI(), methodName, params, costTime, "icons");
         } else {
             logger.info("{} {} {} {} {} Params:{}\r\nCost:{}ms\r\nResponse => {}", req.getRemoteHost(), req.getMethod(),
-                    req.getRequestURI(), methodName, params, rep.getStatus(), costTime, wrapRes);
+                    rep.getStatus(), req.getRequestURI(), methodName, params, costTime, wrapRes);
         }
         try {
             String user = req.getUserPrincipal().getName();

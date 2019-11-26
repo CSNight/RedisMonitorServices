@@ -21,14 +21,12 @@ import java.util.List;
 public class OpLogServiceImpl {
     @Resource
     private SysLogRepository sysLogRepository;
-
     @Resource
     private SysUserRepository userRepository;
 
     public void SaveAll(List<SysOpLog> logs) {
         sysLogRepository.saveAll(logs);
     }
-
 
     public Page<SysOpLog> GetLogsByUser(String username, int cur, int size) {
         Sort s = Sort.by(Sort.Direction.ASC, "ct");
@@ -66,5 +64,20 @@ public class OpLogServiceImpl {
         return sysLogRepository.findAll((root, criteriaQuery, criteriaBuilder) ->
                 QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder), pageable);
 
+    }
+
+    public String ClearOpLog(String user) {
+        if (user.equals("all")) {
+            sysLogRepository.deleteAll();
+            return "success";
+        } else {
+            SysUser sysUser = userRepository.findByUsername(user);
+            if (sysUser != null) {
+                sysLogRepository.deleteByUn(user);
+                return "success";
+            } else {
+                return "User not found";
+            }
+        }
     }
 }
