@@ -84,9 +84,9 @@ public class LogAspectHttp {
         } else {
             wrapRes = result;
         }
-        if (methodName.equals("GetIcons")) {
+        if (methodName.equals("GetIcons") || methodName.equals("UserInfo") || methodName.equals("GetHeader")) {
             logger.info("{} {} {} {} {} Params:{}\r\nCost:{}ms\r\nResponse => {}", req.getRemoteHost(), req.getMethod(),
-                    rep.getStatus(), req.getRequestURI(), methodName, params, costTime, "icons");
+                    rep.getStatus(), req.getRequestURI(), methodName, params, costTime, methodName);
         } else {
             logger.info("{} {} {} {} {} Params:{}\r\nCost:{}ms\r\nResponse => {}", req.getRemoteHost(), req.getMethod(),
                     rep.getStatus(), req.getRequestURI(), methodName, params, costTime, wrapRes);

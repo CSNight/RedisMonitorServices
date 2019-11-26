@@ -25,10 +25,15 @@
             <version>1.6.1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/redis.clients/jedis -->
+<!--        <dependency>-->
+<!--            <groupId>redis.clients</groupId>-->
+<!--            <artifactId>jedis</artifactId>-->
+<!--            <version>3.1.0</version>-->
+<!--        </dependency>-->
         <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-            <version>3.1.0</version>
+            <groupId>com.csnight</groupId>
+            <artifactId>jediSQL</artifactId>
+            <version>1.2-RELEASE</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
         <dependency>
