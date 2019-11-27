@@ -81,6 +81,15 @@ public class BaseUtils {
         return m.matches();
     }
 
+    public static boolean checkIpPort(String identify) {
+        String ip_part = "((25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.){3}(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)";
+        String port_part = "([0-9]|[1-9]\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])";
+        String pattern = "^" + ip_part + ":" + port_part + "$";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(identify);
+        return m.matches();
+    }
+
     public static String bytesToBase64(byte[] blob, String ext) {
         String b64 = Base64.getEncoder().encodeToString(blob);
         switch (ext) {
