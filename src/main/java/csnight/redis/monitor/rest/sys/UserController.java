@@ -25,7 +25,7 @@ public class UserController {
     @Resource
     private UserServiceImpl userService;
 
-    @LogAsync(module = "USERS", op = "USER_QUERY")
+    @LogAsync(module = "USERS", auth = "USER_QUERY")
     @PreAuthorize("hasAuthority('USER_QUERY')")
     @ApiOperation(value = "用户目录")
     @RequestMapping(value = "/get_users", method = RequestMethod.GET)
@@ -33,7 +33,7 @@ public class UserController {
         return new RespTemplate(HttpStatus.OK, userService.GetAllUser());
     }
 
-    @LogAsync(module = "USERS", op = "USER_QUERY")
+    @LogAsync(module = "USERS", auth = "USER_QUERY")
     @PreAuthorize("hasAuthority('USER_QUERY')")
     @ApiOperation(value = "用户搜索")
     @RequestMapping(value = "/query_users", method = RequestMethod.GET)
@@ -41,7 +41,7 @@ public class UserController {
         return new RespTemplate(HttpStatus.OK, userService.QueryBy(exp));
     }
 
-    @LogAsync(module = "USERS", op = "USER_QUERY")
+    @LogAsync(module = "USERS", auth = "USER_QUERY")
     @PreAuthorize("hasAuthority('USER_QUERY') AND hasAuthority('ORG_QUERY')")
     @ApiOperation(value = "根据组织查询用户")
     @RequestMapping(value = "/get_by_org/{org_id}", method = RequestMethod.GET)
@@ -49,7 +49,7 @@ public class UserController {
         return new RespTemplate(HttpStatus.OK, userService.GetUsersByOrg(Long.parseLong(org_id)));
     }
 
-    @LogAsync(module = "USERS", op = "USER_ADD")
+    @LogAsync(module = "USERS", auth = "USER_ADD")
     @PreAuthorize("hasAuthority('USER_ADD')")
     @ApiOperation(value = "新增用户")
     @RequestMapping(value = "/new_user", method = RequestMethod.POST)
@@ -57,7 +57,7 @@ public class UserController {
         return new RespTemplate(HttpStatus.OK, userService.NewUsr(dto));
     }
 
-    @LogAsync(module = "USERS", op = "USER_UPDATE")
+    @LogAsync(module = "USERS", auth = "USER_UPDATE")
     @PreAuthorize("hasAuthority('USER_UPDATE')")
     @ApiOperation(value = "修改用户信息")
     @RequestMapping(value = "/edit_user", method = RequestMethod.PUT)
@@ -65,7 +65,7 @@ public class UserController {
         return new RespTemplate(HttpStatus.OK, userService.ModifyUser(dto));
     }
 
-    @LogAsync(module = "USERS", op = "USER_INFO_EDIT")
+    @LogAsync(module = "USERS", auth = "USER_INFO_EDIT")
     @PreAuthorize("hasAuthority('USER_INFO_EDIT')")
     @ApiOperation(value = "修改用户密码")
     @RequestMapping(value = "/change_pwd", method = RequestMethod.PUT)
@@ -73,7 +73,7 @@ public class UserController {
         return new RespTemplate(HttpStatus.OK, userService.ChangePassword(dto));
     }
 
-    @LogAsync(module = "USERS", op = "USER_INFO_EDIT")
+    @LogAsync(module = "USERS", auth = "USER_INFO_EDIT")
     @PreAuthorize("hasAuthority('USER_INFO_EDIT')")
     @ApiOperation(value = "修改用户头像")
     @RequestMapping(value = "/change_avatar", method = RequestMethod.POST)
@@ -81,7 +81,7 @@ public class UserController {
         return new RespTemplate(HttpStatus.OK, userService.changeAvatar(file, BaseUtils.GetUserFromContext()));
     }
 
-    @LogAsync(module = "USERS", op = "USER_DEL")
+    @LogAsync(module = "USERS", auth = "USER_DEL")
     @PreAuthorize("hasAuthority('USER_DEL')")
     @ApiOperation(value = "通过ID删除用户")
     @RequestMapping(value = "/delete_by_id/{id}", method = RequestMethod.DELETE)
@@ -89,7 +89,7 @@ public class UserController {
         return new RespTemplate(HttpStatus.OK, userService.DeleteUserById(id));
     }
 
-    @LogAsync(module = "USERS", op = "USER_DEL")
+    @LogAsync(module = "USERS", auth = "USER_DEL")
     @PreAuthorize("hasAuthority('USER_DEL')")
     @ApiOperation(value = "通过用户名删除用户")
     @RequestMapping(value = "/delete_by_name/{name}", method = RequestMethod.DELETE)

@@ -24,17 +24,17 @@ public class RoleController {
     @Resource
     private RoleServiceImpl roleService;
 
-    @LogAsync(module = "ROLES", op = "ROLE_QUERY")
+    @LogAsync(module = "ROLES", auth = "ROLE_QUERY")
     @PreAuthorize("hasAuthority('ROLE_QUERY')")
-    @ApiOperation(value = "查询角色")
+    @ApiOperation(value = "搜索角色")
     @RequestMapping(value = "/query_roles", method = RequestMethod.GET)
     public RespTemplate PermitQuery(RoleQueryExp exp) {
         return new RespTemplate(HttpStatus.OK, roleService.QueryBy(exp));
     }
 
-    @LogAsync(module = "ROLES", op = "ROLE_QUERY")
+    @LogAsync(module = "ROLES", auth = "ROLE_QUERY")
     @PreAuthorize("hasAuthority('ROLE_QUERY')")
-    @ApiOperation(value = "获取角色列表")
+    @ApiOperation(value = "查询角色列表")
     @RequestMapping(value = "/get_roles", method = RequestMethod.GET)
     public RespTemplate GetRoleList() {
         List<SysRole> roles = roleService.GetAllRole();
@@ -45,7 +45,7 @@ public class RoleController {
         }
     }
 
-    @LogAsync(module = "ROLES", op = "ROLE_ADD")
+    @LogAsync(module = "ROLES", auth = "ROLE_ADD")
     @PreAuthorize("hasAuthority('ROLE_ADD')")
     @ApiOperation(value = "新建角色")
     @RequestMapping(value = "/new_role", method = RequestMethod.POST)
@@ -53,7 +53,7 @@ public class RoleController {
         return new RespTemplate(HttpStatus.OK, roleService.NewRole(dto));
     }
 
-    @LogAsync(module = "ROLES", op = "ROLE_UPDATE")
+    @LogAsync(module = "ROLES", auth = "ROLE_UPDATE")
     @PreAuthorize("hasAuthority('ROLE_UPDATE')")
     @ApiOperation(value = "编辑角色")
     @RequestMapping(value = "/modify_role", method = RequestMethod.PUT)
@@ -61,7 +61,7 @@ public class RoleController {
         return new RespTemplate(HttpStatus.OK, roleService.ModifyRole(dto));
     }
 
-    @LogAsync(module = "ROLES", op = "ROLE_ACCESS")
+    @LogAsync(module = "ROLES", auth = "ROLE_ACCESS")
     @PreAuthorize("hasAuthority('ROLE_ACCESS') AND hasAuthority('MENU_QUERY')")
     @ApiOperation(value = "编辑角色菜单")
     @RequestMapping(value = "/update_role_menus", method = RequestMethod.PUT)
@@ -69,7 +69,7 @@ public class RoleController {
         return new RespTemplate(HttpStatus.OK, roleService.UpdateRoleMenus(dto));
     }
 
-    @LogAsync(module = "ROLES", op = "ROLE_ACCESS")
+    @LogAsync(module = "ROLES", auth = "ROLE_ACCESS")
     @PreAuthorize("hasAuthority('ROLE_ACCESS') AND hasAuthority('RIGHTS_QUERY')")
     @ApiOperation(value = "编辑角色权限")
     @RequestMapping(value = "/update_role_permits", method = RequestMethod.PUT)
@@ -77,7 +77,7 @@ public class RoleController {
         return new RespTemplate(HttpStatus.OK, roleService.UpdateRolePermissions(dto));
     }
 
-    @LogAsync(module = "ROLES", op = "ROLE_DEL")
+    @LogAsync(module = "ROLES", auth = "ROLE_DEL")
     @PreAuthorize("hasAuthority('ROLE_DEL')")
     @ApiOperation(value = "删除角色")
     @RequestMapping(value = "/delete_role/{id}", method = RequestMethod.DELETE)

@@ -9,5 +9,5 @@ import java.lang.annotation.*;
 public @interface LogAsync {
     String module() default "";
 
-    String op() default "";
+    String auth() default "";
 }

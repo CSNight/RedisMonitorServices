@@ -41,7 +41,7 @@ public class LogAspectHttp {
     @Around(value = "aop_cut()&& @annotation(logAsync)&&@annotation(api)", argNames = "process,logAsync,api")
     public Object logHandler(ProceedingJoinPoint process, LogAsync logAsync, ApiOperation api) {
         String module = logAsync.module();
-        String auth = logAsync.op();
+        String auth = logAsync.auth();
         String op = api.value();
         MethodSignature methodSignature = (MethodSignature) process.getSignature();
         Method method = methodSignature.getMethod();

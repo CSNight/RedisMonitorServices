@@ -23,7 +23,7 @@ public class LogOpController {
     @Resource
     private OpLogServiceImpl opLogService;
 
-    @ApiOperation(value = "获取用户日志")
+    @ApiOperation(value = "查询用户日志")
     @RequestMapping(value = "/get_logs/{user}/{cur}/{size}", method = RequestMethod.GET)
     public RespTemplate GetLogsByUser(@PathVariable String user, @PathVariable int cur, @PathVariable int size) {
         return new RespTemplate(HttpStatus.OK, opLogService.GetLogsByUser(user, cur, size));

@@ -22,31 +22,31 @@ public class MenuController {
     @Resource
     private MenuServiceImpl menuService;
 
-    @LogAsync(module = "MENUS", op = "MENU_ICONS")
+    @LogAsync(module = "MENUS", auth = "MENU_ICONS")
     @PreAuthorize("hasAuthority('MENU_ICONS')")
-    @ApiOperation(value = "获取系统图标库")
+    @ApiOperation(value = "查询系统图标库")
     @RequestMapping(value = "/get_icons", method = RequestMethod.GET)
     public RespTemplate GetIcons() {
         return new RespTemplate(HttpStatus.OK, menuService.GetIconList());
     }
 
-    @LogAsync(module = "MENUS", op = "MENU_QUERY")
+    @LogAsync(module = "MENUS", auth = "MENU_QUERY")
     @PreAuthorize("hasAuthority('MENU_QUERY')")
-    @ApiOperation(value = "获取菜单目录树")
+    @ApiOperation(value = "查询菜单目录树")
     @RequestMapping(value = "/get_menu_tree", method = RequestMethod.GET)
     public RespTemplate GetMenuTree() {
         return new RespTemplate(HttpStatus.OK, menuService.GetMenuTree());
     }
 
-    @LogAsync(module = "MENUS", op = "MENU_QUERY")
+    @LogAsync(module = "MENUS", auth = "MENU_QUERY")
     @PreAuthorize("hasAuthority('MENU_QUERY')")
-    @ApiOperation(value = "获取菜单目录列表")
+    @ApiOperation(value = "查询菜单目录列表")
     @RequestMapping(value = "/get_menu_list", method = RequestMethod.GET)
     public RespTemplate GetMenuList() {
         return new RespTemplate(HttpStatus.OK, menuService.GetMenuList());
     }
 
-    @LogAsync(module = "MENUS", op = "MENU_QUERY")
+    @LogAsync(module = "MENUS", auth = "MENU_QUERY")
     @PreAuthorize("hasAuthority('MENU_QUERY')")
     @ApiOperation(value = "通过父节点ID获取菜单目录")
     @RequestMapping(value = "/{pid}/get_menu", method = RequestMethod.GET)
@@ -54,15 +54,15 @@ public class MenuController {
         return new RespTemplate(HttpStatus.OK, menuService.GetMenuByPid(pid));
     }
 
-    @LogAsync(module = "MENUS", op = "MENU_QUERY")
+    @LogAsync(module = "MENUS", auth = "MENU_QUERY")
     @PreAuthorize("hasAuthority('MENU_QUERY')")
-    @ApiOperation(value = "查询菜单目录")
+    @ApiOperation(value = "搜索菜单目录")
     @RequestMapping(value = "/query_menu", method = RequestMethod.GET)
     public RespTemplate MenuQuery(MenuQueryExp exp) {
         return new RespTemplate(HttpStatus.OK, menuService.QueryBy(exp));
     }
 
-    @LogAsync(module = "MENUS", op = "MENU_ROUTE")
+    @LogAsync(module = "MENUS", auth = "MENU_ROUTE")
     @PreAuthorize("hasAuthority('MENU_ROUTE')")
     @ApiOperation(value = "查询菜单路由")
     @RequestMapping(value = "/menu_routers", method = RequestMethod.GET)
@@ -70,7 +70,7 @@ public class MenuController {
         return new RespTemplate(HttpStatus.OK, menuService.GetMenuRouterByRole());
     }
 
-    @LogAsync(module = "MENUS", op = "MENU_UPDATE")
+    @LogAsync(module = "MENUS", auth = "MENU_UPDATE")
     @ApiOperation(value = "修改菜单信息")
     @PreAuthorize("hasAuthority('MENU_UPDATE')")
     @RequestMapping(value = "/modify_menu", method = RequestMethod.PUT)
@@ -81,7 +81,7 @@ public class MenuController {
         return new RespTemplate(HttpStatus.BAD_REQUEST, "");
     }
 
-    @LogAsync(module = "MENUS", op = "MENU_ADD")
+    @LogAsync(module = "MENUS", auth = "MENU_ADD")
     @ApiOperation(value = "添加菜单项")
     @PreAuthorize("hasAuthority('MENU_ADD')")
     @RequestMapping(value = "/new_menu", method = RequestMethod.POST)
@@ -92,7 +92,7 @@ public class MenuController {
         return new RespTemplate(HttpStatus.BAD_REQUEST, "");
     }
 
-    @LogAsync(module = "MENUS", op = "MENU_DEL")
+    @LogAsync(module = "MENUS", auth = "MENU_DEL")
     @ApiOperation(value = "通过ID删除菜单")
     @PreAuthorize("hasAuthority('MENU_DEL')")
     @RequestMapping(value = "/delete_menu/{id}", method = RequestMethod.DELETE)

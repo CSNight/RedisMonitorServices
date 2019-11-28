@@ -42,7 +42,7 @@ public class LoginController {
     private static Logger _log = LoggerFactory.getLogger(LoginController.class);
 
     @LogAsync(module = "LOGIN")
-    @ApiOperation(value = "获取用户详情")
+    @ApiOperation(value = "查询用户详情")
     @RequestMapping(value = "user_info", method = RequestMethod.GET)
     public RespTemplate UserInfo(String username) {
         if (username == null || username.equals("")) {
@@ -56,7 +56,7 @@ public class LoginController {
     }
 
     @LogAsync(module = "LOGIN")
-    @ApiOperation(value = "获取用户头像")
+    @ApiOperation(value = "查询用户头像")
     @RequestMapping(value = "user_avatar", method = RequestMethod.GET)
     public RespTemplate GetHeader(String username) {
         if (username == null || username.equals("")) {

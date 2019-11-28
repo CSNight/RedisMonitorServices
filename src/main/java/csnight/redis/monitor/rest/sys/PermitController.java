@@ -24,23 +24,23 @@ public class PermitController {
     @Resource
     private PermissionServiceImpl permissionService;
 
-    @LogAsync(module = "PERMITS", op = "RIGHTS_QUERY")
+    @LogAsync(module = "PERMITS", auth = "RIGHTS_QUERY")
     @PreAuthorize("hasAuthority('RIGHTS_QUERY')")
-    @ApiOperation(value = "查询权限")
+    @ApiOperation(value = "搜索权限")
     @RequestMapping(value = "/query_permit", method = RequestMethod.GET)
     public RespTemplate PermitQuery(PermitQueryExp exp) {
         return new RespTemplate(HttpStatus.OK, permissionService.QueryBy(exp));
     }
 
-    @LogAsync(module = "PERMITS", op = "RIGHTS_QUERY")
+    @LogAsync(module = "PERMITS", auth = "RIGHTS_QUERY")
     @PreAuthorize("hasAuthority('RIGHTS_QUERY')")
-    @ApiOperation(value = "获取权限列表")
+    @ApiOperation(value = "查询权限列表")
     @RequestMapping(value = "/get_permits", method = RequestMethod.GET)
     public RespTemplate GetPermissionList() {
         return new RespTemplate(HttpStatus.OK, permissionService.GetAllPermission());
     }
 
-    @LogAsync(module = "PERMITS", op = "RIGHTS_ADD")
+    @LogAsync(module = "PERMITS", auth = "RIGHTS_ADD")
     @PreAuthorize("hasAuthority('RIGHTS_ADD')")
     @ApiOperation(value = "创建权限")
     @RequestMapping(value = "/create_permit", method = RequestMethod.POST)
@@ -49,7 +49,7 @@ public class PermitController {
         return new RespTemplate(HttpStatus.OK, permissionService.NewPermission(dto, username));
     }
 
-    @LogAsync(module = "PERMITS", op = "RIGHTS_DEL")
+    @LogAsync(module = "PERMITS", auth = "RIGHTS_DEL")
     @PreAuthorize("hasAuthority('RIGHTS_DEL')")
     @ApiOperation(value = "删除权限")
     @RequestMapping(value = "/delete_permit/{id}", method = RequestMethod.DELETE)
@@ -57,7 +57,7 @@ public class PermitController {
         return new RespTemplate(HttpStatus.OK, permissionService.DeletePermitById(id));
     }
 
-    @LogAsync(module = "PERMITS", op = "RIGHTS_UPDATE")
+    @LogAsync(module = "PERMITS", auth = "RIGHTS_UPDATE")
     @PreAuthorize("hasAuthority('RIGHTS_UPDATE')")
     @ApiOperation(value = "修改权限")
     @RequestMapping(value = "/edit_permit", method = RequestMethod.PUT)
