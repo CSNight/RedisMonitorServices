@@ -14,16 +14,24 @@ public class RmsInsDto {
     private String ip;
     @Max(value = 65535)
     @Min(value = 0)
-    private int port;
+    private int port = 6379;
     @NotEmpty
     @NotNull
     private String name;
-    @NotEmpty
-    @NotNull
-    private String user_id;
     private String password;
     private String master;
     private Set<String> sentinels = new HashSet<>();
+    private String poolType = "sin";
+    @Max(value = 16)
+    @Min(value = 0)
+    private int db = 0;
+    private boolean blockWhenExhausted = true;
+    private String evictionPolicy = "org.apache.commons.pool2.impl.DefaultEvictionPolicy";
+    private boolean jmx = true;
+    private int totalCon = 100;
+    private int maxWait = 1000 * 10;
+    private int timeOut = 2000;
+    private boolean testOnBorrow = true;
 
     public String getIp() {
         return ip;
@@ -49,14 +57,6 @@ public class RmsInsDto {
         this.name = name;
     }
 
-    public String getUser_id() {
-        return user_id;
-    }
-
-    public void setUser_id(String user_id) {
-        this.user_id = user_id;
-    }
-
     public String getPassword() {
         return password;
     }
@@ -79,5 +79,77 @@ public class RmsInsDto {
 
     public void setSentinels(Set<String> sentinels) {
         this.sentinels = sentinels;
+    }
+
+    public String getPoolType() {
+        return poolType;
+    }
+
+    public void setPoolType(String poolType) {
+        this.poolType = poolType;
+    }
+
+    public int getDb() {
+        return db;
+    }
+
+    public void setDb(int db) {
+        this.db = db;
+    }
+
+    public boolean isBlockWhenExhausted() {
+        return blockWhenExhausted;
+    }
+
+    public void setBlockWhenExhausted(boolean blockWhenExhausted) {
+        this.blockWhenExhausted = blockWhenExhausted;
+    }
+
+    public String getEvictionPolicy() {
+        return evictionPolicy;
+    }
+
+    public void setEvictionPolicy(String evictionPolicy) {
+        this.evictionPolicy = evictionPolicy;
+    }
+
+    public boolean isJmx() {
+        return jmx;
+    }
+
+    public void setJmx(boolean jmx) {
+        this.jmx = jmx;
+    }
+
+    public int getTotalCon() {
+        return totalCon;
+    }
+
+    public void setTotalCon(int totalCon) {
+        this.totalCon = totalCon;
+    }
+
+    public int getMaxWait() {
+        return maxWait;
+    }
+
+    public void setMaxWait(int maxWait) {
+        this.maxWait = maxWait;
+    }
+
+    public int getTimeOut() {
+        return timeOut;
+    }
+
+    public void setTimeOut(int timeOut) {
+        this.timeOut = timeOut;
+    }
+
+    public boolean isTestOnBorrow() {
+        return testOnBorrow;
+    }
+
+    public void setTestOnBorrow(boolean testOnBorrow) {
+        this.testOnBorrow = testOnBorrow;
     }
 }
