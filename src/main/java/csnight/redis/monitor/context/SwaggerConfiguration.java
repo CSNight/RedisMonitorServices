@@ -20,7 +20,7 @@ public class SwaggerConfiguration {
                 .apiInfo(apiInfo())
                 .pathMapping("/")
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.csnight.redis.monitor.rest")) //暴露接口地址的包路径
+                .apis(RequestHandlerSelectors.basePackage("csnight.redis.monitor.rest")) //暴露接口地址的包路径
                 .paths(PathSelectors.any())
                 .build();
     }

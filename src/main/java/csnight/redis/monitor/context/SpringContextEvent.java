@@ -43,11 +43,6 @@ public class SpringContextEvent implements ApplicationListener {
             } catch (SchedulerException e) {
                 e.printStackTrace();
             }
-        } else if (applicationEvent instanceof ServletRequestHandledEvent) {
-            ServletRequestHandledEvent rhe = (ServletRequestHandledEvent) applicationEvent;
-            if (rhe.getStatusCode() != 200) {
-                _log.info(rhe.getClientAddress() + " " + rhe.getMethod() + " " + rhe.getStatusCode() + " " + rhe.getRequestUrl());
-            }
         }
     }
 }
