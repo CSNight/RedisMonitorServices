@@ -1,5 +1,6 @@
 package csnight.redis.monitor.redis.pool;
 
+import csnight.redis.monitor.exception.ConfigException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,7 @@ public class MultiRedisPool {
     private static MultiRedisPool ourInstance;
     private Map<String, RedisPoolInstance> ConnPools = new ConcurrentHashMap<>();
     private Map<String, List<String>> UserPools = new ConcurrentHashMap<>();
+    private List<String> md5s = new ArrayList<>();
 
     public static MultiRedisPool getInstance() {
         if (ourInstance == null) {
@@ -33,10 +35,14 @@ public class MultiRedisPool {
         return UserPools;
     }
 
-    public RedisPoolInstance addNewPool(PoolConfig poolConfig) {
+    public RedisPoolInstance addNewPool(PoolConfig poolConfig) throws ConfigException {
         try {
             RedisPoolInstance ins = new RedisPoolInstance(poolConfig);
+            if (ins.getUin().equals("") || md5s.indexOf(ins.getUin()) != -1) {
+                throw new ConfigException("Can not add a same redis instance again");
+            }
             ins.BuildJedisPool();
+            md5s.add(ins.getUin());
             ConnPools.put(ins.getId(), ins);
             if (UserPools.containsKey(ins.getUser_id())) {
                 UserPools.get(ins.getUser_id()).add(ins.getId());
@@ -48,8 +54,8 @@ public class MultiRedisPool {
             return ins;
         } catch (Exception e) {
             _log.error(e.getMessage());
+            throw new ConfigException(e.getMessage());
         }
-        return null;
     }
 
     public RedisPoolInstance getPool(String ins) {
@@ -62,6 +68,7 @@ public class MultiRedisPool {
             if (pool != null) {
                 pool.shutdown();
                 String user_id = pool.getUser_id();
+                md5s.remove(pool.getUin());
                 UserPools.get(user_id).remove(id);
                 ConnPools.remove(id);
                 System.gc();

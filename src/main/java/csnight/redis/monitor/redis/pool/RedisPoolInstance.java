@@ -15,11 +15,18 @@ public class RedisPoolInstance {
     private PoolConfig config;
     private String id = "";
     private String user_id = "";
+    private String uin = "";
 
     public RedisPoolInstance(PoolConfig config) {
         this.config = config;
         id = config.getIns_id();
         user_id = config.getUser_id();
+        config.checkMd5();
+        this.uin = config.getUin();
+    }
+
+    public String getUin() {
+        return uin;
     }
 
     public HashMap<String, JediSQL> getRcs() {

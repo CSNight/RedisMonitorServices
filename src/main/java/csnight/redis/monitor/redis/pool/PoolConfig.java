@@ -11,6 +11,7 @@ public class PoolConfig {
     private String ins_id = "";
     private String user_id = "";
     private String ip = "";
+    private String uin = "";
     private int port = 6379;
     private String poolType = "sin";
     private String password = null;
@@ -153,6 +154,10 @@ public class PoolConfig {
         this.timeOut = timeOut;
     }
 
+    public String getUin() {
+        return uin;
+    }
+
     public boolean checkSentinelsConfig() {
         return !master.equals("") && sentinels.size() > 0
                 && BaseUtils.any(sentinels.stream().map(BaseUtils::checkIpPort).collect(Collectors.toList()));
@@ -172,6 +177,20 @@ public class PoolConfig {
         config.setMaxWaitMillis(this.maxWait);
         // 在borrow一个jedis实例时，是否提前进行validate操作；如果为true，则得到的jedis实例均是可用的；
         config.setTestOnBorrow(this.testOnBorrow);
+
         return config;
+    }
+
+    public void checkMd5() {
+        if (this.ip != null && BaseUtils.checkIp(this.ip) & BaseUtils.checkPort(this.port)) {
+            this.uin = BaseUtils.string2MD5(this.user_id + ":" + this.ip + ":" + this.port, "INS$");
+        } else if (checkSentinelsConfig()) {
+            StringBuilder sen = new StringBuilder();
+            for (String sentinel : sentinels) {
+                sen.append(sentinel).append(",");
+            }
+            String body = this.user_id + ":" + this.master + ":" + sen;
+            this.uin = BaseUtils.string2MD5(body, "INS$");
+        }
     }
 }
