@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
@@ -99,9 +100,9 @@ public class BaseUtils {
         return m.matches();
     }
 
-    public static boolean checkPort(String identify) {
+    public static boolean checkPort(int identify) {
         Pattern r = Pattern.compile(port_part);
-        Matcher m = r.matcher(identify);
+        Matcher m = r.matcher(String.valueOf(identify));
         return m.matches();
     }
 
@@ -116,5 +117,33 @@ public class BaseUtils {
             case "gif":
                 return "data:image/gif;base64," + b64;
         }
+    }
+
+    /***
+     * MD5加码 生成32位md5码
+     */
+    public static String string2MD5(String inStr, String prefix) {
+        MessageDigest md5;
+        try {
+            md5 = MessageDigest.getInstance("MD5");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+        char[] charArray = inStr.toCharArray();
+        byte[] byteArray = new byte[charArray.length];
+
+        for (int i = 0; i < charArray.length; i++)
+            byteArray[i] = (byte) charArray[i];
+        byte[] md5Bytes = md5.digest(byteArray);
+        StringBuffer hexValue = new StringBuffer();
+        for (byte md5Byte : md5Bytes) {
+            int val = ((int) md5Byte) & 0xff;
+            if (val < 16)
+                hexValue.append("0");
+            hexValue.append(Integer.toHexString(val));
+        }
+        return prefix + hexValue.toString();
+
     }
 }
