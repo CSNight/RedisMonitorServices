@@ -1,15 +1,14 @@
 package csnight.redis.monitor.db.jpa;
 
-import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "rms_instance")
 public class RmsInstance {
     @Id
-    @GenericGenerator(name = "jpa-uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    @GeneratedValue(generator = "jpa-uuid")
     @Column(name = "id", length = 50)
     private String id;
     @Column(name = "user_id", length = 50)
@@ -18,10 +17,12 @@ public class RmsInstance {
     private String ip;
     @Column(name = "port")
     private int port;
+    @Column(name = "state")
+    private boolean state;
     @Column(name = "instance_name")
     private String instance_name;
-    @Column(name = "cluster_enable")
-    private boolean cluster_enable;
+    @Column(name = "hz")
+    private int hz;
     @Column(name = "role")
     private String role;
     @Column(name = "version")
@@ -75,6 +76,14 @@ public class RmsInstance {
         this.port = port;
     }
 
+    public boolean isState() {
+        return state;
+    }
+
+    public void setState(boolean state) {
+        this.state = state;
+    }
+
     public String getInstance_name() {
         return instance_name;
     }
@@ -83,12 +92,12 @@ public class RmsInstance {
         this.instance_name = instance_name;
     }
 
-    public boolean isCluster_enable() {
-        return cluster_enable;
+    public int getHz() {
+        return hz;
     }
 
-    public void setCluster_enable(boolean cluster_enable) {
-        this.cluster_enable = cluster_enable;
+    public void setHz(int hz) {
+        this.hz = hz;
     }
 
     public String getRole() {
