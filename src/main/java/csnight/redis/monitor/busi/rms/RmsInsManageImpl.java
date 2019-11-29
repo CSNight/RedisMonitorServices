@@ -12,6 +12,8 @@ import csnight.redis.monitor.redis.statistic.InfoCmdParser;
 import csnight.redis.monitor.rest.rms.dto.RmsInsDto;
 import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.GUID;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -25,14 +27,17 @@ public class RmsInsManageImpl {
     @Resource
     private SysUserRepository userRepository;
 
+    @Cacheable(value = "instances")
     public List<RmsInstance> GetInstances() {
         return rmsInsRepository.findAll();
     }
 
+    @Cacheable(value = "instance", key = "#user_id")
     public List<RmsInstance> GetInstanceByUser(String user_id) {
         return rmsInsRepository.findByUserId(user_id);
     }
 
+    @CacheEvict(value = {"instances", "instance"}, beforeInvocation = true, allEntries = true)
     public RmsInstance NewInstance(RmsInsDto dto) throws ConfigException {
         RmsInstance ins = new RmsInstance();
         String user_id = userRepository.findIdByUsername(BaseUtils.GetUserFromContext());
@@ -68,6 +73,16 @@ public class RmsInsManageImpl {
             }
         } else {
             throw new ConfigException("Can not build a redis connection pool");
+        }
+    }
+    @CacheEvict(value = {"instances", "instance"}, beforeInvocation = true, allEntries = true)
+    public String DeleteInstance(String ins_id) {
+        try {
+            MultiRedisPool.getInstance().removePool(ins_id);
+            rmsInsRepository.deleteById(ins_id);
+            return "success";
+        } catch (Exception ex) {
+            return "failed";
         }
     }
 
