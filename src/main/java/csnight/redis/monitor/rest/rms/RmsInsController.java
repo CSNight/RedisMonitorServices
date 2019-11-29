@@ -36,7 +36,7 @@ public class RmsInsController {
     }
 
     @LogAsync(module = "INSTANCE", auth = "INS_ADD")
-    @ApiOperation("根据用户id查询Redis实例")
+    @ApiOperation("新建Redis实例")
     @RequestMapping(value = "/new_instance", method = RequestMethod.POST)
     public RespTemplate AddInstance(@Valid @RequestBody RmsInsDto dto) throws ConfigException {
         return new RespTemplate(HttpStatus.OK, rmsInsManage.NewInstance(dto));
