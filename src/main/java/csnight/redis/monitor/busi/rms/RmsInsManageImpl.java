@@ -17,6 +17,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -46,10 +47,10 @@ public class RmsInsManageImpl {
         ins.setIp(dto.getIp());
         ins.setPort(dto.getPort());
         ins.setInstance_name(dto.getName());
+        ins.setCreate_time(new Date());
         PoolConfig config = BuildConfig(dto);
         config.setUser_id(user_id);
         config.setIns_id(ins.getId());
-        ins.setConn(JSONObject.toJSONString(config));
         RedisPoolInstance pool = MultiRedisPool.getInstance().addNewPool(config);
         if (pool != null) {
             try {
@@ -65,6 +66,7 @@ public class RmsInsManageImpl {
                 ins.setVersion(info.get("redis_version"));
                 ins.setState(true);
                 ins.setRole(InfoCmdParser.GetInfoBySectionKey(pool, "Replication", "role"));
+                ins.setConn(JSONObject.toJSONString(config));
                 rmsInsRepository.save(ins);
                 return ins;
             } catch (Exception ex) {
@@ -75,6 +77,7 @@ public class RmsInsManageImpl {
             throw new ConfigException("Can not build a redis connection pool");
         }
     }
+
     @CacheEvict(value = {"instances", "instance"}, beforeInvocation = true, allEntries = true)
     public String DeleteInstance(String ins_id) {
         try {

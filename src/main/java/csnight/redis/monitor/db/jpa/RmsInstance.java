@@ -1,9 +1,12 @@
 package csnight.redis.monitor.db.jpa;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "rms_instance")
@@ -43,6 +46,15 @@ public class RmsInstance {
     private String config;
     @Column(name = "conn")
     private String conn;
+    @Column(name = "create_time")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date create_time;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "rms_job_relation",
+            inverseJoinColumns = {@JoinColumn(name = "inc_key", referencedColumnName = "id")},
+            joinColumns = {@JoinColumn(name = "job_key", referencedColumnName = "id")})
+    private Set<RmsJob> jobs=new HashSet<>();
 
     public String getId() {
         return id;
@@ -178,5 +190,21 @@ public class RmsInstance {
 
     public void setConn(String conn) {
         this.conn = conn;
+    }
+
+    public Date getCreate_time() {
+        return create_time;
+    }
+
+    public void setCreate_time(Date create_time) {
+        this.create_time = create_time;
+    }
+
+    public Set<RmsJob> getJobs() {
+        return jobs;
+    }
+
+    public void setJobs(Set<RmsJob> jobs) {
+        this.jobs = jobs;
     }
 }
