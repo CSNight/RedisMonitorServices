@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
-    <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/spring.log}"/>
-    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
-    <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <property name="LOG_FILE" value="logs/spring.log"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <include resource="org/springframework/boot/logging/logback/file-appender.xml"/>
     <!--日志异步到数据库 -->
     <appender name="DB_APPENDER" class="ch.qos.logback.classic.db.DBAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -20,12 +20,14 @@
     </appender>
     <!-- 异步日志记录 -->
     <appender name="ASYNC_APPENDER" class="ch.qos.logback.classic.AsyncAppender">
-        　　<appender-ref ref="DB_APPENDER" />
-        　　<includeCallerData>true</includeCallerData>
+        　　
+        <appender-ref ref="DB_APPENDER"/>
+        　　
+        <includeCallerData>true</includeCallerData>
     </appender>
     <root level="INFO">
-        <appender-ref ref="CONSOLE" />
-        <appender-ref ref="FILE" />
-        <appender-ref ref="ASYNC_APPENDER" />
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ASYNC_APPENDER"/>
     </root>
 </configuration>
