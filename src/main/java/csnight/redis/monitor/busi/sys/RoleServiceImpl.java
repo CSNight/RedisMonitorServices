@@ -4,7 +4,6 @@ import csnight.redis.monitor.busi.sys.exp.RoleQueryExp;
 import csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import csnight.redis.monitor.db.jpa.SysMenu;
 import csnight.redis.monitor.db.jpa.SysRole;
-import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.db.repos.SysRoleRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.exception.ConflictsException;

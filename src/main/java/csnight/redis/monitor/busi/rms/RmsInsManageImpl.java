@@ -14,6 +14,7 @@ import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.GUID;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -38,7 +39,8 @@ public class RmsInsManageImpl {
         return rmsInsRepository.findByUserId(user_id);
     }
 
-    @CacheEvict(value = {"instances", "instance"}, beforeInvocation = true, allEntries = true)
+    @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
+            @CacheEvict(value = "instance", key = "#result.user_id")})
     public RmsInstance NewInstance(RmsInsDto dto) throws ConfigException {
         RmsInstance ins = new RmsInstance();
         String user_id = userRepository.findIdByUsername(BaseUtils.GetUserFromContext());
@@ -67,8 +69,7 @@ public class RmsInsManageImpl {
                 ins.setState(true);
                 ins.setRole(InfoCmdParser.GetInfoBySectionKey(pool, "Replication", "role"));
                 ins.setConn(JSONObject.toJSONString(config));
-                rmsInsRepository.save(ins);
-                return ins;
+                return rmsInsRepository.save(ins);
             } catch (Exception ex) {
                 MultiRedisPool.getInstance().removePool(ins.getId());
                 return null;
@@ -81,7 +82,7 @@ public class RmsInsManageImpl {
     @CacheEvict(value = {"instances", "instance"}, beforeInvocation = true, allEntries = true)
     public String DeleteInstance(String ins_id) {
         try {
-            MultiRedisPool.getInstance().removePool(ins_id);
+            boolean res = MultiRedisPool.getInstance().removePool(ins_id);
             rmsInsRepository.deleteById(ins_id);
             return "success";
         } catch (Exception ex) {
