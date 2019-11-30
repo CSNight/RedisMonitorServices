@@ -100,7 +100,7 @@ public class MenuServiceImpl {
         return list;
     }
 
-    @CacheEvict(value = {"menus_tree", "menus_list"}, beforeInvocation = true, allEntries = true)
+    @CacheEvict(value = {"menus_tree", "menus_list", "permits"}, beforeInvocation = true, allEntries = true)
     public SysMenu ModifyMenu(MenuDto menuDto) throws ConflictsException {
         Optional<SysMenu> sysMenu = sysMenuRepository.findById(menuDto.getId());
         if (sysMenu.isPresent()) {
@@ -168,7 +168,7 @@ public class MenuServiceImpl {
         }
     }
 
-    @CacheEvict(value = {"menus_tree", "menus_list"}, beforeInvocation = true, allEntries = true)
+    @CacheEvict(value = {"menus_tree", "menus_list", "permits"}, beforeInvocation = true, allEntries = true)
     public String DeleteMenuById(String id) {
         Optional<SysMenu> sysMenuOpt = sysMenuRepository.findById(Long.parseLong(id));
         if (sysMenuOpt.isPresent()) {
