@@ -4,18 +4,23 @@ import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.busi.sys.exp.OrgQueryExp;
 import csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import csnight.redis.monitor.db.jpa.SysOrg;
+import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.db.repos.SysOrgRepository;
+import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.exception.ConflictsException;
 import csnight.redis.monitor.utils.BaseUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 @Service
 public class OrgServiceImpl {
     private SysOrgRepository sysOrgRepository;
+    @Resource
+    private SysUserRepository userRepository;
 
     public OrgServiceImpl(SysOrgRepository sysOrgRepository) {
         this.sysOrgRepository = sysOrgRepository;
@@ -115,12 +120,24 @@ public class OrgServiceImpl {
             if (sysOrg.getChildren().size() > 0) {
                 Set<SysOrg> ids = new HashSet<>();
                 getOrgChildIds(sysOrg, ids);
+                for (SysOrg org_del : ids) {
+                    ModifyBelongUserOrg(org_del.getId());
+                }
                 sysOrgRepository.deleteInBatch(ids);
             }
+            ModifyBelongUserOrg(Long.parseLong(id));
             sysOrgRepository.deleteById(Long.parseLong(id));
             return "success";
         }
         return "failed";
+    }
+
+    private void ModifyBelongUserOrg(Long id) {
+        List<SysUser> users = userRepository.findByOrgId(id);
+        for (SysUser user_in : users) {
+            user_in.setOrg_id(1L);
+            userRepository.save(user_in);
+        }
     }
 
     private boolean checkOrgConflict(SysOrg sysOrg, boolean isNew) {
