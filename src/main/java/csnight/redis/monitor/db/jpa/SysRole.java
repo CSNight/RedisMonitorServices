@@ -19,11 +19,11 @@ public class SysRole {
     @GeneratedValue(generator = "jpa-uuid")
     @Column(name = "id")
     private String id;
-    @Column(name = "code ")
+    @Column(name = "code")
     private String code;
-    @Column(name = "name ")
+    @Column(name = "name")
     private String name;
-    @Column(name = "level ")
+    @Column(name = "level")
     private int level;
     @Column(name = "create_time")
     @Temporal(TemporalType.TIMESTAMP)
