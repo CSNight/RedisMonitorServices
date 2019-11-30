@@ -4,7 +4,9 @@ import csnight.redis.monitor.busi.sys.exp.RoleQueryExp;
 import csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import csnight.redis.monitor.db.jpa.SysMenu;
 import csnight.redis.monitor.db.jpa.SysRole;
+import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.db.repos.SysRoleRepository;
+import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.exception.ConflictsException;
 import csnight.redis.monitor.rest.sys.dto.RoleDto;
 import csnight.redis.monitor.rest.sys.vo.SysMenuVo;
@@ -19,6 +21,8 @@ import java.util.*;
 public class RoleServiceImpl {
     @Resource
     private SysRoleRepository sysRoleRepository;
+    @Resource
+    private SysUserRepository userRepository;
 
     public List<SysRole> QueryBy(RoleQueryExp exp) {
         List<SysRole> roles = sysRoleRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder));
@@ -60,6 +64,10 @@ public class RoleServiceImpl {
     public String DeleteRoleById(String id) {
         Optional<SysRole> optRole = sysRoleRepository.findById(id);
         if (optRole.isPresent()) {
+            optRole.get().getUsers().forEach(user -> {
+                user.setRoles(new HashSet<>());
+                userRepository.save(user);
+            });
             sysRoleRepository.deleteById(id);
             return "success";
         }
