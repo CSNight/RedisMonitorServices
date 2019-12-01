@@ -11,6 +11,7 @@ import java.util.Set;
 
 @ApiModel(value = "Redis实例模型")
 public class RmsInsDto {
+    private String id;
     private String ip;
     @Max(value = 65535)
     @Min(value = 0)
@@ -22,6 +23,7 @@ public class RmsInsDto {
     private String master;
     private Set<String> sentinels = new HashSet<>();
     private String poolType = "sin";
+    private boolean state;
     @Max(value = 16)
     @Min(value = 0)
     private int db = 0;
@@ -32,6 +34,14 @@ public class RmsInsDto {
     private int maxWait = 1000 * 10;
     private int timeOut = 2000;
     private boolean testOnBorrow = true;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getIp() {
         return ip;
@@ -87,6 +97,14 @@ public class RmsInsDto {
 
     public void setPoolType(String poolType) {
         this.poolType = poolType;
+    }
+
+    public boolean isState() {
+        return state;
+    }
+
+    public void setState(boolean state) {
+        this.state = state;
     }
 
     public int getDb() {

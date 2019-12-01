@@ -42,7 +42,35 @@ public class RmsInsController {
         return new RespTemplate(HttpStatus.OK, rmsInsManage.NewInstance(dto));
     }
 
-    @LogAsync(module = "INSTANCE", auth = "INS_ADD")
+    @LogAsync(module = "INSTANCE", auth = "INS_UPDATE")
+    @ApiOperation("修改实例名称")
+    @RequestMapping(value = "/modify_name", method = RequestMethod.PUT)
+    public RespTemplate ModifyInsName(@Valid @RequestBody RmsInsDto dto) {
+        return new RespTemplate(HttpStatus.OK, rmsInsManage.ModifyInsName(dto));
+    }
+
+    @LogAsync(module = "INSTANCE", auth = "INS_UPDATE")
+    @ApiOperation("修改实例连接信息")
+    @RequestMapping(value = "/modify_conn", method = RequestMethod.PUT)
+    public RespTemplate ModifyInsConn(@Valid @RequestBody RmsInsDto dto) throws ConfigException {
+        return new RespTemplate(HttpStatus.OK, rmsInsManage.ModifyInsConn(dto));
+    }
+
+    @LogAsync(module = "INSTANCE", auth = "INS_UPDATE")
+    @ApiOperation("修改实例连接状态")
+    @RequestMapping(value = "/modify_state", method = RequestMethod.PUT)
+    public RespTemplate ModifyInsState(@Valid @RequestBody RmsInsDto dto) throws ConfigException {
+        return new RespTemplate(HttpStatus.OK, rmsInsManage.ModifyInsState(dto));
+    }
+
+    @LogAsync(module = "INSTANCE", auth = "INS_UPDATE")
+    @ApiOperation("更新实例信息")
+    @RequestMapping(value = "/update_mete", method = RequestMethod.PUT)
+    public RespTemplate ModifyInsInfo(@Valid @RequestBody RmsInsDto dto) throws ConfigException {
+        return new RespTemplate(HttpStatus.OK, rmsInsManage.UpdateInsMeta(dto));
+    }
+
+    @LogAsync(module = "INSTANCE", auth = "INS_DEL")
     @ApiOperation("删除Redis实例")
     @RequestMapping(value = "/delete_instance/{ins_id}", method = RequestMethod.DELETE)
     public RespTemplate DeleteInstance(@PathVariable String ins_id) {
