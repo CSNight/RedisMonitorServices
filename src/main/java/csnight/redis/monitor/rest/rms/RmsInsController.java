@@ -65,7 +65,7 @@ public class RmsInsController {
 
     @LogAsync(module = "INSTANCE", auth = "INS_UPDATE")
     @ApiOperation("更新实例信息")
-    @RequestMapping(value = "/update_mete", method = RequestMethod.PUT)
+    @RequestMapping(value = "/update_meta", method = RequestMethod.PUT)
     public RespTemplate ModifyInsInfo(@Valid @RequestBody RmsInsDto dto) throws ConfigException {
         return new RespTemplate(HttpStatus.OK, rmsInsManage.UpdateInsMeta(dto));
     }
