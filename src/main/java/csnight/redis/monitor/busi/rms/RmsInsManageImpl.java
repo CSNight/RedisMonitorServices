@@ -66,6 +66,7 @@ public class RmsInsManageImpl {
     @CacheEvict(value = {"instances", "instance"}, beforeInvocation = true, allEntries = true)
     public String DeleteInstance(String ins_id) {
         try {
+            //TODO 停止关联定时任务
             boolean res = MultiRedisPool.getInstance().removePool(ins_id);
             rmsInsRepository.deleteById(ins_id);
             return "success";
