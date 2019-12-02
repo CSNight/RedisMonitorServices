@@ -1,14 +1,18 @@
 package csnight.redis.monitor.redis.pool;
 
+import csnight.redis.monitor.busi.rms.RmsInsManageImpl;
 import csnight.redis.monitor.exception.ConfigException;
+import csnight.redis.monitor.utils.ReflectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 public class MultiRedisPool {
     private static Logger _log = LoggerFactory.getLogger(MultiRedisPool.class);
     private static MultiRedisPool ourInstance;
@@ -70,6 +74,9 @@ public class MultiRedisPool {
                 String user_id = pool.getUser_id();
                 md5s.remove(pool.getUin());
                 UserPools.get(user_id).remove(id);
+                if (UserPools.get(user_id).size() == 0) {
+                    UserPools.remove(user_id);
+                }
                 ConnPools.remove(id);
                 System.gc();
                 return true;
@@ -80,6 +87,13 @@ public class MultiRedisPool {
             _log.error(ex.getMessage());
             return false;
         }
+    }
+
+    public void shutdown() {
+        for (RedisPoolInstance pool : ConnPools.values()) {
+            pool.shutdown();
+        }
+        ReflectUtils.getBean(RmsInsManageImpl.class).ChangeAllState(ConnPools.keySet());
     }
 
 }
