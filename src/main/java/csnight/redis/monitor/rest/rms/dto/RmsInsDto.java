@@ -24,7 +24,7 @@ public class RmsInsDto {
     private Set<String> sentinels = new HashSet<>();
     private String poolType = "sin";
     private boolean state;
-    @Max(value = 16)
+    @Max(value = 15)
     @Min(value = 0)
     private int db = 0;
     private boolean blockWhenExhausted = true;
