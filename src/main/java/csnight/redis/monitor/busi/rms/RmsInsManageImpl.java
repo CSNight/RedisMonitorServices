@@ -1,7 +1,11 @@
 package csnight.redis.monitor.busi.rms;
 
 import com.alibaba.fastjson.JSONObject;
+import csnight.redis.monitor.busi.rms.exp.InsQueryExp;
+import csnight.redis.monitor.busi.sys.exp.UserQueryExp;
+import csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import csnight.redis.monitor.db.jpa.RmsInstance;
+import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.db.repos.RmsInsRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.exception.ConfigException;
@@ -18,10 +22,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class RmsInsManageImpl {
@@ -31,8 +32,29 @@ public class RmsInsManageImpl {
     private SysUserRepository userRepository;
 
     @Cacheable(value = "instances")
-    public List<RmsInstance> GetInstances() {
-        return rmsInsRepository.findAll();
+    public List<JSONObject> GetInstances() {
+        List<JSONObject> res = new ArrayList<>();
+        Set<String> ids = new HashSet<>();
+        List<RmsInstance> instances = rmsInsRepository.findAll();
+        for (RmsInstance ins : instances) {
+            ids.add(ins.getUser_id());
+        }
+        UserQueryExp exp = new UserQueryExp();
+        exp.setIds(ids);
+        List<SysUser> users = userRepository.findAll((root, criteriaQuery, criteriaBuilder) ->
+                QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder));
+        for (RmsInstance ins : instances) {
+            JSONObject jo = JSONObject.parseObject(JSONObject.toJSONString(ins));
+            String username = "";
+            for (SysUser user : users) {
+                if (ins.getUser_id().equals(user.getId())) {
+                    username = user.getUsername();
+                }
+            }
+            jo.put("user", username);
+            res.add(jo);
+        }
+        return res;
     }
 
     @Cacheable(value = "instance", key = "#user_id")
@@ -41,7 +63,7 @@ public class RmsInsManageImpl {
     }
 
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
-            @CacheEvict(value = "instance", key = "#result.user_id")})
+            @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
     public RmsInstance NewInstance(RmsInsDto dto) throws ConfigException {
         RmsInstance ins = new RmsInstance();
         String user_id = userRepository.findIdByUsername(BaseUtils.GetUserFromContext());
@@ -76,7 +98,7 @@ public class RmsInsManageImpl {
     }
 
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
-            @CacheEvict(value = "instance", key = "#result.user_id")})
+            @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
     public RmsInstance ModifyInsName(RmsInsDto dto) {
         Optional<RmsInstance> rms = rmsInsRepository.findById(dto.getId());
         if (rms.isPresent()) {
@@ -88,7 +110,7 @@ public class RmsInsManageImpl {
     }
 
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
-            @CacheEvict(value = "instance", key = "#result.user_id")})
+            @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
     public RmsInstance ModifyInsState(RmsInsDto dto) throws ConfigException {
         Optional<RmsInstance> rms = rmsInsRepository.findById(dto.getId());
         if (rms.isPresent()) {
@@ -114,7 +136,7 @@ public class RmsInsManageImpl {
     }
 
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
-            @CacheEvict(value = "instance", key = "#result.user_id")})
+            @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
     public RmsInstance ModifyInsConn(RmsInsDto dto) throws ConfigException {
         Optional<RmsInstance> rms = rmsInsRepository.findById(dto.getId());
         if (rms.isPresent()) {
@@ -149,9 +171,9 @@ public class RmsInsManageImpl {
     }
 
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
-            @CacheEvict(value = "instance", key = "#result.user_id")})
-    public RmsInstance UpdateInsMeta(RmsInsDto dto) throws ConfigException {
-        Optional<RmsInstance> rms = rmsInsRepository.findById(dto.getId());
+            @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
+    public RmsInstance UpdateInsMeta(String ins_id) throws ConfigException {
+        Optional<RmsInstance> rms = rmsInsRepository.findById(ins_id);
         if (rms.isPresent()) {
             RmsInstance oldIns = rms.get();
             PoolConfig config = JSONObject.parseObject(oldIns.getConn(), PoolConfig.class);
@@ -169,6 +191,17 @@ public class RmsInsManageImpl {
             }
         }
         return null;
+    }
+
+    public void ChangeAllState(Set<String> ids) {
+        InsQueryExp exp = new InsQueryExp();
+        exp.setIds(ids);
+        List<RmsInstance> instances = rmsInsRepository.findAll((root, criteriaQuery, criteriaBuilder) ->
+                QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder));
+        for (RmsInstance instance : instances) {
+            instance.setState(false);
+        }
+        rmsInsRepository.saveAll(instances);
     }
 
     private RmsInstance parseInfo(RmsInstance ins, RedisPoolInstance pool, PoolConfig config) {
@@ -204,6 +237,4 @@ public class RmsInsManageImpl {
         }
         throw new ConfigException("Can not parse redis connection config");
     }
-
-
 }
