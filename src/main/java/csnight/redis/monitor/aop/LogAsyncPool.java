@@ -57,7 +57,7 @@ public class LogAsyncPool {
                 ins = null;
             }
         }, 1000, 500, TimeUnit.MILLISECONDS);
-        _log.info("LogAsyncPool Started");
+        _log.info("LogAsyncPool Started!");
     }
 
     public void StopLogPool() {
@@ -65,12 +65,11 @@ public class LogAsyncPool {
         try {
             scheduledThreadPool.shutdown();
         } catch (Exception ex) {
-            _log.error("LogAsyncPool Stopped Failure,Retry Force Shutdown");
-            ex.printStackTrace();
+            _log.error("LogAsyncPool stop failure cause by" + ex.getMessage() + ",Retry Force Shutdown");
             scheduledThreadPool.shutdownNow();
-            _log.error("LogAsyncPool Stopped");
+            _log.info("LogAsyncPool Stopped!");
         }
-        _log.info("LogAsyncPool Stopped");
+        _log.info("LogAsyncPool Stopped!");
     }
 
 
