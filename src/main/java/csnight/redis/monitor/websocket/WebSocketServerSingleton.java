@@ -88,10 +88,11 @@ public class WebSocketServerSingleton {
 
     public void shutdown() {
         try {
+            logger.info("Shutting down WebSocketServer");
             channelGroup.writeAndFlush(new CloseWebSocketFrame());
             chs.closeFuture();
             channelGroup.close();
-            logger.info("WebSocketServer has stopped");
+            logger.info("WebSocketServer has stopped!");
             workerGroup.shutdownGracefully().await();
         } catch (Exception ex) {
             logger.error(ex.getMessage());
