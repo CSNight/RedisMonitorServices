@@ -1,8 +1,5 @@
 package csnight.redis.monitor.db.jpa;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
@@ -16,6 +13,8 @@ public class RmsInstance {
     private String id;
     @Column(name = "user_id", length = 50)
     private String user_id;
+    @Column(name = "uin", length = 50)
+    private String uin;
     @Column(name = "ip")
     private String ip;
     @Column(name = "port")
@@ -46,15 +45,15 @@ public class RmsInstance {
     private String config;
     @Column(name = "conn")
     private String conn;
-    @Column(name = "create_time")
+    @Column(name = "ct")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date create_time;
+    private Date ct;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "rms_job_relation",
             inverseJoinColumns = {@JoinColumn(name = "inc_key", referencedColumnName = "id")},
             joinColumns = {@JoinColumn(name = "job_key", referencedColumnName = "id")})
-    private Set<RmsJob> jobs=new HashSet<>();
+    private Set<RmsJob> jobs = new HashSet<>();
 
     public String getId() {
         return id;
@@ -70,6 +69,14 @@ public class RmsInstance {
 
     public void setUser_id(String user_id) {
         this.user_id = user_id;
+    }
+
+    public String getUin() {
+        return uin;
+    }
+
+    public void setUin(String uin) {
+        this.uin = uin;
     }
 
     public String getIp() {
@@ -192,12 +199,12 @@ public class RmsInstance {
         this.conn = conn;
     }
 
-    public Date getCreate_time() {
-        return create_time;
+    public Date getCt() {
+        return ct;
     }
 
-    public void setCreate_time(Date create_time) {
-        this.create_time = create_time;
+    public void setCt(Date ct) {
+        this.ct = ct;
     }
 
     public Set<RmsJob> getJobs() {
