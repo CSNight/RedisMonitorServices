@@ -19,6 +19,7 @@ import csnight.redis.monitor.utils.GUID;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -35,7 +36,7 @@ public class RmsInsManageImpl {
     public List<JSONObject> GetInstances() {
         List<JSONObject> res = new ArrayList<>();
         Set<String> ids = new HashSet<>();
-        List<RmsInstance> instances = rmsInsRepository.findAll();
+        List<RmsInstance> instances = rmsInsRepository.findAll(Sort.by(Sort.Direction.ASC, "ct"));
         for (RmsInstance ins : instances) {
             ids.add(ins.getUser_id());
         }
@@ -72,10 +73,16 @@ public class RmsInsManageImpl {
         ins.setIp(dto.getIp());
         ins.setPort(dto.getPort());
         ins.setInstance_name(dto.getName());
-        ins.setCreate_time(new Date());
+        ins.setCt(new Date());
         PoolConfig config = BuildConfig(dto);
         config.setUser_id(user_id);
         config.setIns_id(ins.getId());
+        config.checkMd5();
+        RmsInstance insConflict = rmsInsRepository.findByUin(config.getUin());
+        if (insConflict != null) {
+            throw new ConfigException("Redis instance conflict");
+        }
+        ins.setUin(config.getUin());
         RedisPoolInstance pool = MultiRedisPool.getInstance().addNewPool(config);
         if (pool != null) {
             ins.setState(true);
@@ -127,7 +134,7 @@ public class RmsInsManageImpl {
                 RedisPoolInstance pool = MultiRedisPool.getInstance().addNewPool(config);
                 if (pool != null) {
                     oldIns.setState(true);
-                    return rmsInsRepository.save(oldIns);
+                    return parseInfo(oldIns, pool, config);
                 }
             }
             return oldIns;
@@ -147,25 +154,29 @@ public class RmsInsManageImpl {
             config_new.setUser_id(oldIns.getUser_id());
             config_old.checkMd5();
             config_new.checkMd5();
-            if (!config_old.getUin().equals(config_new.getUin())) {
-                if (oldIns.isState() && MultiRedisPool.getInstance().getPool(oldIns.getId()) != null) {
-                    //TODO 停止关联定时任务
-                    boolean isShutdown = MultiRedisPool.getInstance().removePool(oldIns.getId());
-                    if (isShutdown) {
-                        oldIns.setState(false);
-                        oldIns = rmsInsRepository.save(oldIns);
-                    }
+            RmsInstance temExist = rmsInsRepository.findByUin(config_new.getUin());
+            if (temExist != null) {
+                if (!temExist.getId().equals(oldIns.getId())) {
+                    throw new ConfigException("Redis instance conflict");
                 }
-                RedisPoolInstance pool = MultiRedisPool.getInstance().addNewPool(config_new);
-                if (pool != null) {
-                    oldIns.setState(true);
-                    return parseInfo(oldIns, pool, config_new);
-                } else {
-                    throw new ConfigException("Can not build a redis connection pool");
-                }
-            } else {
-                throw new ConfigException("Redis instance conflict");
             }
+            oldIns.setUin(config_new.getUin());
+            if (oldIns.isState() && MultiRedisPool.getInstance().getPool(oldIns.getId()) != null) {
+                //TODO 停止关联定时任务
+                boolean isShutdown = MultiRedisPool.getInstance().removePool(oldIns.getId());
+                if (isShutdown) {
+                    oldIns.setState(false);
+                    oldIns = rmsInsRepository.save(oldIns);
+                }
+            }
+            RedisPoolInstance pool = MultiRedisPool.getInstance().addNewPool(config_new);
+            if (pool != null) {
+                oldIns.setState(true);
+                return parseInfo(oldIns, pool, config_new);
+            } else {
+                throw new ConfigException("Can not build a redis connection pool");
+            }
+
         }
         return null;
     }
@@ -204,7 +215,7 @@ public class RmsInsManageImpl {
         rmsInsRepository.saveAll(instances);
     }
 
-    private RmsInstance parseInfo(RmsInstance ins, RedisPoolInstance pool, PoolConfig config) {
+    private RmsInstance parseInfo(RmsInstance ins, RedisPoolInstance pool, PoolConfig config) throws ConfigException {
         try {
             Map<String, String> info = InfoCmdParser.GetInstanceInfo(pool, "Server");
             ins.setArch_bits(Integer.parseInt(info.get("arch_bits")));
@@ -221,7 +232,10 @@ public class RmsInsManageImpl {
             return rmsInsRepository.save(ins);
         } catch (Exception ex) {
             MultiRedisPool.getInstance().removePool(ins.getId());
-            return null;
+            ins.setState(false);
+            ins.setConn(JSONObject.toJSONString(config));
+            rmsInsRepository.save(ins);
+            throw new ConfigException("Redis connection failed", ex.getCause());
         }
     }
 
