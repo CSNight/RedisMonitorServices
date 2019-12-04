@@ -9,6 +9,6 @@ public class ConfigException extends Exception {
     }
 
     public ConfigException(String msg, Throwable t) {
-        super("Redis Config Error:" + msg, t);
+        super( msg, t);
     }
 }
