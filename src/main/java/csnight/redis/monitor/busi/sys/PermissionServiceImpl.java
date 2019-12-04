@@ -10,6 +10,7 @@ import csnight.redis.monitor.exception.ConflictsException;
 import csnight.redis.monitor.rest.sys.dto.PermissionDto;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -30,7 +31,7 @@ public class PermissionServiceImpl {
 
     @Cacheable(value = "permits")
     public List<SysPermission> GetAllPermission() {
-        return permissionRepository.findAll();
+        return permissionRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
     }
 
     @CacheEvict(value = "permits", beforeInvocation = true, allEntries = true)

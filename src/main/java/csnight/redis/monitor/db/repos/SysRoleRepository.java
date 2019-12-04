@@ -10,8 +10,5 @@ import java.util.List;
 public interface SysRoleRepository extends JpaRepository<SysRole, String>, JpaSpecificationExecutor<SysRole> {
     SysRole findByName(String name);
 
-    @Query(value = "select * from rmsdb.sys_role order by level", nativeQuery = true)
-    List<SysRole> findAll();
-
     SysRole findByCode(String name);
 }

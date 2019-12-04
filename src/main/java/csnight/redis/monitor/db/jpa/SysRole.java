@@ -25,9 +25,9 @@ public class SysRole {
     private String name;
     @Column(name = "level")
     private int level;
-    @Column(name = "create_time")
+    @Column(name = "ct")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date create_time;
+    private Date ct;
     //急加载 会查询role表
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -80,12 +80,12 @@ public class SysRole {
         this.level = level;
     }
 
-    public Date getCreate_time() {
-        return create_time;
+    public Date getCt() {
+        return ct;
     }
 
-    public void setCreate_time(Date create_time) {
-        this.create_time = create_time;
+    public void setCt(Date ct) {
+        this.ct = ct;
     }
 
     public Set<SysPermission> getPermission() {

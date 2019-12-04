@@ -11,6 +11,7 @@ import csnight.redis.monitor.rest.sys.dto.RoleDto;
 import csnight.redis.monitor.rest.sys.vo.SysMenuVo;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -35,7 +36,7 @@ public class RoleServiceImpl {
 
     @Cacheable(value = "roles")
     public List<SysRole> GetAllRole() {
-        List<SysRole> roles = sysRoleRepository.findAll();
+        List<SysRole> roles = sysRoleRepository.findAll(Sort.by(Sort.Direction.ASC, "level"));
         for (SysRole role : roles) {
             for (SysMenu menu : role.getMenus()) {
                 menu.setChildren(new ArrayList<>());
@@ -49,7 +50,7 @@ public class RoleServiceImpl {
         SysRole role = new SysRole();
         role.setName(dto.getName());
         role.setCode(dto.getCode());
-        role.setCreate_time(new Date());
+        role.setCt(new Date());
         role.setLevel(dto.getLevel());
         role.setPermission(dto.getPermissionSet());
         if (checkConflictPermit(role, true)) {
