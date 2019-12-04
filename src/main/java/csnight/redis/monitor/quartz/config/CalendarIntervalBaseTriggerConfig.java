@@ -83,7 +83,7 @@ public class CalendarIntervalBaseTriggerConfig implements BaseTriggerConfig {
 
     @Override
     public Trigger getTrigger() {
-        TriggerBuilder t = TriggerBuilder.newTrigger()
+        TriggerBuilder<Trigger> t = TriggerBuilder.newTrigger()
                 .withDescription(description)
                 .withIdentity(identity, triggerGroup)
                 .startAt(startAt);

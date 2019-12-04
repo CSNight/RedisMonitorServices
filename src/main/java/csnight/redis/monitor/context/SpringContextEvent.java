@@ -16,7 +16,7 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SpringContextEvent implements ApplicationListener {
+public class SpringContextEvent implements ApplicationListener<ApplicationEvent> {
     private static Logger _log = LoggerFactory.getLogger(SpringContextEvent.class);
     private LogAsyncPool logAsyncPool = LogAsyncPool.getIns();
     private WebSocketServerSingleton wss = WebSocketServerSingleton.getInstance();
