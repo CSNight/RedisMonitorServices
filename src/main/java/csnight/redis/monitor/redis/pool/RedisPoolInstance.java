@@ -4,6 +4,7 @@ import com.csnight.jedisql.HostAndPort;
 import com.csnight.jedisql.JediSQL;
 import com.csnight.jedisql.JedisPool;
 import com.csnight.jedisql.JedisSentinelPool;
+import com.csnight.jedisql.exceptions.JedisConnectionException;
 import csnight.redis.monitor.exception.ValidateException;
 
 import java.util.HashMap;
@@ -87,8 +88,7 @@ public class RedisPoolInstance {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new JedisConnectionException(e);
         }
     }
 
