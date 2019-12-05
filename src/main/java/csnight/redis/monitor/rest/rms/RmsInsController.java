@@ -2,6 +2,7 @@ package csnight.redis.monitor.rest.rms;
 
 import csnight.redis.monitor.aop.LogAsync;
 import csnight.redis.monitor.busi.rms.RmsInsManageImpl;
+import csnight.redis.monitor.busi.rms.exp.InsQueryExp;
 import csnight.redis.monitor.exception.ConfigException;
 import csnight.redis.monitor.rest.rms.dto.RmsInsDto;
 import csnight.redis.monitor.utils.RespTemplate;
@@ -25,9 +26,9 @@ public class RmsInsController {
     @LogAsync(module = "INSTANCE", auth = "INS_QUERY_ALL")
     @ApiOperation("查询Redis实例列表")
     @PreAuthorize("hasAuthority('INS_QUERY_ALL')")
-    @RequestMapping(value = "/get_instances", method = RequestMethod.GET)
-    public RespTemplate GetAllInstances() {
-        return new RespTemplate(HttpStatus.OK, rmsInsManage.GetInstances());
+    @RequestMapping(value = "/get_instances/{update}", method = RequestMethod.GET)
+    public RespTemplate GetAllInstances(@PathVariable String update) {
+        return new RespTemplate(HttpStatus.OK, rmsInsManage.GetInstances(update));
     }
 
     @LogAsync(module = "INSTANCE", auth = "INS_QUERY")
@@ -36,6 +37,14 @@ public class RmsInsController {
     @RequestMapping(value = "/get_instance/{user_id}", method = RequestMethod.GET)
     public RespTemplate GetInstanceByUser(@PathVariable String user_id) {
         return new RespTemplate(HttpStatus.OK, rmsInsManage.GetInstanceByUser(user_id));
+    }
+
+    @LogAsync(module = "INSTANCE", auth = "INS_SEARCH")
+    @ApiOperation("搜索实例")
+    @PreAuthorize("hasAuthority('INS_SEARCH')")
+    @RequestMapping(value = "/query_instance", method = RequestMethod.GET)
+    public RespTemplate SearchInstances(InsQueryExp exp) {
+        return new RespTemplate(HttpStatus.OK, rmsInsManage.QueryBy(exp));
     }
 
     @LogAsync(module = "INSTANCE", auth = "INS_ADD")

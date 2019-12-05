@@ -5,6 +5,7 @@ import csnight.redis.monitor.busi.rms.exp.InsQueryExp;
 import csnight.redis.monitor.busi.sys.exp.UserQueryExp;
 import csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import csnight.redis.monitor.db.jpa.RmsInstance;
+import csnight.redis.monitor.db.jpa.SysRole;
 import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.db.repos.RmsInsRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
@@ -32,8 +33,8 @@ public class RmsInsManageImpl {
     @Resource
     private SysUserRepository userRepository;
 
-    @Cacheable(value = "instances")
-    public List<JSONObject> GetInstances() {
+    @Cacheable(value = "instances", condition = "#put.equals('false')")
+    public List<JSONObject> GetInstances(String put) {
         List<JSONObject> res = new ArrayList<>();
         Set<String> ids = new HashSet<>();
         List<RmsInstance> instances = rmsInsRepository.findAll(Sort.by(Sort.Direction.ASC, "ct"));
@@ -59,8 +60,57 @@ public class RmsInsManageImpl {
     }
 
     @Cacheable(value = "instance", key = "#user_id")
-    public List<RmsInstance> GetInstanceByUser(String user_id) {
-        return rmsInsRepository.findByUserId(user_id);
+    public List<JSONObject> GetInstanceByUser(String user_id) {
+        List<JSONObject> res = new ArrayList<>();
+        List<RmsInstance> instances = rmsInsRepository.findByUserId(user_id);
+        for (RmsInstance ins : instances) {
+            JSONObject jo = JSONObject.parseObject(JSONObject.toJSONString(ins));
+            jo.put("user", BaseUtils.GetUserFromContext());
+            res.add(jo);
+        }
+        return res;
+    }
+
+    public List<JSONObject> QueryBy(InsQueryExp exp) {
+        List<JSONObject> res = new ArrayList<>();
+        SysUser user = userRepository.findByUsername(BaseUtils.GetUserFromContext());
+        exp.setUser_id(user.getId());
+        for (SysRole role : user.getRoles()) {
+            if (role.getCode().equals("ROLE_DEV") || role.getCode().equals("ROLE_SUPER")) {
+                exp.setUser_id("%");
+                break;
+            }
+        }
+        List<RmsInstance> instances = rmsInsRepository.findAll((root, criteriaQuery, criteriaBuilder) ->
+                QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder), Sort.by(Sort.Direction.ASC, "ct"));
+        if (exp.getUser_id().equals("%")) {
+            Set<String> ids = new HashSet<>();
+            for (RmsInstance ins : instances) {
+                ids.add(ins.getUser_id());
+            }
+            UserQueryExp userQueryExp = new UserQueryExp();
+            exp.setIds(ids);
+            List<SysUser> users = userRepository.findAll((root, criteriaQuery, criteriaBuilder) ->
+                    QueryAnnotationProcess.getPredicate(root, userQueryExp, criteriaBuilder));
+            for (RmsInstance ins : instances) {
+                JSONObject jo = JSONObject.parseObject(JSONObject.toJSONString(ins));
+                String username = "";
+                for (SysUser sysUser : users) {
+                    if (ins.getUser_id().equals(sysUser.getId())) {
+                        username = sysUser.getUsername();
+                    }
+                }
+                jo.put("user", username);
+                res.add(jo);
+            }
+        } else {
+            for (RmsInstance ins : instances) {
+                JSONObject jo = JSONObject.parseObject(JSONObject.toJSONString(ins));
+                jo.put("user", user.getUsername());
+                res.add(jo);
+            }
+        }
+        return res;
     }
 
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
@@ -227,7 +277,11 @@ public class RmsInsManageImpl {
             ins.setExec(info.get("executable"));
             ins.setConfig(info.get("config_file"));
             ins.setVersion(info.get("redis_version"));
-            ins.setRole(InfoCmdParser.GetInfoBySectionKey(pool, "Replication", "role"));
+            if (ins.getMode().equals("sentinel")) {
+                ins.setRole("sentinel");
+            } else {
+                ins.setRole(InfoCmdParser.GetInfoBySectionKey(pool, "Replication", "role"));
+            }
             ins.setConn(JSONObject.toJSONString(config));
             return rmsInsRepository.save(ins);
         } catch (Exception ex) {
