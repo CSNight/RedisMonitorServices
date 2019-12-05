@@ -89,6 +89,26 @@ public class MultiRedisPool {
         }
     }
 
+    public boolean shutdownUserPools(String user_id) {
+        List<String> instances = UserPools.get(user_id);
+        try {
+            for (String ins_id : instances) {
+                RedisPoolInstance pool = ConnPools.get(ins_id);
+                if (pool != null) {
+                    pool.shutdown();
+                    md5s.remove(pool.getUin());
+                    ConnPools.remove(ins_id);
+                }
+            }
+            UserPools.remove(user_id);
+            System.gc();
+            return true;
+        } catch (Exception ex) {
+            _log.error(ex.getMessage());
+            return false;
+        }
+    }
+
     public void shutdown() {
         for (RedisPoolInstance pool : ConnPools.values()) {
             pool.shutdown();
