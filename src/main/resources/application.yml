@@ -21,7 +21,7 @@ spring:
         order_updates: true
         dialect: org.hibernate.dialect.MySQL8Dialect
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/rmsdb?serverTimezone=Asia/Shanghai&&rewriteBatchedStatements=true
+    url: jdbc:mysql://127.0.0.1:3306/rmsdb?serverTimezone=Asia/Shanghai
     username: csnight
     password: qnyh@123
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -47,7 +47,7 @@ spring:
             threadsInheritContextClassLoaderOfInitializingThread: true
     job-store-type: jdbc
     jdbc:
-      initialize-schema: never
+      initialize-schema: always
       schema: classpath:qrtz.sql
   servlet:
     multipart:

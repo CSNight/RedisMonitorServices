@@ -14,27 +14,27 @@ import io.netty.util.concurrent.ImmediateEventExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WebSocketServerSingleton {
-    private static WebSocketServerSingleton ourInstance;
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketServerSingleton.class);
+public class WebSocketServer {
+    private static WebSocketServer ourInstance;
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketServer.class);
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private final ChannelGroup channelGroup = new DefaultChannelGroup(ImmediateEventExecutor.INSTANCE);
     private Channel chs;
     private String host;
     private int port;
 
-    public static WebSocketServerSingleton getInstance() {
+    public static WebSocketServer getInstance() {
         if (ourInstance == null) {
-            synchronized (WebSocketServerSingleton.class) {
+            synchronized (WebSocketServer.class) {
                 if (ourInstance == null) {
-                    ourInstance = new WebSocketServerSingleton();
+                    ourInstance = new WebSocketServer();
                 }
             }
         }
         return ourInstance;
     }
 
-    private WebSocketServerSingleton() {
+    private WebSocketServer() {
     }
 
     public ChannelGroup getChannelGroup() {

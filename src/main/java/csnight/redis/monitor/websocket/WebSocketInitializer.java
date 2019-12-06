@@ -45,9 +45,8 @@ public class WebSocketInitializer extends ChannelInitializer<SocketChannel> {
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
         InputStream stream = new FileInputStream(getResourceDir() + "www.csnight.xyz.pfx");
         keyStore.load(stream, YamlConfigUtil.getStrYmlVal("server.ssl.key-store-password").toCharArray());
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());//getDefaultAlgorithm:获取默认的 KeyManagerFactory 算法名称。
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(keyStore, YamlConfigUtil.getStrYmlVal("server.ssl.key-store-password").toCharArray());
-        //SSLContext的实例表示安全套接字协议的实现，它充当用于安全套接字工厂或 SSLEngine 的工厂。
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(kmf.getKeyManagers(), null, null);
         return sslContext;

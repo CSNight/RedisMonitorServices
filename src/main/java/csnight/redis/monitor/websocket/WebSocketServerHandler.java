@@ -65,6 +65,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         if (evt == WebSocketServerProtocolHandler.ServerHandshakeStateEvent.HANDSHAKE_COMPLETE) {
             //发送客户端id
             ctx.channel().writeAndFlush(new TextWebSocketFrame(ctx.channel().id().toString()));
+            channels.add(ctx.channel());
         }
     }
 
