@@ -95,6 +95,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     private void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
         if (frame instanceof TextWebSocketFrame) {
             String clientMsg = ((TextWebSocketFrame) frame).text();
+            System.out.println(clientMsg);
         } else if (frame instanceof BinaryWebSocketFrame) {
             logger.info("Binary msg received");
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.isFinalFragment(), frame.rsv(), frame.copy().content()));
