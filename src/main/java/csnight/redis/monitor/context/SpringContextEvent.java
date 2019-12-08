@@ -1,12 +1,8 @@
 package csnight.redis.monitor.context;
 
-import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.aop.LogAsyncPool;
 import csnight.redis.monitor.quartz.JobFactory;
-import csnight.redis.monitor.quartz.config.JobConfig;
-import csnight.redis.monitor.quartz.jobs.JobInstance;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
-import csnight.redis.monitor.utils.GUID;
 import csnight.redis.monitor.utils.ReflectUtils;
 import csnight.redis.monitor.websocket.WebSocketServer;
 import org.quartz.SchedulerException;
@@ -37,7 +33,6 @@ public class SpringContextEvent implements ApplicationListener<ApplicationEvent>
             }
             logAsyncPool.initBean();
             logAsyncPool.StartLogPool();
-            addjob();
             _log.info("RMS Server Start Complete!");
         } else if (applicationEvent instanceof ContextClosedEvent) {
             logAsyncPool.StopLogPool();
@@ -54,23 +49,6 @@ public class SpringContextEvent implements ApplicationListener<ApplicationEvent>
             _log.info("All Redis pools have stopped!");
             _log.info("RMS Server Stop Complete!");
         }
-    }
-
-    public void addjob() {
-        JobConfig jobConfigBase = new JobConfig();
-        jobConfigBase.setJobName(GUID.getUUID());
-        jobConfigBase.setJobGroup("ssss");
-        jobConfigBase.setInvokeParam("");
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("identity", jobConfigBase.getJobName());
-        jsonObject.put("description", "");
-        jsonObject.put("triggerGroup", "ssss");
-        jsonObject.put("strategy", "");
-        jsonObject.put("expression", "0/1 * * * * ?");
-        jobConfigBase.setTriggerConfig(jsonObject.toJSONString());
-        jobConfigBase.setTriggerType(1);
-
-        ReflectUtils.getBean(JobFactory.class).AddJob(jobConfigBase, JobInstance.class);
     }
 }
 
