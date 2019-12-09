@@ -1,16 +1,15 @@
 package csnight.redis.monitor.websocket;
 
+import csnight.redis.monitor.msg.MsgBus;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelId;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.util.concurrent.ImmediateEventExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +17,7 @@ public class WebSocketServer {
     private static WebSocketServer ourInstance;
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServer.class);
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
-    private final ChannelGroup channelGroup = new DefaultChannelGroup(ImmediateEventExecutor.INSTANCE);
-    private Channel chs;
+    private final ChannelGroup channelGroup = MsgBus.getIns().getChannelGroup();
     private String host;
     private int port;
 
@@ -63,14 +61,14 @@ public class WebSocketServer {
             final ServerBootstrap b = new ServerBootstrap();
             b.group(workerGroup).channel(NioServerSocketChannel.class)
                     .childHandler(new WebSocketInitializer(channelGroup));
-            chs = b.bind(host, port).sync().channel();
+            b.bind(host, port).sync();
             logger.info("WebSocketServer has started");
         } catch (Exception ex) {
             logger.error(ex.getMessage());
         }
     }
 
-    public void sendAll(String text) {
+    public void broadcast(String text) {
         for (Channel ch : channelGroup) {
             if (ch != null && ch.isOpen()) {
                 ch.writeAndFlush(new TextWebSocketFrame(text));
@@ -90,7 +88,6 @@ public class WebSocketServer {
         try {
             logger.info("Shutting down WebSocketServer");
             channelGroup.writeAndFlush(new CloseWebSocketFrame());
-            chs.closeFuture();
             channelGroup.close();
             logger.info("WebSocketServer has stopped!");
             workerGroup.shutdownGracefully().await();

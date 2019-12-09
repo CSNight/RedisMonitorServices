@@ -9,6 +9,6 @@ public class JobInstance implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         System.out.println("ssdsss");
-        WebSocketServer.getInstance().sendAll("ssss");
+        WebSocketServer.getInstance().broadcast("ssss");
     }
 }

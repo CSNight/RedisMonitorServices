@@ -1,5 +1,6 @@
 package csnight.redis.monitor.websocket;
 
+import csnight.redis.monitor.msg.MsgBus;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -55,7 +56,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
         System.out.println("Remote Client disconnected!");
-        channels.remove(ctx.channel());
+        MsgBus.getIns().remove(ctx.channel().id().toString());
         ctx.close();
     }
 
