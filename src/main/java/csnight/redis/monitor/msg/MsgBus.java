@@ -33,11 +33,16 @@ public class MsgBus {
 
     public void remove(String cid) {
         channels.remove(cid);
+        String rem = "";
         for (String key : UserChannels.keySet()) {
             if (UserChannels.get(key).contains(cid)) {
                 UserChannels.get(key).remove(cid);
+                rem = key;
                 break;
             }
+        }
+        if (!rem.equals("") && UserChannels.get(rem).size() == 0) {
+            UserChannels.remove(rem);
         }
     }
 }
