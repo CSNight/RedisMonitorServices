@@ -37,6 +37,27 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             f.addListener(ChannelFutureListener.CLOSE);
         }
     }
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        ctx.fireChannelReadComplete();
+    }
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        // 只针对FullHttpRequest类型的做处理，其它类型的自动放过
+        if (msg instanceof FullHttpRequest) {
+            FullHttpRequest request = (FullHttpRequest) msg;
+            String uri = request.uri();
+            int idx = uri.indexOf("?");
+            if (idx > 0) {
+                String query = uri.substring(idx + 1);
+                // uri中参数的解析使用的是jetty-util包，其性能比自定义及正则性能高。
+                request.setUri(uri.substring(0, idx));
+                request.headers().set("uid", "sdsad");
+            }
+        }
+        System.out.println(ctx.channel().id().toString());
+        super.channelRead(ctx, msg);
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object Frame) {
@@ -62,6 +83,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
+        System.out.println(evt);
         //noinspection deprecation
         if (evt == WebSocketServerProtocolHandler.ServerHandshakeStateEvent.HANDSHAKE_COMPLETE) {
             //发送客户端id
@@ -85,7 +107,8 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         if (hand_shaker == null) {
             WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
         } else {
-            hand_shaker.handshake(ctx.channel(), req);
+            hand_shaker.handshake(ctx.channel(), req).channel().writeAndFlush(new TextWebSocketFrame(ctx.channel().id().toString()));
+            System.out.println(ctx.channel().id().toString());
         }
     }
 
@@ -97,6 +120,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         if (frame instanceof TextWebSocketFrame) {
             String clientMsg = ((TextWebSocketFrame) frame).text();
             System.out.println(clientMsg);
+            System.out.println(ctx.channel().id().toString());
         } else if (frame instanceof BinaryWebSocketFrame) {
             logger.info("Binary msg received");
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.isFinalFragment(), frame.rsv(), frame.copy().content()));
@@ -104,12 +128,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             logger.info("Ping msg received");
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.isFinalFragment(), frame.rsv(), frame.copy().content()));
         } else if (frame instanceof CloseWebSocketFrame) {
-            try {
-                ctx.channel().closeFuture().sync();
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage());
-                e.printStackTrace();
-            }
+            ctx.channel().close();
             logger.info("Ping msg received");
         } else if (frame instanceof PongWebSocketFrame) {
             logger.info("Pong msg received");
