@@ -8,7 +8,8 @@ public enum ResponseMsgType {
     INIT(1),
     UNKNOWN(404),
     RESP(101),
-    PUBSUB(102);
+    PUBSUB(102),
+    Error(400);
 
     private int code;
     private final byte[] raw = SafeEncoder.encode(this.name());
