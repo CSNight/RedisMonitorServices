@@ -1,5 +1,6 @@
-package csnight.redis.monitor.msg;
+package csnight.redis.monitor.msg.entity;
 
+import csnight.redis.monitor.msg.ChannelType;
 import io.netty.channel.Channel;
 
 public class ChannelEntity {

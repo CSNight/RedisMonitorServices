@@ -1,4 +1,6 @@
-package csnight.redis.monitor.msg;
+package csnight.redis.monitor.msg.entity;
+
+import csnight.redis.monitor.msg.ResponseMsgType;
 
 import java.util.Date;
 
