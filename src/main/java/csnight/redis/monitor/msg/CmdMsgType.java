@@ -6,9 +6,12 @@ import java.util.Arrays;
 
 public enum CmdMsgType {
     UNKNOWN(-1),
-    RESP(0),
-    PUB(1),
-    SUB(2);
+    CONNECT(100),
+    DISCONNECT(101),
+    CMD(200),
+    PUB(300),
+    SUB(301),
+    DESUB(302);
     private int ct;
     private final byte[] raw = SafeEncoder.encode(this.name());
 

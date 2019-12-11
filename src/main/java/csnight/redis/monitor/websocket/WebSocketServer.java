@@ -55,7 +55,7 @@ public class WebSocketServer {
     }
 
 
-    public void run() throws Exception {
+    public void run() {
         try {
             final ServerBootstrap b = new ServerBootstrap();
             b.group(workerGroup).channel(NioServerSocketChannel.class)

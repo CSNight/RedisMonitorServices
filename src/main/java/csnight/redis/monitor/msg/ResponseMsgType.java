@@ -6,6 +6,8 @@ import java.util.Arrays;
 
 public enum ResponseMsgType {
     INIT(1),
+    CONNECTED(2),
+    DISCONNECTED(3),
     UNKNOWN(404),
     RESP(101),
     PUBSUB(102),
