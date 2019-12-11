@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.msg.MsgBus;
 import csnight.redis.monitor.msg.ResponseMsgType;
-import csnight.redis.monitor.msg.WssResponseEntity;
+import csnight.redis.monitor.msg.entity.WssResponseEntity;
 import csnight.redis.monitor.utils.ReflectUtils;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelFuture;
@@ -107,14 +107,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         if (hand_shaker == null) {
             WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
         } else {
-            ChannelFuture handshakeFuture = hand_shaker.handshake(ctx.channel(), req);
-            handshakeFuture.addListener((ChannelFutureListener) future -> {
-                if (!future.isSuccess()) {
-                    ctx.fireExceptionCaught(future.cause());
-                } else {
-                    ctx.fireUserEventTriggered(WebSocketServerProtocolHandler.ServerHandshakeStateEvent.HANDSHAKE_COMPLETE);
-                }
-            });
+            hand_shaker.handshake(ctx.channel(), req);
         }
     }
 
@@ -127,7 +120,6 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             String clientMsg = ((TextWebSocketFrame) frame).text();
 
 
-
         } else if (frame instanceof BinaryWebSocketFrame) {
             logger.info("Binary msg received");
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.isFinalFragment(), frame.rsv(), frame.copy().content()));
@@ -136,7 +128,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.isFinalFragment(), frame.rsv(), frame.copy().content()));
         } else if (frame instanceof CloseWebSocketFrame) {
             ctx.channel().close();
-            logger.info("Ping msg received");
+            logger.info("Close msg received");
         } else if (frame instanceof PongWebSocketFrame) {
             logger.info("Pong msg received");
             ctx.channel().writeAndFlush(new PingWebSocketFrame(frame.isFinalFragment(), frame.rsv(), frame.copy().content()));
