@@ -1,5 +1,6 @@
 package csnight.redis.monitor.msg;
 
+import com.alibaba.fastjson.JSONObject;
 import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
@@ -90,5 +91,27 @@ public class MsgBus {
         });
         channels.clear();
         UserChannels.clear();
+    }
+
+    public void dispatchMsg(JSONObject msg) {
+        int msgType = msg.getInteger("rt");
+        switch (CmdMsgType.getEnumType(msgType)) {
+            default:
+            case UNKNOWN:
+                break;
+            case CONNECT:
+                break;
+            case DISCONNECT:
+                break;
+            case CMD:
+                break;
+            case PUB:
+                break;
+            case SUB:
+                break;
+            case DESUB:
+                break;
+        }
+
     }
 }

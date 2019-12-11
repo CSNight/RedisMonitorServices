@@ -32,4 +32,10 @@ public enum CmdMsgType {
                 .filter(cmd -> cmd.name().equals(key))
                 .findFirst().orElse(CmdMsgType.UNKNOWN);
     }
+
+    public static CmdMsgType getEnumType(int key) {
+        return Arrays.stream(CmdMsgType.values())
+                .filter(cmd -> cmd.ct == key)
+                .findFirst().orElse(CmdMsgType.UNKNOWN);
+    }
 }
