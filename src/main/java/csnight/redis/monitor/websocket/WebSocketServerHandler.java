@@ -1,8 +1,12 @@
 package csnight.redis.monitor.websocket;
 
+import com.alibaba.fastjson.JSONObject;
+import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.msg.MsgBus;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import csnight.redis.monitor.msg.ResponseMsgType;
+import csnight.redis.monitor.msg.WssResponseEntity;
+import csnight.redis.monitor.utils.ReflectUtils;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -10,9 +14,11 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.*;
-import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> {
@@ -24,17 +30,17 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     }
 
     private static void sendHttpResponse(ChannelHandlerContext ctx, FullHttpRequest req, DefaultFullHttpResponse res) {
-        // 返回应答给客户端
-        if (res.status().code() != 200) {
-            ByteBuf buf = Unpooled.copiedBuffer(res.status().toString(), CharsetUtil.UTF_8);
-            res.content().writeBytes(buf);
-            buf.release();
+        HttpResponseStatus responseStatus = res.status();
+        if (responseStatus.code() != 200) {
+            ByteBufUtil.writeUtf8(res.content(), responseStatus.toString());
+            HttpUtil.setContentLength(res, res.content().readableBytes());
         }
-        // 如果是非Keep-Alive，关闭连接
-        ChannelFuture f = ctx.channel().writeAndFlush(res);
-        //noinspection deprecation
-        if (!HttpHeaders.isKeepAlive(req) || res.status().code() != 200) {
-            f.addListener(ChannelFutureListener.CLOSE);
+        // Send the response and close the connection if necessary.
+        boolean keepAlive = HttpUtil.isKeepAlive(req) && responseStatus.code() == 200;
+        HttpUtil.setKeepAlive(res, keepAlive);
+        ChannelFuture future = ctx.write(res); // Flushed in channelReadComplete()
+        if (!keepAlive) {
+            future.addListener(ChannelFutureListener.CLOSE);
         }
     }
 
@@ -64,9 +70,27 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
         if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
             WebSocketServerProtocolHandler.HandshakeComplete complete = (WebSocketServerProtocolHandler.HandshakeComplete) evt;
-            String uri = complete.requestUri();
-            ctx.channel().writeAndFlush(new TextWebSocketFrame(ctx.channel().id().toString()));
-            channels.add(ctx.channel());
+            Map<String, String> params = new HashMap<>();
+            QueryStringDecoder decoder = new QueryStringDecoder(complete.requestUri());
+            if (decoder.parameters() != null) {
+                decoder.parameters().forEach((key, value) -> {
+                    params.put(key, value.get(0));
+                });
+                String uid = params.get("uid");
+                if (uid != null && UidCheck(uid)) {
+                    MsgBus.getIns().register(params.get("uid"), ctx.channel());
+                    WssResponseEntity entity = new WssResponseEntity(ResponseMsgType.INIT, ctx.channel().id().asShortText());
+                    ctx.channel().writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(entity)));
+                } else {
+                    WssResponseEntity entity = new WssResponseEntity(ResponseMsgType.Error, "Please connect with correct uid");
+                    ctx.channel().writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(entity)));
+                    ctx.channel().close();
+                    ctx.fireChannelInactive();
+                }
+            } else {
+                ctx.channel().close();
+                ctx.fireChannelInactive();
+            }
         }
     }
 
@@ -127,6 +151,11 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         ctx.channel().close();
         super.exceptionCaught(ctx, cause);
         cause.printStackTrace();
+    }
+
+    private boolean UidCheck(String uid) {
+        SysUserRepository userRepository = ReflectUtils.getBean(SysUserRepository.class);
+        return userRepository.existsById(uid);
     }
 
 }
