@@ -1,6 +1,9 @@
 package csnight.redis.monitor.msg;
 
 import com.alibaba.fastjson.JSONObject;
+import csnight.redis.monitor.msg.entity.ChannelEntity;
+import csnight.redis.monitor.msg.entity.WssResponseEntity;
+import csnight.redis.monitor.websocket.WebSocketServer;
 import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
@@ -93,15 +96,13 @@ public class MsgBus {
         UserChannels.clear();
     }
 
-    public void dispatchMsg(JSONObject msg) {
+    public void dispatchMsg(JSONObject msg, Channel ch) {
         int msgType = msg.getInteger("rt");
         switch (CmdMsgType.getEnumType(msgType)) {
             default:
             case UNKNOWN:
-                break;
-            case CONNECT:
-                break;
-            case DISCONNECT:
+                WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.UNKNOWN, "Unknown msg type");
+                WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
                 break;
             case CMD:
                 break;
