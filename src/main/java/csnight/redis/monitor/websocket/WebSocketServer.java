@@ -3,7 +3,6 @@ package csnight.redis.monitor.websocket;
 import csnight.redis.monitor.msg.MsgBus;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelId;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -76,11 +75,9 @@ public class WebSocketServer {
         }
     }
 
-    public void send(String text, ChannelId id) {
-        for (Channel ch : channelGroup) {
-            if (ch != null && ch.isOpen() && ch.id().equals(id)) {
-                ch.writeAndFlush(new TextWebSocketFrame(text));
-            }
+    public void send(String text, Channel ch) {
+        if (ch != null && ch.isOpen()) {
+            ch.writeAndFlush(new TextWebSocketFrame(text));
         }
     }
 
