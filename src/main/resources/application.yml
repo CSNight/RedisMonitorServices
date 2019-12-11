@@ -47,7 +47,7 @@ spring:
             threadsInheritContextClassLoaderOfInitializingThread: true
     job-store-type: jdbc
     jdbc:
-      initialize-schema: always
+      initialize-schema: never
       schema: classpath:qrtz.sql
   servlet:
     multipart:
