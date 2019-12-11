@@ -37,27 +37,6 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             f.addListener(ChannelFutureListener.CLOSE);
         }
     }
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        ctx.fireChannelReadComplete();
-    }
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        // 只针对FullHttpRequest类型的做处理，其它类型的自动放过
-        if (msg instanceof FullHttpRequest) {
-            FullHttpRequest request = (FullHttpRequest) msg;
-            String uri = request.uri();
-            int idx = uri.indexOf("?");
-            if (idx > 0) {
-                String query = uri.substring(idx + 1);
-                // uri中参数的解析使用的是jetty-util包，其性能比自定义及正则性能高。
-                request.setUri(uri.substring(0, idx));
-                request.headers().set("uid", "sdsad");
-            }
-        }
-        System.out.println(ctx.channel().id().toString());
-        super.channelRead(ctx, msg);
-    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object Frame) {
@@ -83,10 +62,9 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
-        System.out.println(evt);
-        //noinspection deprecation
-        if (evt == WebSocketServerProtocolHandler.ServerHandshakeStateEvent.HANDSHAKE_COMPLETE) {
-            //发送客户端id
+        if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
+            WebSocketServerProtocolHandler.HandshakeComplete complete = (WebSocketServerProtocolHandler.HandshakeComplete) evt;
+            String uri = complete.requestUri();
             ctx.channel().writeAndFlush(new TextWebSocketFrame(ctx.channel().id().toString()));
             channels.add(ctx.channel());
         }
@@ -95,25 +73,29 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     private void handleHttpRequest(ChannelHandlerContext ctx, FullHttpRequest req) {
         // 如果HTTP解码失败，返回HTTP异常
         if (!req.decoderResult().isSuccess() || (!"websocket".equals(req.headers().get("Upgrade")))) {
-            sendHttpResponse(ctx, req,
-                    new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST));
+            sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST));
             return;
         }//获取url后置参数
         String uri = req.uri();
         // Handshake
-        WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
-                getWebSocketLocation(req, uri), null, false);
+        WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(getWebSocketLocation(req, uri), null, false);
         WebSocketServerHandshaker hand_shaker = wsFactory.newHandshaker(req);
         if (hand_shaker == null) {
             WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
         } else {
-            hand_shaker.handshake(ctx.channel(), req).channel().writeAndFlush(new TextWebSocketFrame(ctx.channel().id().toString()));
-            System.out.println(ctx.channel().id().toString());
+            ChannelFuture handshakeFuture = hand_shaker.handshake(ctx.channel(), req);
+            handshakeFuture.addListener((ChannelFutureListener) future -> {
+                if (!future.isSuccess()) {
+                    ctx.fireExceptionCaught(future.cause());
+                } else {
+                    ctx.fireUserEventTriggered(WebSocketServerProtocolHandler.ServerHandshakeStateEvent.HANDSHAKE_COMPLETE);
+                }
+            });
         }
     }
 
     private String getWebSocketLocation(FullHttpRequest req, String uri) {
-        return "wss://" + req.headers().get(HttpHeaders.Names.HOST) + uri;
+        return "wss://" + req.headers().get(HttpHeaderNames.HOST) + uri;
     }
 
     private void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {

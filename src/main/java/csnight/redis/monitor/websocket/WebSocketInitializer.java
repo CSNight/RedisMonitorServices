@@ -37,7 +37,7 @@ public class WebSocketInitializer extends ChannelInitializer<SocketChannel> {
         pipeline.addLast("http-request-decoder", new HttpRequestDecoder());
         pipeline.addLast("aggregator", new HttpObjectAggregator(67108864));
         pipeline.addLast("http-response-encoder", new HttpResponseEncoder());
-        pipeline.addLast("request-handler", new WebSocketServerProtocolHandler("/websocket_stream"));
+        pipeline.addLast("request-handler", new WebSocketServerProtocolHandler("/websocket_stream", true));
         pipeline.addLast("handler", new WebSocketServerHandler(channels));
     }
 
