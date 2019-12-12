@@ -1,6 +1,6 @@
 package csnight.redis.monitor.msg.entity;
 
-import csnight.redis.monitor.msg.ChannelType;
+import csnight.redis.monitor.msg.series.ChannelType;
 import csnight.redis.monitor.msg.handler.WsChannelHandler;
 import io.netty.channel.Channel;
 

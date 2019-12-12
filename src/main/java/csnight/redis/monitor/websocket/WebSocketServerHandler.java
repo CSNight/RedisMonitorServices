@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.msg.MsgBus;
-import csnight.redis.monitor.msg.ResponseMsgType;
+import csnight.redis.monitor.msg.series.ResponseMsgType;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
 import csnight.redis.monitor.utils.ReflectUtils;
 import io.netty.buffer.ByteBufUtil;

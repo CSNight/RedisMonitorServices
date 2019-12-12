@@ -1,4 +1,4 @@
-package csnight.redis.monitor.msg;
+package csnight.redis.monitor.msg.series;
 
 import com.csnight.jedisql.util.SafeEncoder;
 

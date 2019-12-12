@@ -2,7 +2,7 @@ package csnight.redis.monitor.msg.entity;
 
 import com.alibaba.fastjson.JSONObject;
 import com.csnight.jedisql.JedisPubSub;
-import csnight.redis.monitor.msg.ResponseMsgType;
+import csnight.redis.monitor.msg.series.ResponseMsgType;
 import csnight.redis.monitor.websocket.WebSocketServer;
 import io.netty.channel.Channel;
 
