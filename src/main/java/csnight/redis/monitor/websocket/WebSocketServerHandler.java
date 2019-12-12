@@ -1,5 +1,6 @@
 package csnight.redis.monitor.websocket;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.msg.MsgBus;
@@ -118,8 +119,13 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     private void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
         if (frame instanceof TextWebSocketFrame) {
             String clientMsg = ((TextWebSocketFrame) frame).text();
-
-
+            try {
+                JSONObject msg = JSONObject.parseObject(clientMsg);
+                MsgBus.getIns().dispatchMsg(msg, ctx.channel());
+            } catch (JSONException ex) {
+                WssResponseEntity err = new WssResponseEntity(ResponseMsgType.Error, "Msg parse errorS");
+                WebSocketServer.getInstance().send(JSONObject.toJSONString(err), ctx.channel());
+            }
         } else if (frame instanceof BinaryWebSocketFrame) {
             logger.info("Binary msg received");
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.isFinalFragment(), frame.rsv(), frame.copy().content()));
