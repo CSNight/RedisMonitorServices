@@ -123,7 +123,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
                 JSONObject msg = JSONObject.parseObject(clientMsg);
                 MsgBus.getIns().dispatchMsg(msg, ctx.channel());
             } catch (JSONException ex) {
-                WssResponseEntity err = new WssResponseEntity(ResponseMsgType.Error, "Msg parse errorS");
+                WssResponseEntity err = new WssResponseEntity(ResponseMsgType.Error, "Msg parse error");
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(err), ctx.channel());
             }
         } else if (frame instanceof BinaryWebSocketFrame) {
