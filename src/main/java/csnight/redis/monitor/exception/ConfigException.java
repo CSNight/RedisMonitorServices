@@ -9,6 +9,6 @@ public class ConfigException extends Exception {
     }
 
     public ConfigException(String msg, Throwable t) {
-        super( msg, t);
+        super(msg, t);
     }
 }

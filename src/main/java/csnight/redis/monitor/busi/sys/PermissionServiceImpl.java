@@ -48,6 +48,7 @@ public class PermissionServiceImpl {
             throw new ConflictsException("Permission with same name already exists or menu belongs dosen't exists!");
         }
     }
+
     @CacheEvict(value = "permits", beforeInvocation = true, allEntries = true)
     public String DeletePermitById(String id) {
         Optional<SysPermission> optPermit = permissionRepository.findById(id);
@@ -57,6 +58,7 @@ public class PermissionServiceImpl {
         }
         return "failed";
     }
+
     @CacheEvict(value = "permits", beforeInvocation = true, allEntries = true)
     public SysPermission ModifyPermission(PermissionDto dto) throws ConflictsException {
         Optional<SysPermission> optPermit = permissionRepository.findById(dto.getId());

@@ -29,7 +29,7 @@ public class QueryAnnotationProcess {
                     String attributeName = isBlank(propName) ? field.getName() : propName;
                     Class<?> fieldType = field.getType();
                     Object val = field.get(query);
-                    if (val == null || "".equals(val)||val.equals(0)) {
+                    if (val == null || "".equals(val) || val.equals(0)) {
                         continue;
                     }
                     Join join = null;

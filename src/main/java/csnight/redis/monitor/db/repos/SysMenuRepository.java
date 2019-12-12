@@ -14,6 +14,7 @@ public interface SysMenuRepository extends JpaRepository<SysMenu, Long>, JpaSpec
     List<Boolean> findHiddenByPid(Long pid);
 
     SysMenu findByName(String name);
+
     @Query(value = "select * from rmsdb.sys_menu where component_name=?", nativeQuery = true)
     SysMenu findByComponent_name(String component_name);
 }

@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+
 @ApiModel(value = "菜单模型")
 public class MenuDto {
     private Long id;

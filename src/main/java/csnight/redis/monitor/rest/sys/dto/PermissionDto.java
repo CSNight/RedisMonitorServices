@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModel;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+
 @ApiModel(value = "权限模型")
 public class PermissionDto {
     private String id;

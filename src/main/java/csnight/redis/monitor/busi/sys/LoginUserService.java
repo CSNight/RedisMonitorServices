@@ -6,7 +6,6 @@ import csnight.redis.monitor.db.jpa.SysRole;
 import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.db.repos.SysOrgRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
-import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.RegexUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;

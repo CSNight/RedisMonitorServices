@@ -1,7 +1,7 @@
 package csnight.redis.monitor.msg.entity;
 
-import csnight.redis.monitor.msg.series.ChannelType;
 import csnight.redis.monitor.msg.handler.WsChannelHandler;
+import csnight.redis.monitor.msg.series.ChannelType;
 import io.netty.channel.Channel;
 
 import java.util.List;
