@@ -2,6 +2,8 @@ package csnight.redis.monitor.redis.pool;
 
 import com.csnight.jedisql.JedisPoolConfig;
 import csnight.redis.monitor.utils.BaseUtils;
+import csnight.redis.monitor.utils.IdentifyUtils;
+import csnight.redis.monitor.utils.RegexUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -160,7 +162,7 @@ public class PoolConfig {
 
     public boolean checkSentinelsConfig() {
         return !master.equals("") && sentinels.size() > 0
-                && BaseUtils.any(sentinels.stream().map(BaseUtils::checkIpPort).collect(Collectors.toList()));
+                && BaseUtils.any(sentinels.stream().map(RegexUtils::checkIpPort).collect(Collectors.toList()));
     }
 
     public JedisPoolConfig BuildJedisConfig() {
@@ -182,15 +184,15 @@ public class PoolConfig {
     }
 
     public void checkMd5() {
-        if (this.ip != null && BaseUtils.checkIp(this.ip) & BaseUtils.checkPort(this.port)) {
-            this.uin = BaseUtils.string2MD5(this.user_id + ":" + this.ip + ":" + this.port, "INS$");
+        if (this.ip != null && RegexUtils.checkIp(this.ip) & RegexUtils.checkPort(this.port)) {
+            this.uin = IdentifyUtils.string2MD5(this.user_id + ":" + this.ip + ":" + this.port, "INS$");
         } else if (checkSentinelsConfig()) {
             StringBuilder sen = new StringBuilder();
             for (String sentinel : sentinels) {
                 sen.append(sentinel).append(",");
             }
             String body = this.user_id + ":" + this.master + ":" + sen;
-            this.uin = BaseUtils.string2MD5(body, "INS$");
+            this.uin = IdentifyUtils.string2MD5(body, "INS$");
         }
     }
 }

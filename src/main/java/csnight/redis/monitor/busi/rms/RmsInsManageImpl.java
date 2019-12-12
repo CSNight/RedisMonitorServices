@@ -16,7 +16,8 @@ import csnight.redis.monitor.redis.pool.RedisPoolInstance;
 import csnight.redis.monitor.redis.statistic.InfoCmdParser;
 import csnight.redis.monitor.rest.rms.dto.RmsInsDto;
 import csnight.redis.monitor.utils.BaseUtils;
-import csnight.redis.monitor.utils.GUID;
+import csnight.redis.monitor.utils.IdentifyUtils;
+import csnight.redis.monitor.utils.RegexUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -118,7 +119,7 @@ public class RmsInsManageImpl {
     public RmsInstance NewInstance(RmsInsDto dto) throws ConfigException {
         RmsInstance ins = new RmsInstance();
         String user_id = userRepository.findIdByUsername(BaseUtils.GetUserFromContext());
-        ins.setId(GUID.getUUID());
+        ins.setId(IdentifyUtils.getUUID());
         ins.setUser_id(user_id);
         ins.setIp(dto.getIp());
         ins.setPort(dto.getPort());
@@ -295,7 +296,7 @@ public class RmsInsManageImpl {
 
     private PoolConfig BuildConfig(RmsInsDto dto) throws ConfigException {
         try {
-            if (dto.getIp() != null && BaseUtils.checkIp(dto.getIp())) {
+            if (dto.getIp() != null && RegexUtils.checkIp(dto.getIp())) {
                 return JSONObject.parseObject(JSONObject.toJSONString(dto), PoolConfig.class);
             } else if (dto.getMaster() != null && dto.getSentinels().size() > 0) {
                 return JSONObject.parseObject(JSONObject.toJSONString(dto), PoolConfig.class);

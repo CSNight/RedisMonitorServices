@@ -6,7 +6,7 @@ import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.quartz.JobFactory;
 import csnight.redis.monitor.quartz.config.JobConfig;
 import csnight.redis.monitor.quartz.jobs.Job_UnlockAccount;
-import csnight.redis.monitor.utils.GUID;
+import csnight.redis.monitor.utils.IdentifyUtils;
 import csnight.redis.monitor.utils.RespTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +99,7 @@ public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
     private void unLockJob(String username) {
         JobConfig jobConfigBase = new JobConfig();
-        jobConfigBase.setJobName(GUID.getUUID());
+        jobConfigBase.setJobName(IdentifyUtils.getUUID());
         jobConfigBase.setJobGroup("unlock");
         jobConfigBase.setInvokeParam(username);
         JSONObject jsonObject = new JSONObject();

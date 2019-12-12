@@ -1,7 +1,7 @@
 package csnight.redis.monitor.rest;
 
 import csnight.redis.monitor.utils.BaseUtils;
-import csnight.redis.monitor.utils.GUID;
+import csnight.redis.monitor.utils.IdentifyUtils;
 import csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;
 import org.springframework.http.HttpStatus;
@@ -29,7 +29,7 @@ public class FileController {
             String fn = file.getOriginalFilename();
             assert fn != null;
             String ext = fn.substring(fn.lastIndexOf(".") + 1);
-            File f = new File(Dir + GUID.getUUID() + "." + ext);
+            File f = new File(Dir + IdentifyUtils.getUUID() + "." + ext);
             file.transferTo(f);
             return new RespTemplate(HttpStatus.OK, f.getName());
         } catch (Exception ex) {

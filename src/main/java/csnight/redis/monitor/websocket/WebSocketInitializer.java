@@ -1,6 +1,6 @@
 package csnight.redis.monitor.websocket;
 
-import csnight.redis.monitor.utils.YamlConfigUtil;
+import csnight.redis.monitor.utils.YamlConfigUtils;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.group.ChannelGroup;
@@ -44,9 +44,9 @@ public class WebSocketInitializer extends ChannelInitializer<SocketChannel> {
     private SSLContext CreateContext() throws Exception {
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
         InputStream stream = new FileInputStream(getResourceDir() + "www.csnight.xyz.pfx");
-        keyStore.load(stream, YamlConfigUtil.getStrYmlVal("server.ssl.key-store-password").toCharArray());
+        keyStore.load(stream, YamlConfigUtils.getStrYmlVal("server.ssl.key-store-password").toCharArray());
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        kmf.init(keyStore, YamlConfigUtil.getStrYmlVal("server.ssl.key-store-password").toCharArray());
+        kmf.init(keyStore, YamlConfigUtils.getStrYmlVal("server.ssl.key-store-password").toCharArray());
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(kmf.getKeyManagers(), null, null);
         return sslContext;

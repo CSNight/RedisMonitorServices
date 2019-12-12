@@ -13,6 +13,7 @@ import csnight.redis.monitor.rest.sys.dto.UserEditDto;
 import csnight.redis.monitor.rest.sys.dto.UserPassDto;
 import csnight.redis.monitor.rest.sys.vo.UserVo;
 import csnight.redis.monitor.utils.BaseUtils;
+import csnight.redis.monitor.utils.RegexUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.session.SessionInformation;
@@ -172,12 +173,12 @@ public class UserServiceImpl {
             throw new ConflictsException("Role must not be empty!");
         }
         if (!dto.getEmail().equals(user.getEmail()) || isNew) {
-            if (!BaseUtils.checkEmail(dto.getEmail()) || sysUserRepository.findByEmail(dto.getEmail()) != null) {
+            if (!RegexUtils.checkEmail(dto.getEmail()) || sysUserRepository.findByEmail(dto.getEmail()) != null) {
                 throw new ConflictsException("Email already exists or format wrong!");
             }
         }
         if (!dto.getPhone().equals(user.getPhone()) || isNew) {
-            if (!BaseUtils.checkPhone(dto.getPhone()) || sysUserRepository.findByPhone(dto.getPhone()) != null) {
+            if (!RegexUtils.checkPhone(dto.getPhone()) || sysUserRepository.findByPhone(dto.getPhone()) != null) {
                 throw new ConflictsException("Phone already exists or format wrong!");
             }
         }
@@ -191,10 +192,7 @@ public class UserServiceImpl {
                 boolean match = passwordEncoder.matches(user.getOld_password(), userExist.getPassword());
                 if (match) {
                     userExist.setPassword(passwordEncoder.encode(user.getPassword()));
-                    SysUser sysUser = sysUserRepository.save(userExist);
-                    if (sysUser != null) {
-                        return "success";
-                    }
+                    return "success";
                 }
             }
             return "User name or password mismatch";

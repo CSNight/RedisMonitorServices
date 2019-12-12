@@ -7,6 +7,7 @@ import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.db.repos.SysOrgRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.utils.BaseUtils;
+import csnight.redis.monitor.utils.RegexUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -56,9 +57,9 @@ public class LoginUserService implements UserDetailsService {
     }
 
     private SysUser checkByIdentify(String identify) {
-        if (identify.contains("@") && BaseUtils.checkEmail(identify)) {
+        if (identify.contains("@") && RegexUtils.checkEmail(identify)) {
             return userMapper.findByUsernameOrEmail(identify, identify);
-        } else if (BaseUtils.checkPhone(identify)) {
+        } else if (RegexUtils.checkPhone(identify)) {
             return userMapper.findByPhone(identify);
         } else {
             return userMapper.findByUsername(identify);

@@ -3,7 +3,7 @@ package csnight.redis.monitor.aop;
 import csnight.redis.monitor.db.jpa.SysOpLog;
 import csnight.redis.monitor.utils.JSONUtils;
 import csnight.redis.monitor.utils.RespTemplate;
-import csnight.redis.monitor.utils.ThrowableUtil;
+import csnight.redis.monitor.utils.ThrowableUtils;
 import io.swagger.annotations.ApiOperation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -108,6 +108,6 @@ public class LogAspectHttp {
      */
     @AfterThrowing(pointcut = "aop_cut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
-        logger.error(ThrowableUtil.getStackTrace(e));
+        logger.error(ThrowableUtils.getStackTrace(e));
     }
 }

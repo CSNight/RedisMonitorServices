@@ -1,13 +1,13 @@
 package csnight.redis.monitor.quartz.config;
 
-import csnight.redis.monitor.utils.GUID;
+import csnight.redis.monitor.utils.IdentifyUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(value = "任务模型")
 public class JobConfig {
     @ApiModelProperty(notes = "工作名称", hidden = true)
-    private String jobName = GUID.getUUID();
+    private String jobName = IdentifyUtils.getUUID();
     @ApiModelProperty(notes = "工作组")
     private String jobGroup;
     @ApiModelProperty(notes = "工作参数")

@@ -2,7 +2,7 @@ package csnight.redis.monitor.redis.statistic;
 
 import com.csnight.jedisql.JediSQL;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
-import csnight.redis.monitor.utils.GUID;
+import csnight.redis.monitor.utils.IdentifyUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +18,7 @@ public class InfoCmdParser {
     }
 
     private static String GetInfoAll(RedisPoolInstance pool) {
-        String jid = GUID.getUUID();
+        String jid = IdentifyUtils.getUUID();
         JediSQL j = pool.getJedis(jid);
         String infos = j.info();
         pool.close(jid);
@@ -26,7 +26,7 @@ public class InfoCmdParser {
     }
 
     private static String[] GetInfoSection(RedisPoolInstance pool, String section) {
-        String jid = GUID.getUUID();
+        String jid = IdentifyUtils.getUUID();
         JediSQL j = pool.getJedis(jid);
         String tmp = j.info(section).replaceAll("# " + section + "\\r\\n", "").replaceAll("\\r\\n", ";");
         pool.close(jid);

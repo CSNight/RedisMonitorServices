@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.auth.config.JdbcTokenRepositoryExt;
 import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.db.repos.SysUserRepository;
-import csnight.redis.monitor.utils.GUID;
+import csnight.redis.monitor.utils.IdentifyUtils;
 import csnight.redis.monitor.utils.RespTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +66,7 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
         JSONObject jo_res = new JSONObject();
         jo_res.put("msg", "Login Success");
         jo_res.put("username", sysUser.getUsername());
-        jo_res.put("LoginTK", GUID.getUUID());
+        jo_res.put("LoginTK", IdentifyUtils.getUUID());
         response.getWriter().write(JSONObject.toJSONString(new RespTemplate(200, HttpStatus.OK, jo_res, "/auth/sign", "Login")));
     }
 

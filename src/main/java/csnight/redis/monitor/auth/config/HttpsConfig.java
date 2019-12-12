@@ -1,6 +1,6 @@
 package csnight.redis.monitor.auth.config;
 
-import csnight.redis.monitor.utils.YamlConfigUtil;
+import csnight.redis.monitor.utils.YamlConfigUtils;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.tomcat.util.descriptor.web.SecurityCollection;
@@ -45,7 +45,7 @@ public class HttpsConfig {
     }
 
     @Bean
-    public YamlConfigUtil ymlConfigurerUtil() {
+    public YamlConfigUtils ymlConfigurerUtil() {
         //1:加载配置文件
         Resource app = new ClassPathResource("application.yml");
         YamlPropertiesFactoryBean yamlPropertiesFactoryBean = new YamlPropertiesFactoryBean();
@@ -54,6 +54,6 @@ public class HttpsConfig {
         // 3：将yml转换成 key：val
         Properties properties = yamlPropertiesFactoryBean.getObject();
         // 4: 将Properties 通过构造方法交给我们写的工具类
-        return new YamlConfigUtil(properties);
+        return new YamlConfigUtils(properties);
     }
 }
