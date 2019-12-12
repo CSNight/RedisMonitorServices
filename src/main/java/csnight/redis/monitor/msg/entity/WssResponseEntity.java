@@ -9,6 +9,9 @@ public class WssResponseEntity {
     private Object body;
     private Long time = new Date().getTime();
 
+    public WssResponseEntity() {
+    }
+
     public WssResponseEntity(ResponseMsgType rmt, Object body) {
         this.rmt = rmt;
         this.body = body;

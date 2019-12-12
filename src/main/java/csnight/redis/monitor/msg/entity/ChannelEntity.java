@@ -1,13 +1,17 @@
 package csnight.redis.monitor.msg.entity;
 
 import csnight.redis.monitor.msg.ChannelType;
+import csnight.redis.monitor.msg.handler.WsChannelHandler;
 import io.netty.channel.Channel;
+
+import java.util.List;
 
 public class ChannelEntity {
     private ChannelType ct;
     private Channel channel;
     private String id;
     private String user_id;
+    private List<WsChannelHandler> handlers;
 
     public ChannelEntity(ChannelType ct, Channel ch, String user_id) {
         this.ct = ct;
@@ -46,5 +50,9 @@ public class ChannelEntity {
 
     public void setUser_id(String user_id) {
         this.user_id = user_id;
+    }
+
+    public List<WsChannelHandler> getHandlers() {
+        return handlers;
     }
 }
