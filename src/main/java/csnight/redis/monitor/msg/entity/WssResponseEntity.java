@@ -8,6 +8,7 @@ public class WssResponseEntity {
     private ResponseMsgType rmt;
     private Object body;
     private Long time = new Date().getTime();
+    private Long cost = 0L;
 
     public WssResponseEntity() {
     }
@@ -15,6 +16,12 @@ public class WssResponseEntity {
     public WssResponseEntity(ResponseMsgType rmt, Object body) {
         this.rmt = rmt;
         this.body = body;
+    }
+
+    public WssResponseEntity(ResponseMsgType rmt, Object body, Long cost) {
+        this.rmt = rmt;
+        this.body = body;
+        this.cost = cost;
     }
 
     public ResponseMsgType getRmt() {
@@ -39,5 +46,13 @@ public class WssResponseEntity {
 
     public void setTime(Long time) {
         this.time = time;
+    }
+
+    public Long getCost() {
+        return cost;
+    }
+
+    public void setCost(Long cost) {
+        this.cost = cost;
     }
 }
