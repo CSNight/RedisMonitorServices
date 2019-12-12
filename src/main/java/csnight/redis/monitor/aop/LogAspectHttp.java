@@ -1,7 +1,7 @@
 package csnight.redis.monitor.aop;
 
 import csnight.redis.monitor.db.jpa.SysOpLog;
-import csnight.redis.monitor.utils.JSONUtil;
+import csnight.redis.monitor.utils.JSONUtils;
 import csnight.redis.monitor.utils.RespTemplate;
 import csnight.redis.monitor.utils.ThrowableUtil;
 import io.swagger.annotations.ApiOperation;
@@ -80,7 +80,7 @@ public class LogAspectHttp {
         assert rep != null;
         Object wrapRes = "";
         if (result instanceof RespTemplate) {
-            wrapRes = JSONUtil.object2json(result);
+            wrapRes = JSONUtils.object2json(result);
         } else {
             wrapRes = result;
         }

@@ -10,7 +10,7 @@ import org.dom4j.Element;
 import java.util.List;
 import java.util.Map;
 
-public class JSONUtil {
+public class JSONUtils {
     /**
      * 将一个实体类对象转化成JSON数据格式,等效于object2json
      *
@@ -22,8 +22,8 @@ public class JSONUtil {
     }
 
     public static Object map2pojo(Map map, Class javaBean) {
-        String str = JSONUtil.map2json(map);
-        return JSONUtil.json2pojo(str, javaBean);
+        String str = JSONUtils.map2json(map);
+        return JSONUtils.json2pojo(str, javaBean);
     }
 
     /**

@@ -7,7 +7,7 @@ import csnight.redis.monitor.busi.sys.SignUpUserService;
 import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.rest.sys.dto.UserSignDto;
 import csnight.redis.monitor.utils.BaseUtils;
-import csnight.redis.monitor.utils.JSONUtil;
+import csnight.redis.monitor.utils.JSONUtils;
 import csnight.redis.monitor.utils.RespTemplate;
 import csnight.redis.monitor.utils.VerifyCodeUtils;
 import io.swagger.annotations.Api;
@@ -84,7 +84,7 @@ public class LoginController {
                     errors.put(error.getField(), err);
                 }
             }
-            _log.error(JSONUtil.object2json(errors));
+            _log.error(JSONUtils.object2json(errors));
             return new RespTemplate(HttpStatus.BAD_REQUEST, errors);
         }
         //check name 是否已使用

@@ -1,7 +1,7 @@
 package csnight.redis.monitor.quartz;
 
 import csnight.redis.monitor.quartz.config.*;
-import csnight.redis.monitor.utils.JSONUtil;
+import csnight.redis.monitor.utils.JSONUtils;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
@@ -182,16 +182,16 @@ public class JobFactory {
         switch (jobConfig.getTriggerType()) {
             default:
             case 0:
-                baseTriggerConfig = JSONUtil.json2pojo(jobConfig.getTriggerConfig(), SimpleBaseTriggerConfig.class);
+                baseTriggerConfig = JSONUtils.json2pojo(jobConfig.getTriggerConfig(), SimpleBaseTriggerConfig.class);
                 break;
             case 1:
-                baseTriggerConfig = JSONUtil.json2pojo(jobConfig.getTriggerConfig(), CronTriggerConfig.class);
+                baseTriggerConfig = JSONUtils.json2pojo(jobConfig.getTriggerConfig(), CronTriggerConfig.class);
                 break;
             case 2:
-                baseTriggerConfig = JSONUtil.json2pojo(jobConfig.getTriggerConfig(), DailyTimeIntervalBaseTriggerConfig.class);
+                baseTriggerConfig = JSONUtils.json2pojo(jobConfig.getTriggerConfig(), DailyTimeIntervalBaseTriggerConfig.class);
                 break;
             case 3:
-                baseTriggerConfig = JSONUtil.json2pojo(jobConfig.getTriggerConfig(), CalendarIntervalBaseTriggerConfig.class);
+                baseTriggerConfig = JSONUtils.json2pojo(jobConfig.getTriggerConfig(), CalendarIntervalBaseTriggerConfig.class);
                 break;
         }
         return baseTriggerConfig;
