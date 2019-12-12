@@ -3,6 +3,7 @@ package csnight.redis.monitor.msg;
 import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.msg.entity.ChannelEntity;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
+import csnight.redis.monitor.msg.handler.CmdRespHandler;
 import csnight.redis.monitor.websocket.WebSocketServer;
 import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
@@ -15,7 +16,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MsgBus {
-    private Map<String, Set<String>> UserChannels = new ConcurrentHashMap<>();
+    private Map<String, String> UserChannels = new ConcurrentHashMap<>();
     private Map<String, ChannelEntity> channels = new ConcurrentHashMap<>();
     private final ChannelGroup channelGroup = new DefaultChannelGroup(ImmediateEventExecutor.INSTANCE);
     private static MsgBus ourInstance;
@@ -34,7 +35,7 @@ public class MsgBus {
     private MsgBus() {
     }
 
-    public Map<String, Set<String>> getUserChannels() {
+    public Map<String, String> getUserChannels() {
         return UserChannels;
     }
 
@@ -50,14 +51,7 @@ public class MsgBus {
         ChannelEntity ch = new ChannelEntity(ChannelType.COMMON, channel, user_id);
         channels.put(ch.getId(), ch);
         channelGroup.add(channel);
-        Set<String> channels = UserChannels.get(user_id);
-        if (channels != null) {
-            channels.add(ch.getId());
-        } else {
-            Set<String> chs = new HashSet<>();
-            chs.add(ch.getId());
-            UserChannels.put(user_id, chs);
-        }
+        UserChannels.put(channel.id().asShortText(), user_id);
     }
 
     public void setChannelType(ChannelType ct, String cid) {
@@ -70,21 +64,22 @@ public class MsgBus {
     public void remove(String cid) {
         ChannelEntity che = channels.get(cid);
         if (che != null) {
+            if (che.getCt().equals(ChannelType.PUBSUB)) {
+                che.getHandlers().forEach(handler -> {
+                    //TODO unsubscribe
+                });
+            }
             che.getChannel().close();
             channelGroup.remove(che.getChannel());
             channels.remove(cid);
+            UserChannels.remove(cid);
         }
-        String rem = "";
-        for (String key : UserChannels.keySet()) {
-            if (UserChannels.get(key).contains(cid)) {
-                UserChannels.get(key).remove(cid);
-                rem = key;
-                break;
-            }
-        }
-        if (!rem.equals("") && UserChannels.get(rem).size() == 0) {
-            UserChannels.remove(rem);
-        }
+    }
+
+    public void ClearUserChannel(String uid) {
+        Set<String> channelIdx = new HashSet<>();
+        UserChannels.entrySet().stream().filter(item -> item.getValue().equals(uid)).forEach(chs -> channelIdx.add(chs.getKey()));
+        channelIdx.forEach(this::remove);
     }
 
     public void removeAll() {
@@ -97,14 +92,18 @@ public class MsgBus {
     }
 
     public void dispatchMsg(JSONObject msg, Channel ch) {
-        int msgType = msg.getInteger("rt");
+        WssResponseEntity wre;
+        int msgType = msg.getIntValue("rt");
         switch (CmdMsgType.getEnumType(msgType)) {
             default:
             case UNKNOWN:
-                WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.UNKNOWN, "Unknown msg type");
+                wre = new WssResponseEntity(ResponseMsgType.UNKNOWN, "Unknown msg type");
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
                 break;
             case CMD:
+                CmdRespHandler cmdRespHandler = new CmdRespHandler();
+                wre = cmdRespHandler.execute(msg, ch);
+                WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
                 break;
             case PUB:
                 break;
