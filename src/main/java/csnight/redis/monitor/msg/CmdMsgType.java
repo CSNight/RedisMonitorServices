@@ -5,7 +5,7 @@ import com.csnight.jedisql.util.SafeEncoder;
 import java.util.Arrays;
 
 public enum CmdMsgType {
-    UNKNOWN(-1),
+    UNKNOWN(0),
     CMD(100),
     PUB(200),
     SUB(201),
