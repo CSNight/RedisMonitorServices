@@ -30,6 +30,8 @@ public class CmdRespHandler implements WsChannelHandler {
                 for (int i = 1; i < parts.length; i++) {
                     args[i - 1] = parts[i].getBytes();
                 }
+            } else {
+                args = new byte[][]{};
             }
             return true;
         }
@@ -38,15 +40,15 @@ public class CmdRespHandler implements WsChannelHandler {
 
     public WssResponseEntity execute(JSONObject msg, Channel ch) {
         if (!parseCmd(msg.getString("msg"))) {
-            return new WssResponseEntity(ResponseMsgType.Error, "Redis command parse error");
+            return new WssResponseEntity(ResponseMsgType.ERROR, "Redis command parse error");
         }
         String ins = msg.getString("ins");
         if (ins == null || ins.equals("")) {
-            return new WssResponseEntity(ResponseMsgType.Error, "Must specify a redis instance");
+            return new WssResponseEntity(ResponseMsgType.ERROR, "Must specify a redis instance");
         }
         RedisPoolInstance rpi = MultiRedisPool.getInstance().getPool(ins);
         if (rpi == null) {
-            return new WssResponseEntity(ResponseMsgType.Error, "Redis pool does not exist, please connect first");
+            return new WssResponseEntity(ResponseMsgType.ERROR, "Redis pool does not exist, please connect first");
         }
         try {
             String jid = IdentifyUtils.getUUID();
@@ -58,7 +60,7 @@ public class CmdRespHandler implements WsChannelHandler {
             rpi.close(jid);
             return new WssResponseEntity(ResponseMsgType.RESP, response, end);
         } catch (Exception ex) {
-            return new WssResponseEntity(ResponseMsgType.Error, ex.getMessage());
+            return new WssResponseEntity(ResponseMsgType.ERROR, ex.getMessage());
         }
     }
 
