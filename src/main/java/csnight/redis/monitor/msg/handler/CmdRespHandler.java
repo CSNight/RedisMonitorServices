@@ -60,7 +60,7 @@ public class CmdRespHandler implements WsChannelHandler {
             rpi.close(jid);
             return new WssResponseEntity(ResponseMsgType.RESP, response, end);
         } catch (Exception ex) {
-            return new WssResponseEntity(ResponseMsgType.ERROR, ex.getMessage());
+            return new WssResponseEntity(ResponseMsgType.ERROR, ex.getMessage() == null ? "Null response exception" : ex.getMessage());
         }
     }
 
