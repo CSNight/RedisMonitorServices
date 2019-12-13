@@ -11,7 +11,7 @@ public enum ResponseMsgType {
     UNKNOWN(404),
     RESP(101),
     PUBSUB(102),
-    Error(400);
+    ERROR(400);
 
     private int code;
     private final byte[] raw = SafeEncoder.encode(this.name());
