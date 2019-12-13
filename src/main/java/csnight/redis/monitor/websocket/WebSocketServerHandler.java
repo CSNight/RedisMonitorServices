@@ -1,6 +1,5 @@
 package csnight.redis.monitor.websocket;
 
-import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.msg.MsgBus;
@@ -83,7 +82,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
                     WssResponseEntity entity = new WssResponseEntity(ResponseMsgType.INIT, ctx.channel().id().asShortText());
                     ctx.channel().writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(entity)));
                 } else {
-                    WssResponseEntity entity = new WssResponseEntity(ResponseMsgType.Error, "Please connect with correct uid");
+                    WssResponseEntity entity = new WssResponseEntity(ResponseMsgType.ERROR, "Please connect with correct uid");
                     ctx.channel().writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(entity)));
                     ctx.channel().close();
                     ctx.fireChannelInactive();
@@ -122,8 +121,8 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             try {
                 JSONObject msg = JSONObject.parseObject(clientMsg);
                 MsgBus.getIns().dispatchMsg(msg, ctx.channel());
-            } catch (JSONException ex) {
-                WssResponseEntity err = new WssResponseEntity(ResponseMsgType.Error, "Msg parse error");
+            } catch (Exception ex) {
+                WssResponseEntity err = new WssResponseEntity(ResponseMsgType.ERROR, "Msg parse error");
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(err), ctx.channel());
             }
         } else if (frame instanceof BinaryWebSocketFrame) {
