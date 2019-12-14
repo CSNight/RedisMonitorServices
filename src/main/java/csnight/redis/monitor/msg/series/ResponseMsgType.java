@@ -11,6 +11,7 @@ public enum ResponseMsgType {
     UNKNOWN(404),
     RESP(101),
     PUBSUB(102),
+    DESUB(103),
     ERROR(400);
 
     private int code;

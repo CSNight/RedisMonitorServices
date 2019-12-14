@@ -12,6 +12,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.ImmediateEventExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -19,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MsgBus {
+    private Logger _log = LoggerFactory.getLogger(MsgBus.class);
     private Map<String, String> UserChannels = new ConcurrentHashMap<>();
     private Map<String, ChannelEntity> channels = new ConcurrentHashMap<>();
     private final ChannelGroup channelGroup = new DefaultChannelGroup(ImmediateEventExecutor.INSTANCE);
@@ -95,7 +98,8 @@ public class MsgBus {
     }
 
     public void dispatchMsg(JSONObject msg, Channel ch) {
-        WssResponseEntity wre;
+        _log.info(msg.toJSONString());
+        WssResponseEntity wre = null;
         int msgType = msg.getIntValue("rt");
         String appId = msg.getString("appId");
         switch (CmdMsgType.getEnumType(msgType)) {
@@ -111,13 +115,23 @@ public class MsgBus {
                 wre.setAppId(appId);
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
                 break;
-            case PUB:
+            case PSUB:
                 break;
             case SUB:
                 break;
             case DESUB:
+                wre = new WssResponseEntity(ResponseMsgType.DESUB, "Unsubscribe success");
+                wre.setAppId(appId);
+                WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
+                break;
+            case DEPSUB:
+                wre = new WssResponseEntity(ResponseMsgType.DESUB, "Unsubscribe success");
+                wre.setAppId(appId);
+                WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
                 break;
         }
-
+        if (wre != null) {
+            _log.info(JSONObject.toJSONString(wre));
+        }
     }
 }
