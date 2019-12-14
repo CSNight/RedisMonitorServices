@@ -63,6 +63,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         super.channelInactive(ctx);
         System.out.println("Remote Client disconnected!");
         MsgBus.getIns().remove(ctx.channel().id().toString());
+        //TODO 清理未断开的subscribe
         ctx.close();
     }
 

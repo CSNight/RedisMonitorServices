@@ -1,6 +1,7 @@
 package csnight.redis.monitor.context;
 
 import csnight.redis.monitor.aop.LogAsyncPool;
+import csnight.redis.monitor.msg.MsgBus;
 import csnight.redis.monitor.quartz.JobFactory;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.utils.ReflectUtils;
@@ -36,6 +37,7 @@ public class SpringContextEvent implements ApplicationListener<ApplicationEvent>
             _log.info("RMS Server Start Complete!");
         } else if (applicationEvent instanceof ContextClosedEvent) {
             logAsyncPool.StopLogPool();
+            MsgBus.getIns().removeAll();
             wss.shutdown();
             ReflectUtils.getBean(JobFactory.class).PauseAllJob();
             ReflectUtils.getBean(JobFactory.class).DeleteAllJob();
