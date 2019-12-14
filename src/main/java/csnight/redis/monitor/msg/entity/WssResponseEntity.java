@@ -9,6 +9,7 @@ public class WssResponseEntity {
     private Object body;
     private Long time = new Date().getTime();
     private Long cost = 0L;
+    private String appId;
 
     public WssResponseEntity() {
     }
@@ -54,5 +55,13 @@ public class WssResponseEntity {
 
     public void setCost(Long cost) {
         this.cost = cost;
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
     }
 }

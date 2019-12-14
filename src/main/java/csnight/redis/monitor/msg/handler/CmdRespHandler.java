@@ -56,7 +56,7 @@ public class CmdRespHandler implements WsChannelHandler {
             long start = System.currentTimeMillis();
             Object res = jedis.sendCommand(command, args);
             long end = System.currentTimeMillis() - start;
-            String response = MsgParser(res);
+            Object response = MsgParser(res);
             rpi.close(jid);
             return new WssResponseEntity(ResponseMsgType.RESP, response, end);
         } catch (Exception ex) {
@@ -64,12 +64,12 @@ public class CmdRespHandler implements WsChannelHandler {
         }
     }
 
-    private String MsgParser(Object res) {
-        String response;
+    private Object MsgParser(Object res) {
+        Object response;
         if (res instanceof byte[]) {
             response = new String((byte[]) res);
         } else if (res instanceof ArrayList) {
-            response = JSONObject.toJSONString(ArrayMsgParser(res));
+            response = ArrayMsgParser(res);
         } else {
             response = res.toString();
         }

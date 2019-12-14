@@ -97,15 +97,18 @@ public class MsgBus {
     public void dispatchMsg(JSONObject msg, Channel ch) {
         WssResponseEntity wre;
         int msgType = msg.getIntValue("rt");
+        String appId = msg.getString("appId");
         switch (CmdMsgType.getEnumType(msgType)) {
             default:
             case UNKNOWN:
                 wre = new WssResponseEntity(ResponseMsgType.UNKNOWN, "Unknown msg type");
+                wre.setAppId(appId);
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
                 break;
             case CMD:
                 CmdRespHandler cmdRespHandler = new CmdRespHandler();
                 wre = cmdRespHandler.execute(msg, ch);
+                wre.setAppId(appId);
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
                 break;
             case PUB:
