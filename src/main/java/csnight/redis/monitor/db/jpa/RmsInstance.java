@@ -34,9 +34,9 @@ public class RmsInstance {
     @Column(name = "mode")
     private String mode;
     @Column(name = "os")
-    private String os;
+    private String os = "";
     @Column(name = "arch_bits")
-    private int arch_bits;
+    private int arch_bits = 64;
     @Column(name = "proc_id")
     private int proc_id;
     @Column(name = "uptime_in_seconds")
