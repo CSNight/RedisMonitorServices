@@ -50,8 +50,8 @@ public class CmdRespHandler implements WsChannelHandler {
         if (rpi == null) {
             return new WssResponseEntity(ResponseMsgType.ERROR, "Redis pool does not exist, please connect first");
         }
+        String jid = IdentifyUtils.getUUID();
         try {
-            String jid = IdentifyUtils.getUUID();
             JediSQL jedis = rpi.getJedis(jid);
             long start = System.currentTimeMillis();
             Object res = jedis.sendCommand(command, args);
@@ -60,6 +60,7 @@ public class CmdRespHandler implements WsChannelHandler {
             rpi.close(jid);
             return new WssResponseEntity(ResponseMsgType.RESP, response, end);
         } catch (Exception ex) {
+            rpi.close(jid);
             return new WssResponseEntity(ResponseMsgType.ERROR, ex.getMessage() == null ? "Null response exception" : ex.getMessage());
         }
     }
