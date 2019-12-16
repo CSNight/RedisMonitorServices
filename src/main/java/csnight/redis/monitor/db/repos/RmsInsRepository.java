@@ -12,4 +12,7 @@ public interface RmsInsRepository extends JpaRepository<RmsInstance, String>, Jp
     List<RmsInstance> findByUserId(String user_id);
 
     RmsInstance findByUin(String uin);
+
+    @Query(value = "select * from rmsdb.rms_instance where instance_name=?", nativeQuery = true)
+    RmsInstance findByInstanceName(String ins_name);
 }

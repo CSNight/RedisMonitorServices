@@ -10,6 +10,7 @@ import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.db.repos.RmsInsRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.exception.ConfigException;
+import csnight.redis.monitor.exception.ConflictsException;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.PoolConfig;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
@@ -116,7 +117,7 @@ public class RmsInsManageImpl {
 
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
             @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
-    public RmsInstance NewInstance(RmsInsDto dto) throws ConfigException {
+    public RmsInstance NewInstance(RmsInsDto dto) throws ConfigException, ConflictsException {
         RmsInstance ins = new RmsInstance();
         String user_id = userRepository.findIdByUsername(BaseUtils.GetUserFromContext());
         ins.setId(IdentifyUtils.getUUID());
@@ -124,6 +125,9 @@ public class RmsInsManageImpl {
         ins.setIp(dto.getIp());
         ins.setPort(dto.getPort());
         ins.setInstance_name(dto.getName());
+        if (!checkInstanceName(ins)) {
+            throw new ConflictsException("Instance name conflict");
+        }
         ins.setCt(new Date());
         PoolConfig config = BuildConfig(dto);
         config.setUser_id(user_id);
@@ -157,12 +161,18 @@ public class RmsInsManageImpl {
 
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
             @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
-    public RmsInstance ModifyInsName(RmsInsDto dto) {
+    public RmsInstance ModifyInsName(RmsInsDto dto) throws ConflictsException {
         Optional<RmsInstance> rms = rmsInsRepository.findById(dto.getId());
         if (rms.isPresent()) {
             RmsInstance oldIns = rms.get();
-            oldIns.setInstance_name(dto.getName());
-            return rmsInsRepository.save(oldIns);
+            if (!dto.getName().equals(oldIns.getInstance_name())) {
+                oldIns.setInstance_name(dto.getName());
+                if (!checkInstanceName(oldIns)) {
+                    throw new ConflictsException("Instance name conflict");
+                }
+                return rmsInsRepository.save(oldIns);
+            }
+            return oldIns;
         }
         return null;
     }
@@ -269,6 +279,12 @@ public class RmsInsManageImpl {
     private RmsInstance parseInfo(RmsInstance ins, RedisPoolInstance pool, PoolConfig config) throws ConfigException {
         try {
             Map<String, String> info = InfoCmdParser.GetInstanceInfo(pool, "Server");
+            ins.setType("Standalone");
+            if (config.getSentinels().size() > 0) {
+                ins.setIp(pool.getHP().getHost());
+                ins.setPort(pool.getHP().getPort());
+                ins.setType("SentinelsCluster");
+            }
             ins.setArch_bits(Integer.parseInt(info.get("arch_bits")));
             ins.setOs(info.get("os"));
             ins.setMode(info.get("redis_mode"));
@@ -305,5 +321,14 @@ public class RmsInsManageImpl {
             throw new ConfigException("Redis Config Read Error" + ex.getMessage());
         }
         throw new ConfigException("Can not parse redis connection config");
+    }
+
+    private boolean checkInstanceName(RmsInstance ins) {
+        boolean valid = true;
+        RmsInstance insExist = rmsInsRepository.findByInstanceName(ins.getInstance_name());
+        if (insExist != null) {
+            valid = false;
+        }
+        return valid;
     }
 }

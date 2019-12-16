@@ -21,6 +21,8 @@ public class RmsInstance {
     private int port;
     @Column(name = "state")
     private boolean state;
+    @Column(name = "type")
+    private String type;
     @Column(name = "instance_name")
     private String instance_name;
     @Column(name = "hz")
@@ -213,5 +215,13 @@ public class RmsInstance {
 
     public void setJobs(Set<RmsJob> jobs) {
         this.jobs = jobs;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

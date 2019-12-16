@@ -4,6 +4,7 @@ import csnight.redis.monitor.aop.LogAsync;
 import csnight.redis.monitor.busi.rms.RmsInsManageImpl;
 import csnight.redis.monitor.busi.rms.exp.InsQueryExp;
 import csnight.redis.monitor.exception.ConfigException;
+import csnight.redis.monitor.exception.ConflictsException;
 import csnight.redis.monitor.rest.rms.dto.RmsInsDto;
 import csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;
@@ -51,7 +52,7 @@ public class RmsInsController {
     @ApiOperation("新建Redis实例")
     @PreAuthorize("hasAuthority('INS_ADD')")
     @RequestMapping(value = "/new_instance", method = RequestMethod.POST)
-    public RespTemplate AddInstance(@Valid @RequestBody RmsInsDto dto) throws ConfigException {
+    public RespTemplate AddInstance(@Valid @RequestBody RmsInsDto dto) throws ConfigException, ConflictsException {
         return new RespTemplate(HttpStatus.OK, rmsInsManage.NewInstance(dto));
     }
 
@@ -59,7 +60,7 @@ public class RmsInsController {
     @ApiOperation("修改实例名称")
     @PreAuthorize("hasAuthority('INS_UPDATE_INFO')")
     @RequestMapping(value = "/modify_name", method = RequestMethod.PUT)
-    public RespTemplate ModifyInsName(@Valid @RequestBody RmsInsDto dto) {
+    public RespTemplate ModifyInsName(@Valid @RequestBody RmsInsDto dto) throws ConflictsException {
         return new RespTemplate(HttpStatus.OK, rmsInsManage.ModifyInsName(dto));
     }
 
