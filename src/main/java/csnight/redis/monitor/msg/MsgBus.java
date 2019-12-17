@@ -73,7 +73,7 @@ public class MsgBus {
         if (che != null) {
             if (che.getCt().equals(ChannelType.PUBSUB)) {
                 //TODO unsubscribe
-                che.getHandlers().forEach(WsChannelHandler::destory);
+                che.getHandlers().forEach(WsChannelHandler::destroy);
             }
             che.getChannel().close();
             channelGroup.remove(che.getChannel());

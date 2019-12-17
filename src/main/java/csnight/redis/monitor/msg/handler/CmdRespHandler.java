@@ -106,7 +106,7 @@ public class CmdRespHandler implements WsChannelHandler {
 
 
     @Override
-    public void destory() {
+    public void destroy() {
         rpi.close(jid);
         jedis = null;
     }

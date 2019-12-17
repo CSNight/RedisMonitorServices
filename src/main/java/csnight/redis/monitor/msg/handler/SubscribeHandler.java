@@ -71,7 +71,7 @@ public class SubscribeHandler implements WsChannelHandler {
 
 
     @Override
-    public void destory() {
+    public void destroy() {
         if (pool != null) {
             stopSubscribe();
             jediSQL = null;
