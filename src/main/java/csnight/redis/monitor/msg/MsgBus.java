@@ -112,7 +112,7 @@ public class MsgBus {
                 break;
             case CMD:
                 CmdRespHandler cmdRespHandler = new CmdRespHandler();
-                wre = cmdRespHandler.execute(msg, ch);
+                wre = cmdRespHandler.execute(msg);
                 wre.setAppId(appId);
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
                 break;

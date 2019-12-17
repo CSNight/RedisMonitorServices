@@ -9,7 +9,6 @@ import csnight.redis.monitor.msg.series.ResponseMsgType;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
 import csnight.redis.monitor.utils.IdentifyUtils;
-import io.netty.channel.Channel;
 
 import java.util.ArrayList;
 import java.util.List;
