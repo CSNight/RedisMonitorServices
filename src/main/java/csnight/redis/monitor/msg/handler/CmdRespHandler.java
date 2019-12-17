@@ -9,7 +9,6 @@ import csnight.redis.monitor.msg.series.ResponseMsgType;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
 import csnight.redis.monitor.utils.IdentifyUtils;
-import io.netty.channel.Channel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +37,7 @@ public class CmdRespHandler implements WsChannelHandler {
         return false;
     }
 
-    public WssResponseEntity execute(JSONObject msg, Channel ch) {
+    public WssResponseEntity execute(JSONObject msg) {
         if (!parseCmd(msg.getString("msg"))) {
             return new WssResponseEntity(ResponseMsgType.ERROR, "Redis command parse error");
         }
