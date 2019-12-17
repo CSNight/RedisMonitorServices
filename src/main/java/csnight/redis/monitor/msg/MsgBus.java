@@ -2,9 +2,9 @@ package csnight.redis.monitor.msg;
 
 import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.msg.entity.ChannelEntity;
-import csnight.redis.monitor.msg.entity.PubSubEntity;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
 import csnight.redis.monitor.msg.handler.CmdRespHandler;
+import csnight.redis.monitor.msg.handler.WsChannelHandler;
 import csnight.redis.monitor.msg.series.ChannelType;
 import csnight.redis.monitor.msg.series.CmdMsgType;
 import csnight.redis.monitor.msg.series.ResponseMsgType;
@@ -72,9 +72,8 @@ public class MsgBus {
         ChannelEntity che = channels.get(cid);
         if (che != null) {
             if (che.getCt().equals(ChannelType.PUBSUB)) {
-                che.getHandlers().forEach(handler -> {
-                    //TODO unsubscribe
-                });
+                //TODO unsubscribe
+                che.getHandlers().forEach(WsChannelHandler::destory);
             }
             che.getChannel().close();
             channelGroup.remove(che.getChannel());
@@ -112,9 +111,11 @@ public class MsgBus {
                 break;
             case CMD:
                 CmdRespHandler cmdRespHandler = new CmdRespHandler();
+                channels.get(ch.id().asShortText()).getHandlers().add(cmdRespHandler);
                 wre = cmdRespHandler.execute(msg);
                 wre.setAppId(appId);
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
+                channels.get(ch.id().asShortText()).getHandlers().remove(cmdRespHandler);
                 break;
             case PSUB:
 

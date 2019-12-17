@@ -16,10 +16,12 @@ import java.util.List;
 public class CmdRespHandler implements WsChannelHandler {
     private RedisCmdType command;
     private byte[][] args;
+    private RedisPoolInstance rpi;
+    private JediSQL jedis;
+    private String jid = IdentifyUtils.getUUID();
 
     @Override
     public void initialize() {
-
     }
 
     public boolean parseCmd(String cmd) {
@@ -50,22 +52,21 @@ public class CmdRespHandler implements WsChannelHandler {
         if (ins == null || ins.equals("")) {
             return new WssResponseEntity(ResponseMsgType.ERROR, "Must specify a redis instance");
         }
-        RedisPoolInstance rpi = MultiRedisPool.getInstance().getPool(ins);
+        rpi = MultiRedisPool.getInstance().getPool(ins);
         if (rpi == null) {
             return new WssResponseEntity(ResponseMsgType.ERROR, "Redis pool does not exist, please connect first");
         }
-        String jid = IdentifyUtils.getUUID();
         try {
-            JediSQL jedis = rpi.getJedis(jid);
+            jedis = rpi.getJedis(jid);
             long start = System.currentTimeMillis();
             Object res = jedis.sendCommand(command, args);
             long end = System.currentTimeMillis() - start;
             Object response = MsgParser(res);
-            rpi.close(jid);
             return new WssResponseEntity(ResponseMsgType.RESP, response, end);
         } catch (Exception ex) {
-            rpi.close(jid);
             return new WssResponseEntity(ResponseMsgType.ERROR, ex.getMessage() == null ? "Null response exception" : ex.getMessage());
+        } finally {
+            rpi.close(jid);
         }
     }
 
@@ -106,6 +107,7 @@ public class CmdRespHandler implements WsChannelHandler {
 
     @Override
     public void destory() {
-
+        rpi.close(jid);
+        jedis = null;
     }
 }

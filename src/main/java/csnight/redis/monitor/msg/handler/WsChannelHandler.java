@@ -1,7 +1,7 @@
 package csnight.redis.monitor.msg.handler;
 
 public interface WsChannelHandler {
-    public void initialize();
+    void initialize();
 
-    public void destory();
+    void destory();
 }
