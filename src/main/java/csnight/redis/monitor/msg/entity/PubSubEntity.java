@@ -1,17 +1,33 @@
 package csnight.redis.monitor.msg.entity;
 
 import com.alibaba.fastjson.JSONObject;
+import com.csnight.jedisql.JediSQL;
 import com.csnight.jedisql.JedisPubSub;
 import csnight.redis.monitor.msg.series.ResponseMsgType;
+import csnight.redis.monitor.utils.IdentifyUtils;
 import csnight.redis.monitor.websocket.WebSocketServer;
 import io.netty.channel.Channel;
 
 
 public class PubSubEntity extends JedisPubSub {
     private Channel ch;
+    private String id = IdentifyUtils.getUUID();
+    private JediSQL jediSQL;
 
     public void setCh(Channel ch) {
         this.ch = ch;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public JediSQL getJediSQL() {
+        return jediSQL;
+    }
+
+    public void setJediSQL(JediSQL jediSQL) {
+        this.jediSQL = jediSQL;
     }
 
     // 取得订阅的消息后的处理
@@ -44,5 +60,13 @@ public class PubSubEntity extends JedisPubSub {
     public void onPMessage(String pattern, String channel, String message) {
         WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.PUBSUB, pattern + ":" + channel + "->" + message);
         WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
+    }
+
+    public void subscribe(String... channels) {
+        jediSQL.subscribe(this, channels);
+    }
+
+    public void psubscribe(String... patterns) {
+        jediSQL.psubscribe(this, patterns);
     }
 }

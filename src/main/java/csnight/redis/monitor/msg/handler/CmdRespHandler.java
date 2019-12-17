@@ -18,6 +18,11 @@ public class CmdRespHandler implements WsChannelHandler {
     private RedisCmdType command;
     private byte[][] args;
 
+    @Override
+    public void initialize() {
+
+    }
+
     public boolean parseCmd(String cmd) {
         if (cmd != null && !cmd.equals("")) {
             String[] parts = cmd.split(" ");
@@ -38,7 +43,7 @@ public class CmdRespHandler implements WsChannelHandler {
         return false;
     }
 
-    public WssResponseEntity execute(JSONObject msg, Channel ch) {
+    public WssResponseEntity execute(JSONObject msg) {
         if (!parseCmd(msg.getString("msg"))) {
             return new WssResponseEntity(ResponseMsgType.ERROR, "Redis command parse error");
         }
@@ -97,5 +102,11 @@ public class CmdRespHandler implements WsChannelHandler {
             }
         }
         return tmp;
+    }
+
+
+    @Override
+    public void destory() {
+
     }
 }

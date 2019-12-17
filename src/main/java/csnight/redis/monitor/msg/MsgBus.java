@@ -2,6 +2,7 @@ package csnight.redis.monitor.msg;
 
 import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.msg.entity.ChannelEntity;
+import csnight.redis.monitor.msg.entity.PubSubEntity;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
 import csnight.redis.monitor.msg.handler.CmdRespHandler;
 import csnight.redis.monitor.msg.series.ChannelType;
@@ -116,6 +117,7 @@ public class MsgBus {
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
                 break;
             case PSUB:
+
                 break;
             case SUB:
                 break;
