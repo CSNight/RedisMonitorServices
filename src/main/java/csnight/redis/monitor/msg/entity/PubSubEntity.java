@@ -45,7 +45,7 @@ public class PubSubEntity extends JedisPubSub {
     // 初始化订阅时候的处理
     public void onSubscribe(String channel, int subscribedChannels) {
         String msg = "Reading messages... (press Ctrl-C to quit)\r\n";
-        msg += "1) subscribe on" + channel + "\r\n";
+        msg += "1) subscribe on " + channel + "\r\n";
         msg += "2) channel count:" + subscribedChannels + "\r\n";
         msg += "3) timestamp:" + System.currentTimeMillis() + "\r\n";
         WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.PUBSUB, msg);

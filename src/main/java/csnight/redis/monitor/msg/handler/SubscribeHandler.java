@@ -4,9 +4,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.csnight.jedisql.JediSQL;
 import csnight.redis.monitor.exception.CmdMsgException;
 import csnight.redis.monitor.msg.entity.PubSubEntity;
+import csnight.redis.monitor.msg.entity.WssResponseEntity;
 import csnight.redis.monitor.msg.series.CmdMsgType;
+import csnight.redis.monitor.msg.series.ResponseMsgType;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
+import csnight.redis.monitor.websocket.WebSocketServer;
 import io.netty.channel.Channel;
 
 public class SubscribeHandler implements WsChannelHandler {
@@ -25,20 +28,8 @@ public class SubscribeHandler implements WsChannelHandler {
         this.t = t;
     }
 
-    public void setChannel(Channel channel) {
-        this.channel = channel;
-    }
-
     public void setPool(RedisPoolInstance pool) {
         this.pool = pool;
-    }
-
-    public PubSubEntity getPubSubEntity() {
-        return pubSubEntity;
-    }
-
-    public String getAppId() {
-        return appId;
     }
 
     @Override
@@ -67,10 +58,16 @@ public class SubscribeHandler implements WsChannelHandler {
 
     public void startSubscribe() {
         thread = new Thread(() -> {
-            if (t.equals(CmdMsgType.SUB)) {
-                pubSubEntity.subscribe(params);
-            } else {
-                pubSubEntity.psubscribe(params);
+            try {
+                if (t.equals(CmdMsgType.SUB)) {
+                    pubSubEntity.subscribe(params);
+                } else {
+                    pubSubEntity.psubscribe(params);
+                }
+            } catch (Exception ex) {
+                WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.ERROR, ex.getMessage());
+                wre.setAppId(appId);
+                WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), channel);
             }
         });
         thread.start();
