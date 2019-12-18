@@ -1,10 +1,11 @@
 package csnight.redis.monitor.msg;
 
 import com.alibaba.fastjson.JSONObject;
+import csnight.redis.monitor.exception.CmdMsgException;
 import csnight.redis.monitor.msg.entity.ChannelEntity;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
 import csnight.redis.monitor.msg.handler.CmdRespHandler;
-import csnight.redis.monitor.msg.handler.WsChannelHandler;
+import csnight.redis.monitor.msg.handler.SubscribeHandler;
 import csnight.redis.monitor.msg.series.ChannelType;
 import csnight.redis.monitor.msg.series.CmdMsgType;
 import csnight.redis.monitor.msg.series.ResponseMsgType;
@@ -73,7 +74,10 @@ public class MsgBus {
         if (che != null) {
             if (che.getCt().equals(ChannelType.PUBSUB)) {
                 //TODO unsubscribe
-                che.getHandlers().forEach(WsChannelHandler::destroy);
+                che.getHandlers().forEach((ent, handler) -> {
+                    handler.destroy();
+                });
+                che.getHandlers().clear();
             }
             che.getChannel().close();
             channelGroup.remove(che.getChannel());
@@ -91,47 +95,65 @@ public class MsgBus {
     public void removeAll() {
         channels.values().forEach(che -> {
             che.getChannel().close();
+            che.getHandlers().forEach((ent, handler) -> {
+                handler.destroy();
+            });
+            che.getHandlers().clear();
             channelGroup.remove(che.getChannel());
         });
         channels.clear();
         UserChannels.clear();
     }
 
-    public void dispatchMsg(JSONObject msg, Channel ch) {
+    public void dispatchMsg(JSONObject msg, Channel ch) throws CmdMsgException {
         _log.info(msg.toJSONString());
         WssResponseEntity wre = null;
         int msgType = msg.getIntValue("rt");
         String appId = msg.getString("appId");
-        switch (CmdMsgType.getEnumType(msgType)) {
-            default:
-            case UNKNOWN:
-                wre = new WssResponseEntity(ResponseMsgType.UNKNOWN, "Unknown msg type");
-                wre.setAppId(appId);
-                WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
-                break;
-            case CMD:
-                CmdRespHandler cmdRespHandler = new CmdRespHandler();
-                channels.get(ch.id().asShortText()).getHandlers().add(cmdRespHandler);
-                wre = cmdRespHandler.execute(msg);
-                wre.setAppId(appId);
-                WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
-                channels.get(ch.id().asShortText()).getHandlers().remove(cmdRespHandler);
-                break;
-            case PSUB:
-
-                break;
-            case SUB:
-                break;
-            case DESUB:
-                wre = new WssResponseEntity(ResponseMsgType.DESUB, "Unsubscribe success");
-                wre.setAppId(appId);
-                WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
-                break;
-            case DEPSUB:
-                wre = new WssResponseEntity(ResponseMsgType.DESUB, "Unsubscribe success");
-                wre.setAppId(appId);
-                WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
-                break;
+        try {
+            switch (CmdMsgType.getEnumType(msgType)) {
+                default:
+                case UNKNOWN:
+                    wre = new WssResponseEntity(ResponseMsgType.UNKNOWN, "Unknown msg type");
+                    wre.setAppId(appId);
+                    WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
+                    break;
+                case CMD:
+                    CmdRespHandler cmdRespHandler = new CmdRespHandler();
+                    cmdRespHandler.initialize(msg);
+                    channels.get(ch.id().asShortText()).getHandlers().put(appId, cmdRespHandler);
+                    wre = cmdRespHandler.execute();
+                    wre.setAppId(appId);
+                    WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
+                    cmdRespHandler.destroy();
+                    channels.get(ch.id().asShortText()).getHandlers().remove(appId);
+                    break;
+                case SUB:
+                case PSUB:
+                    SubscribeHandler subscribeHandler = new SubscribeHandler(appId, ch, CmdMsgType.getEnumType(msgType));
+                    subscribeHandler.initialize(msg);
+                    channels.get(ch.id().asShortText()).getHandlers().put(appId, subscribeHandler);
+                    setChannelType(ChannelType.PUBSUB, ch.id().asShortText());
+                    subscribeHandler.startSubscribe();
+                    break;
+                case DESUB:
+                case DEPSUB:
+                    channels.get(ch.id().asShortText()).getHandlers().forEach((id, handler) -> {
+                        if (id.equals(appId)) {
+                            handler.destroy();
+                        }
+                    });
+                    setChannelType(ChannelType.PUBSUB, ch.id().asShortText());
+                    channels.get(ch.id().asShortText()).getHandlers().remove(appId);
+                    wre = new WssResponseEntity(ResponseMsgType.DESUB, "Unsubscribe success");
+                    wre.setAppId(appId);
+                    WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
+                    break;
+            }
+        } catch (CmdMsgException ex) {
+            wre = new WssResponseEntity(ResponseMsgType.ERROR, ex.getMessage());
+            wre.setAppId(appId);
+            WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
         }
         if (wre != null) {
             _log.info(JSONObject.toJSONString(wre));

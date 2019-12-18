@@ -4,14 +4,15 @@ import csnight.redis.monitor.msg.handler.WsChannelHandler;
 import csnight.redis.monitor.msg.series.ChannelType;
 import io.netty.channel.Channel;
 
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ChannelEntity {
     private ChannelType ct;
     private Channel channel;
     private String id;
     private String user_id;
-    private List<WsChannelHandler> handlers;
+    private Map<String, WsChannelHandler> handlers = new ConcurrentHashMap<>();
 
     public ChannelEntity(ChannelType ct, Channel ch, String user_id) {
         this.ct = ct;
@@ -52,7 +53,7 @@ public class ChannelEntity {
         this.user_id = user_id;
     }
 
-    public List<WsChannelHandler> getHandlers() {
+    public Map<String, WsChannelHandler> getHandlers() {
         return handlers;
     }
 }
