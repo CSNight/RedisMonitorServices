@@ -46,8 +46,8 @@ public class PubSubEntity extends JedisPubSub {
     public void onSubscribe(String channel, int subscribedChannels) {
         String msg = "Reading messages... (press Ctrl-C to quit)\r\n";
         msg += "1) subscribe on " + channel + "\r\n";
-        msg += "2) channel count:" + subscribedChannels + "\r\n";
-        msg += "3) timestamp:" + System.currentTimeMillis() + "\r\n";
+        msg += "2) channel count: " + subscribedChannels + "\r\n";
+        msg += "3) timestamp: " + System.currentTimeMillis() + "\r\n";
         WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.SUBCON, msg);
         wre.setAppId(appId);
         WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
@@ -55,15 +55,19 @@ public class PubSubEntity extends JedisPubSub {
 
     // 取消订阅时候的处理
     public void onUnsubscribe(String channel, int subscribedChannels) {
-        System.out.println(channel + "=" + subscribedChannels);
+        String msg = "1) Cancel subscribe on channel: " + channel + "\r\n";
+        msg += "2) subscribe channel count: " + subscribedChannels + "\r\n";
+        WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.PUBSUB, msg);
+        wre.setAppId(appId);
+        WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
     }
 
     // 初始化按表达式的方式订阅时候的处理
     public void onPSubscribe(String pattern, int subscribedChannels) {
         String msg = "Reading messages... (press Ctrl-C to quit)\r\n";
         msg += "1) psubscribe on " + pattern + "\r\n";
-        msg += "2) channel count:" + subscribedChannels + "\r\n";
-        msg += "3) timestamp:" + System.currentTimeMillis() + "\r\n";
+        msg += "2) channel count: " + subscribedChannels + "\r\n";
+        msg += "3) timestamp: " + System.currentTimeMillis() + "\r\n";
         WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.SUBCON, msg);
         wre.setAppId(appId);
         WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
@@ -71,7 +75,11 @@ public class PubSubEntity extends JedisPubSub {
 
     // 取消按表达式的方式订阅时候的处理
     public void onPUnsubscribe(String pattern, int subscribedChannels) {
-        System.out.println(pattern + "=" + subscribedChannels);
+        String msg = "1) Cancel psubscribe on channel: " + pattern + "\r\n";
+        msg += "2) psubscribe channel count: " + subscribedChannels + "\r\n";
+        WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.PUBSUB, msg);
+        wre.setAppId(appId);
+        WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
     }
 
     // 取得按表达式的方式订阅的消息后的处理

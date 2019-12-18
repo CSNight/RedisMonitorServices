@@ -101,6 +101,7 @@ public class SubscribeHandler implements WsChannelHandler {
             jediSQL = null;
         }
         System.out.println(thread.isAlive());
+        System.gc();
         pubSubEntity = null;
     }
 }
