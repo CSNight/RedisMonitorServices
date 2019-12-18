@@ -1,6 +1,8 @@
 package csnight.redis.monitor.msg.handler;
 
+import com.alibaba.fastjson.JSONObject;
 import com.csnight.jedisql.JediSQL;
+import csnight.redis.monitor.exception.CmdMsgException;
 import csnight.redis.monitor.msg.entity.PubSubEntity;
 import csnight.redis.monitor.msg.series.CmdMsgType;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
@@ -14,12 +16,13 @@ public class SubscribeHandler implements WsChannelHandler {
     private String appId;
     private JediSQL jediSQL;
     private CmdMsgType t;
+    private String[] params;
+    private Thread thread;
 
-    public SubscribeHandler(String appId, Channel ch, String ins, CmdMsgType t) {
+    public SubscribeHandler(String appId, Channel ch, CmdMsgType t) {
         this.appId = appId;
         this.channel = ch;
         this.t = t;
-        this.pool = MultiRedisPool.getInstance().getPool(ins);
     }
 
     public void setChannel(Channel channel) {
@@ -39,14 +42,31 @@ public class SubscribeHandler implements WsChannelHandler {
     }
 
     @Override
-    public void initialize() {
+    public void initialize(JSONObject msg) throws CmdMsgException {
+        String ins = msg.getString("ins");
+        if (ins == null || ins.equals("")) {
+            throw new CmdMsgException("Must specify a redis instance");
+        }
+        this.pool = MultiRedisPool.getInstance().getPool(ins);
+        String msgBody = msg.getString("msg");
+        parseParams(msgBody);
         pubSubEntity.setCh(channel);
+        pubSubEntity.setAppId(appId);
         jediSQL = pool.getJedis(pubSubEntity.getId());
         pubSubEntity.setJediSQL(jediSQL);
     }
 
-    public void startSubscribe(String... params) {
-        Thread thread = new Thread(() -> {
+    private void parseParams(String msg) throws CmdMsgException {
+        String[] parts = msg.split(" ");
+        if (parts.length < 2) {
+            throw new CmdMsgException("Empty channels or patterns");
+        }
+        params = new String[parts.length - 1];
+        System.arraycopy(parts, 1, params, 0, parts.length - 1);
+    }
+
+    public void startSubscribe() {
+        thread = new Thread(() -> {
             if (t.equals(CmdMsgType.SUB)) {
                 pubSubEntity.subscribe(params);
             } else {
@@ -56,7 +76,7 @@ public class SubscribeHandler implements WsChannelHandler {
         thread.start();
     }
 
-    public void stopSubscribe(String... params) {
+    private void stopSubscribe() {
         try {
             if (t.equals(CmdMsgType.SUB)) {
                 pubSubEntity.unsubscribe(params);
@@ -76,6 +96,7 @@ public class SubscribeHandler implements WsChannelHandler {
             stopSubscribe();
             jediSQL = null;
         }
+        System.out.println(thread.isAlive());
         pubSubEntity = null;
     }
 }
