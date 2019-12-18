@@ -73,11 +73,13 @@ public class WebSocketServer {
                 ch.writeAndFlush(new TextWebSocketFrame(text));
             }
         }
+        logger.info(text);
     }
 
     public void send(String text, Channel ch) {
         if (ch != null && ch.isOpen()) {
             ch.writeAndFlush(new TextWebSocketFrame(text));
+            logger.info(text);
         }
     }
 

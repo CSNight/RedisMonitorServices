@@ -105,7 +105,7 @@ public class MsgBus {
         UserChannels.clear();
     }
 
-    public void dispatchMsg(JSONObject msg, Channel ch) throws CmdMsgException {
+    public void dispatchMsg(JSONObject msg, Channel ch) {
         _log.info(msg.toJSONString());
         WssResponseEntity wre = null;
         int msgType = msg.getIntValue("rt");
@@ -154,9 +154,6 @@ public class MsgBus {
             wre = new WssResponseEntity(ResponseMsgType.ERROR, ex.getMessage());
             wre.setAppId(appId);
             WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
-        }
-        if (wre != null) {
-            _log.info(JSONObject.toJSONString(wre));
         }
     }
 }
