@@ -4,6 +4,7 @@ import csnight.redis.monitor.db.jpa.RmsInstance;
 import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.db.repos.RmsInsRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
+import csnight.redis.monitor.msg.MsgBus;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,7 @@ public class SignOutHandler implements LogoutHandler {
         if (!remove_key.equals("")) {
             successHandler.getLoginUserList().remove(remove_key);
             ShutdownRedisDbAndJobs(remove_key);
+            ShutdownChannels(remove_key);
         }
         _log.info(remove_key + ":账户登出成功" + new Date());
     }
@@ -57,6 +59,18 @@ public class SignOutHandler implements LogoutHandler {
                     insRepository.saveAll(instances);
                 }
                 //TODO 停止关联定时任务
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            _log.error(ex.getMessage());
+        }
+    }
+
+    private void ShutdownChannels(String username) {
+        try {
+            SysUser user = userRepository.findByUsername(username);
+            if (user != null) {
+                MsgBus.getIns().ClearUserChannel(user.getId());
             }
         } catch (Exception ex) {
             ex.printStackTrace();
