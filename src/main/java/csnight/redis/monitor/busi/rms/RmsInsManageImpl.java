@@ -326,7 +326,7 @@ public class RmsInsManageImpl {
     private boolean checkInstanceName(RmsInstance ins) {
         boolean valid = true;
         RmsInstance insExist = rmsInsRepository.findByInstanceName(ins.getInstance_name());
-        if (insExist != null) {
+        if (insExist != null && insExist.getUser_id().equals(ins.getUser_id())) {
             valid = false;
         }
         return valid;

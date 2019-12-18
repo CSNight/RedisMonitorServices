@@ -145,11 +145,9 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        channels.remove(ctx.channel());
-        ctx.channel().close();
-        super.exceptionCaught(ctx, cause);
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
+        logger.error(cause.getMessage());
     }
 
     private boolean UidCheck(String uid) {
