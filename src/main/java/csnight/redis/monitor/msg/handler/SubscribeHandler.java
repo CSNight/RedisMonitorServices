@@ -38,7 +38,10 @@ public class SubscribeHandler implements WsChannelHandler {
         if (ins == null || ins.equals("")) {
             throw new CmdMsgException("Must specify a redis instance");
         }
-        this.pool = MultiRedisPool.getInstance().getPool(ins);
+        pool = MultiRedisPool.getInstance().getPool(ins);
+        if (pool == null) {
+            throw new CmdMsgException("Redis pool does not exist, please connect first");
+        }
         String msgBody = msg.getString("msg");
         parseParams(msgBody);
         pubSubEntity.setCh(channel);
@@ -65,9 +68,13 @@ public class SubscribeHandler implements WsChannelHandler {
                     pubSubEntity.psubscribe(params);
                 }
             } catch (Exception ex) {
-                WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.ERROR, ex.getMessage());
+                //连接断开线程直接退出，发送错误消息及断开消息
+                WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.ERROR, "Connection broken");
                 wre.setAppId(appId);
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), channel);
+                WssResponseEntity wres = new WssResponseEntity(ResponseMsgType.DESUB, "Unsubscribe success");
+                wres.setAppId(appId);
+                WebSocketServer.getInstance().send(JSONObject.toJSONString(wres), channel);
             }
         });
         thread.start();
