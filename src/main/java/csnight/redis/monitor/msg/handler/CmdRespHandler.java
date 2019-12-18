@@ -1,8 +1,8 @@
 package csnight.redis.monitor.msg.handler;
 
 import com.alibaba.fastjson.JSONObject;
-import com.csnight.jedisql.BuilderFactory;
 import com.csnight.jedisql.JediSQL;
+import csnight.redis.monitor.exception.CmdMsgException;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
 import csnight.redis.monitor.msg.series.RedisCmdType;
 import csnight.redis.monitor.msg.series.ResponseMsgType;
@@ -21,7 +21,18 @@ public class CmdRespHandler implements WsChannelHandler {
     private String jid = IdentifyUtils.getUUID();
 
     @Override
-    public void initialize() {
+    public void initialize(JSONObject msg) throws CmdMsgException {
+        if (!parseCmd(msg.getString("msg"))) {
+            throw new CmdMsgException("Redis command parse error");
+        }
+        String ins = msg.getString("ins");
+        if (ins == null || ins.equals("")) {
+            throw new CmdMsgException("Must specify a redis instance");
+        }
+        rpi = MultiRedisPool.getInstance().getPool(ins);
+        if (rpi == null) {
+            throw new CmdMsgException("Redis pool does not exist, please connect first");
+        }
     }
 
     public boolean parseCmd(String cmd) {
@@ -44,18 +55,8 @@ public class CmdRespHandler implements WsChannelHandler {
         return false;
     }
 
-    public WssResponseEntity execute(JSONObject msg) {
-        if (!parseCmd(msg.getString("msg"))) {
-            return new WssResponseEntity(ResponseMsgType.ERROR, "Redis command parse error");
-        }
-        String ins = msg.getString("ins");
-        if (ins == null || ins.equals("")) {
-            return new WssResponseEntity(ResponseMsgType.ERROR, "Must specify a redis instance");
-        }
-        rpi = MultiRedisPool.getInstance().getPool(ins);
-        if (rpi == null) {
-            return new WssResponseEntity(ResponseMsgType.ERROR, "Redis pool does not exist, please connect first");
-        }
+    public WssResponseEntity execute() {
+
         try {
             jedis = rpi.getJedis(jid);
             long start = System.currentTimeMillis();
@@ -90,13 +91,16 @@ public class CmdRespHandler implements WsChannelHandler {
                 tmp.add(new String((byte[]) item));
             } else if (item instanceof ArrayList) {
                 ArrayList<Object> itemSub = (ArrayList) item;
-                if (itemSub.size() > 0 && itemSub.get(0) instanceof byte[]) {
-                    List<String> subItems = BuilderFactory.STRING_LIST.build(item);
-                    tmp.add(subItems);
-                } else {
-                    List<Object> recursive = ArrayMsgParser(itemSub);
-                    tmp.add(recursive);
+                List<Object> sub = new ArrayList<>();
+                for (Object it : itemSub) {
+                    if (it instanceof byte[]) {
+                        sub.add(new String((byte[]) it));
+                    } else {
+                        List<Object> recursive = ArrayMsgParser(it);
+                        sub.add(recursive);
+                    }
                 }
+                tmp.add(sub);
             } else {
                 tmp.add(item);
             }
