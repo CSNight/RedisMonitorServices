@@ -13,6 +13,7 @@ public class PubSubEntity extends JedisPubSub {
     private Channel ch;
     private String id = IdentifyUtils.getUUID();
     private JediSQL jediSQL;
+    private String appId;
 
     public void setCh(Channel ch) {
         this.ch = ch;
@@ -26,6 +27,10 @@ public class PubSubEntity extends JedisPubSub {
         return jediSQL;
     }
 
+    public void setAppId(String appId) {
+        this.appId = appId;
+    }
+
     public void setJediSQL(JediSQL jediSQL) {
         this.jediSQL = jediSQL;
     }
@@ -33,6 +38,7 @@ public class PubSubEntity extends JedisPubSub {
     // 取得订阅的消息后的处理
     public void onMessage(String channel, String message) {
         WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.PUBSUB, channel + "->" + message);
+        wre.setAppId(appId);
         WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
     }
 
@@ -59,6 +65,7 @@ public class PubSubEntity extends JedisPubSub {
     // 取得按表达式的方式订阅的消息后的处理
     public void onPMessage(String pattern, String channel, String message) {
         WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.PUBSUB, pattern + ":" + channel + "->" + message);
+        wre.setAppId(appId);
         WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
     }
 
