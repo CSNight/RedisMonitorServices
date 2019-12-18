@@ -48,7 +48,7 @@ public class PubSubEntity extends JedisPubSub {
         msg += "1) subscribe on " + channel + "\r\n";
         msg += "2) channel count:" + subscribedChannels + "\r\n";
         msg += "3) timestamp:" + System.currentTimeMillis() + "\r\n";
-        WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.PUBSUB, msg);
+        WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.SUBCON, msg);
         wre.setAppId(appId);
         WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
     }
@@ -64,7 +64,7 @@ public class PubSubEntity extends JedisPubSub {
         msg += "1) psubscribe on " + pattern + "\r\n";
         msg += "2) channel count:" + subscribedChannels + "\r\n";
         msg += "3) timestamp:" + System.currentTimeMillis() + "\r\n";
-        WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.PUBSUB, msg);
+        WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.SUBCON, msg);
         wre.setAppId(appId);
         WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
     }

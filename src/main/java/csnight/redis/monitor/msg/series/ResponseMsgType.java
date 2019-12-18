@@ -10,8 +10,9 @@ public enum ResponseMsgType {
     DISCONNECTED(3),
     UNKNOWN(404),
     RESP(101),
-    PUBSUB(102),
-    DESUB(103),
+    SUBCON(102),
+    PUBSUB(103),
+    DESUB(104),
     ERROR(400);
 
     private int code;
