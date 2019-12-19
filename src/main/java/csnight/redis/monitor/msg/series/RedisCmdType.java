@@ -21,6 +21,7 @@ public enum RedisCmdType implements ProtocolCommand {
     CLIENT,
     CLUSTER,
     CONFIG,
+    COMMAND,
     DBSIZE,
     DEBUG,
     DECR,

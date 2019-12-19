@@ -90,17 +90,19 @@ public class CmdRespHandler implements WsChannelHandler {
             if (item instanceof byte[]) {
                 tmp.add(new String((byte[]) item));
             } else if (item instanceof ArrayList) {
-                ArrayList<Object> itemSub = (ArrayList) item;
-                List<Object> sub = new ArrayList<>();
-                for (Object it : itemSub) {
-                    if (it instanceof byte[]) {
-                        sub.add(new String((byte[]) it));
-                    } else {
-                        List<Object> recursive = ArrayMsgParser(it);
-                        sub.add(recursive);
-                    }
-                }
-                tmp.add(sub);
+//                ArrayList<Object> itemSub = (ArrayList) item;
+//                List<Object> sub = new ArrayList<>();
+//                for (Object it : itemSub) {
+//                    if (it instanceof byte[]) {
+//                        sub.add(new String((byte[]) it));
+//                    } else {
+//                        List<Object> recursive = ArrayMsgParser(it);
+//                        sub.add(recursive);
+//                    }
+//                }
+//                tmp.add(sub);
+                List<Object> recursive = ArrayMsgParser(item);
+                tmp.add(recursive);
             } else {
                 tmp.add(item);
             }
