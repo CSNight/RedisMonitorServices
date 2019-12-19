@@ -183,7 +183,11 @@ public class RmsInsManageImpl {
         Optional<RmsInstance> rms = rmsInsRepository.findById(dto.getId());
         if (rms.isPresent()) {
             RmsInstance oldIns = rms.get();
-            if (oldIns.isState() && MultiRedisPool.getInstance().getPool(oldIns.getId()) != null && !dto.isState()) {
+            if (oldIns.isState() && !dto.isState()) {
+                if (MultiRedisPool.getInstance().getPool(oldIns.getId()) == null) {
+                    oldIns.setState(false);
+                    return rmsInsRepository.save(oldIns);
+                }
                 //TODO 停止关联定时任务
                 boolean isShutdown = MultiRedisPool.getInstance().removePool(oldIns.getId());
                 if (isShutdown) {
