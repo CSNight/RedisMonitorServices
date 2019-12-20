@@ -192,11 +192,35 @@ public enum RedisCmdType implements ProtocolCommand {
     ZSCAN,
     ZSCORE,
     ZUNIONSTORE,
+    BZPOPMAX,
+    BZPOPMIN,
+    HOST$,
+    LATENCY,
+    LOLWUT,
+    PFDEBUG,
+    PFSELFTEST,
+    POST,
+    PSYNC,
+    READWRITE,
+    REPLCONF,
+    REPLICAOF,
+    RESTORE_ASKING,
+    ROLE,
+    XINFO,
+    XSETID,
+    ZPOPMAX,
     UNKNOWN;
 
-    private final byte[] raw = SafeEncoder.encode(this.name());
+    private final byte[] raw;
 
     RedisCmdType() {
+        if (this.name().contains("_")) {
+            raw = SafeEncoder.encode(this.name().replace("_", "-"));
+        } else if (this.name().contains("$")) {
+            raw = SafeEncoder.encode(this.name().replace("$", ":"));
+        } else {
+            raw = SafeEncoder.encode(this.name());
+        }
     }
 
     public byte[] getRaw() {
@@ -205,7 +229,7 @@ public enum RedisCmdType implements ProtocolCommand {
 
     public static RedisCmdType getEnumType(String key) {
         return Arrays.stream(RedisCmdType.values())
-                .filter(cmd -> cmd.name().equals(key))
+                .filter(cmd -> new String(cmd.raw).equals(key))
                 .findFirst().orElse(RedisCmdType.UNKNOWN);
     }
 }
