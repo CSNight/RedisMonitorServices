@@ -102,6 +102,5 @@ public class SubscribeHandler implements WsChannelHandler {
         }
         System.out.println(thread.isAlive());
         System.gc();
-
     }
 }

@@ -56,7 +56,6 @@ public class CmdRespHandler implements WsChannelHandler {
     }
 
     public WssResponseEntity execute() {
-
         try {
             jedis = rpi.getJedis(jid);
             long start = System.currentTimeMillis();
