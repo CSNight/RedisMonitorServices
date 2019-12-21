@@ -3,33 +3,25 @@ package csnight.redis.monitor.msg.handler;
 import com.alibaba.fastjson.JSONObject;
 import com.csnight.jedisql.JediSQL;
 import csnight.redis.monitor.exception.CmdMsgException;
-import csnight.redis.monitor.msg.entity.PubSubEntity;
+import csnight.redis.monitor.msg.entity.JMonitorEntity;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
-import csnight.redis.monitor.msg.series.CmdMsgType;
 import csnight.redis.monitor.msg.series.ResponseMsgType;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
 import csnight.redis.monitor.websocket.WebSocketServer;
 import io.netty.channel.Channel;
 
-public class SubscribeHandler implements WsChannelHandler {
-    private PubSubEntity pubSubEntity = new PubSubEntity();
+public class MonitorHandler implements WsChannelHandler {
+    private JMonitorEntity jMonitorEntity = new JMonitorEntity();
     private Channel channel;
     private RedisPoolInstance pool;
     private String appId;
     private JediSQL jediSQL;
-    private CmdMsgType t;
-    private String[] params;
     private Thread thread;
 
-    public SubscribeHandler(String appId, Channel ch, CmdMsgType t) {
+    public MonitorHandler(String appId, Channel ch) {
         this.appId = appId;
         this.channel = ch;
-        this.t = t;
-    }
-
-    public void setPool(RedisPoolInstance pool) {
-        this.pool = pool;
     }
 
     @Override
@@ -42,37 +34,22 @@ public class SubscribeHandler implements WsChannelHandler {
         if (pool == null) {
             throw new CmdMsgException("Redis pool does not exist, please connect first");
         }
-        String msgBody = msg.getString("msg");
-        parseParams(msgBody);
-        pubSubEntity.setCh(channel);
-        pubSubEntity.setAppId(appId);
-        jediSQL = pool.getJedis(pubSubEntity.getId());
-        pubSubEntity.setJediSQL(jediSQL);
+        jMonitorEntity.setCh(channel);
+        jMonitorEntity.setAppId(appId);
+        jediSQL = pool.getJedis(jMonitorEntity.getId());
+        jMonitorEntity.setJediSQL(jediSQL);
     }
 
-    private void parseParams(String msg) throws CmdMsgException {
-        String[] parts = msg.split(" ");
-        if (parts.length < 2) {
-            throw new CmdMsgException("Empty channels or patterns");
-        }
-        params = new String[parts.length - 1];
-        System.arraycopy(parts, 1, params, 0, parts.length - 1);
-    }
-
-    public void startSubscribe() {
+    public void startMonitor() {
         thread = new Thread(() -> {
             try {
-                if (t.equals(CmdMsgType.SUB)) {
-                    pubSubEntity.subscribe(params);
-                } else {
-                    pubSubEntity.psubscribe(params);
-                }
+                jMonitorEntity.jmonitor();
             } catch (Exception ex) {
                 //连接断开线程直接退出，发送错误消息及断开消息
-                WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.ERROR, "Connection broken");
+                WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.ERROR, "Monitor stop with an error " + ex.getMessage());
                 wre.setAppId(appId);
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), channel);
-                WssResponseEntity wres = new WssResponseEntity(ResponseMsgType.DESUB, "Unsubscribe success");
+                WssResponseEntity wres = new WssResponseEntity(ResponseMsgType.DEMONITOR, "Unsubscribe success");
                 wres.setAppId(appId);
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(wres), channel);
             }
@@ -80,28 +57,22 @@ public class SubscribeHandler implements WsChannelHandler {
         thread.start();
     }
 
-    private void stopSubscribe() {
+    private void stopMonitor() {
         try {
-            if (t.equals(CmdMsgType.SUB)) {
-                pubSubEntity.unsubscribe(params);
-            } else {
-                pubSubEntity.punsubscribe(params);
-            }
+            jMonitorEntity.junmonitor();
         } finally {
-            pool.close(pubSubEntity.getId());
-            pubSubEntity = null;
+            pool.close(jMonitorEntity.getId());
+            jMonitorEntity = null;
         }
     }
-
 
     @Override
     public void destroy() {
         if (pool != null) {
-            stopSubscribe();
+            stopMonitor();
             jediSQL = null;
         }
         System.out.println(thread.isAlive());
         System.gc();
-
     }
 }

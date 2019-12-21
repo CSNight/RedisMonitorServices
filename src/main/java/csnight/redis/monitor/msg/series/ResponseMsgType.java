@@ -13,6 +13,9 @@ public enum ResponseMsgType {
     SUBCON(102),
     PUBSUB(103),
     DESUB(104),
+    MONITORCON(105),
+    MONITOR(106),
+    DEMONITOR(107),
     ERROR(400);
 
     private int code;

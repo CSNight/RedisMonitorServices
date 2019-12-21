@@ -10,7 +10,9 @@ public enum CmdMsgType {
     SUB(200),
     PSUB(201),
     DESUB(202),
-    DEPSUB(203);
+    DEPSUB(203),
+    MONITOR(204),
+    DEMONITOR(205);
     private int ct;
     private final byte[] raw = SafeEncoder.encode(this.name());
 

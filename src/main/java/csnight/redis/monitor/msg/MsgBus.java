@@ -5,6 +5,7 @@ import csnight.redis.monitor.exception.CmdMsgException;
 import csnight.redis.monitor.msg.entity.ChannelEntity;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
 import csnight.redis.monitor.msg.handler.CmdRespHandler;
+import csnight.redis.monitor.msg.handler.MonitorHandler;
 import csnight.redis.monitor.msg.handler.SubscribeHandler;
 import csnight.redis.monitor.msg.series.ChannelType;
 import csnight.redis.monitor.msg.series.CmdMsgType;
@@ -143,9 +144,31 @@ public class MsgBus {
                             handler.destroy();
                         }
                     });
-                    setChannelType(ChannelType.PUBSUB, ch.id().asShortText());
+                    setChannelType(ChannelType.COMMON, ch.id().asShortText());
                     channels.get(ch.id().asShortText()).getHandlers().remove(appId);
                     wre = new WssResponseEntity(ResponseMsgType.DESUB, "Unsubscribe success");
+                    wre.setAppId(appId);
+                    WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
+                    break;
+                case MONITOR:
+                    MonitorHandler monitorHandler = new MonitorHandler(appId, ch);
+                    monitorHandler.initialize(msg);
+                    channels.get(ch.id().asShortText()).getHandlers().put(appId, monitorHandler);
+                    setChannelType(ChannelType.MONITOR, ch.id().asShortText());
+                    monitorHandler.startMonitor();
+                    wre = new WssResponseEntity(ResponseMsgType.MONITORCON, "Monitor process start, press ctrl+c to stop");
+                    wre.setAppId(appId);
+                    WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
+                    break;
+                case DEMONITOR:
+                    channels.get(ch.id().asShortText()).getHandlers().forEach((id, handler) -> {
+                        if (id.equals(appId)) {
+                            handler.destroy();
+                        }
+                    });
+                    setChannelType(ChannelType.COMMON, ch.id().asShortText());
+                    channels.get(ch.id().asShortText()).getHandlers().remove(appId);
+                    wre = new WssResponseEntity(ResponseMsgType.DEMONITOR, "Unmonitor success");
                     wre.setAppId(appId);
                     WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
                     break;
