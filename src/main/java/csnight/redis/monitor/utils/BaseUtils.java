@@ -1,15 +1,16 @@
 package csnight.redis.monitor.utils;
 
+import csnight.redis.monitor.db.jpa.SysUser;
+import csnight.redis.monitor.db.repos.SysUserRepository;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.Base64;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class BaseUtils {
 
@@ -64,6 +65,18 @@ public class BaseUtils {
             username = "";
         }
         return username;
+    }
+
+    public static Set<String> GetUserAuthorities(String user_id) {
+        Set<String> authorities;
+        try {
+            SysUser user = ReflectUtils.getBean(SysUserRepository.class).getOne(user_id);
+            Collection<? extends GrantedAuthority> userAuthorities = user.getAuthorities();
+            authorities = AuthorityUtils.authorityListToSet(userAuthorities);
+        } catch (Exception ex) {
+            authorities = new HashSet<>();
+        }
+        return authorities;
     }
 
     public static String bytesToBase64(byte[] blob, String ext) {
