@@ -67,7 +67,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         registry.requestMatchers(CorsUtils::isPreFlightRequest).permitAll();//让Spring security放行所有preflight request
         http.csrf().disable().authorizeRequests().antMatchers(
                 "/static/**",
-                "/auth/register",
+                "/auth/register", "/druid/*",
                 "/auth/code").permitAll() //访问允许静态文件
                 .anyRequest().authenticated()
                 .and().addFilterBefore(validationHandler, UsernamePasswordAuthenticationFilter.class)

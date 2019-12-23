@@ -26,6 +26,17 @@ spring:
     password: qnyh@123
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      aop-patterns: csnight.redis.monitor.rest.*
+      connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      filters: stat,wall
+      web-stat-filter:
+        enabled: true
+        session-stat-max-count: 10
+        profile-enable: true
+      stat-view-servlet:
+        enabled: true
+        reset-enable: false
   quartz:
     properties:
       org:
