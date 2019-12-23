@@ -70,6 +70,9 @@ public class OrgServiceImpl {
             Optional<SysOrg> sysOrg = sysOrgRepository.findById(jo_org.getLong("id"));
             if (sysOrg.isPresent()) {
                 SysOrg old_org = sysOrg.get();
+                if (jo_org.getLong("pid").equals(old_org.getId())) {
+                    throw new ConflictsException("Organization can not set parent to it self!");
+                }
                 boolean enabled = old_org.isEnabled();
                 old_org.setEnabled(jo_org.containsKey("enabled") ? jo_org.getBoolean("enabled") : old_org.isEnabled());
                 old_org.setPid(jo_org.containsKey("pid") ? jo_org.getLong("pid") : old_org.getPid());
