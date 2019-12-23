@@ -6,6 +6,7 @@ import csnight.redis.monitor.db.jpa.SysMenu;
 import csnight.redis.monitor.db.jpa.SysPermission;
 import csnight.redis.monitor.db.repos.SysMenuRepository;
 import csnight.redis.monitor.db.repos.SysPermissionRepository;
+import csnight.redis.monitor.db.repos.SysRoleRepository;
 import csnight.redis.monitor.exception.ConflictsException;
 import csnight.redis.monitor.rest.sys.dto.PermissionDto;
 import org.springframework.cache.annotation.CacheEvict;
@@ -20,6 +21,8 @@ import java.util.Optional;
 
 @Service
 public class PermissionServiceImpl {
+    @Resource
+    private SysRoleRepository sysRoleRepository;
     @Resource
     private SysPermissionRepository permissionRepository;
     @Resource
@@ -53,6 +56,7 @@ public class PermissionServiceImpl {
     public String DeletePermitById(String id) {
         Optional<SysPermission> optPermit = permissionRepository.findById(id);
         if (optPermit.isPresent()) {
+            permissionRepository.untiedPermission(id);
             permissionRepository.deleteById(id);
             return "success";
         }

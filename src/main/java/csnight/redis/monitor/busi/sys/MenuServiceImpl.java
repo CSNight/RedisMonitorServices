@@ -10,6 +10,7 @@ import csnight.redis.monitor.db.jpa.SysRole;
 import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.db.repos.SysIconRepository;
 import csnight.redis.monitor.db.repos.SysMenuRepository;
+import csnight.redis.monitor.db.repos.SysRoleRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.exception.ConflictsException;
 import csnight.redis.monitor.rest.sys.dto.MenuDto;
@@ -179,8 +180,12 @@ public class MenuServiceImpl {
             if (sysMenu.getChildren().size() > 0) {
                 Set<SysMenu> ids = new HashSet<>();
                 getMenuChildIds(sysMenu, ids);
+                ids.forEach(menu -> {
+                    sysMenuRepository.untiedMenu(menu.getId());
+                });
                 sysMenuRepository.deleteInBatch(ids);
             }
+            sysMenuRepository.untiedMenu(Long.parseLong(id));
             sysMenuRepository.deleteById(Long.parseLong(id));
             return "success";
         }
