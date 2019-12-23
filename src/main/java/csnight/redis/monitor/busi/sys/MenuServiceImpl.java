@@ -106,6 +106,9 @@ public class MenuServiceImpl {
         if (sysMenu.isPresent()) {
             SysMenu old_menu = sysMenu.get();
             boolean hidden = old_menu.isHidden();
+            if (menuDto.getPid().equals(old_menu.getId())) {
+                throw new ConflictsException("Component can not set parent to it self!");
+            }
             if (menuDto.getPid().equals(0L) && !menuDto.isIframe()) {
                 old_menu.setPath("/" + menuDto.getComponent_name());
             } else if (menuDto.getPid() > 0 && !menuDto.isIframe()) {
