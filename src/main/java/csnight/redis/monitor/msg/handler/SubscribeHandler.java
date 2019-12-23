@@ -20,7 +20,6 @@ public class SubscribeHandler implements WsChannelHandler {
     private JediSQL jediSQL;
     private CmdMsgType t;
     private String[] params;
-    private Thread thread;
 
     public SubscribeHandler(String appId, Channel ch, CmdMsgType t) {
         this.appId = appId;
@@ -60,7 +59,7 @@ public class SubscribeHandler implements WsChannelHandler {
     }
 
     public void startSubscribe() {
-        thread = new Thread(() -> {
+        Thread thread = new Thread(() -> {
             try {
                 if (t.equals(CmdMsgType.SUB)) {
                     pubSubEntity.subscribe(params);
@@ -100,7 +99,6 @@ public class SubscribeHandler implements WsChannelHandler {
             stopSubscribe();
             jediSQL = null;
         }
-        System.out.println(thread.isAlive());
         System.gc();
     }
 }

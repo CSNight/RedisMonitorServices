@@ -17,7 +17,6 @@ public class MonitorHandler implements WsChannelHandler {
     private RedisPoolInstance pool;
     private String appId;
     private JediSQL jediSQL;
-    private Thread thread;
 
     public MonitorHandler(String appId, Channel ch) {
         this.appId = appId;
@@ -41,7 +40,7 @@ public class MonitorHandler implements WsChannelHandler {
     }
 
     public void startMonitor() {
-        thread = new Thread(() -> {
+        Thread thread = new Thread(() -> {
             try {
                 jMonitorEntity.jmonitor();
             } catch (Exception ex) {
@@ -72,7 +71,6 @@ public class MonitorHandler implements WsChannelHandler {
             stopMonitor();
             jediSQL = null;
         }
-        System.out.println(thread.isAlive());
         System.gc();
     }
 }
