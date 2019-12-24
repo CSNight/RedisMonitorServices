@@ -69,3 +69,5 @@ spring:
       spec: initialCapacity=1000,maximumSize=2000,expireAfterWrite=60s,recordStats
 logging:
   config: classpath:logback-config.xml
+#logging:
+#  config: classpath:log4j2-spring.xml

@@ -20,9 +20,7 @@
     </appender>
     <!-- 异步日志记录 -->
     <appender name="ASYNC_APPENDER" class="ch.qos.logback.classic.AsyncAppender">
-        　　
-        <appender-ref ref="DB_APPENDER"/>
-        　　
+        <appender-ref ref="DB_APPENDER"/>　　
         <includeCallerData>true</includeCallerData>
     </appender>
     <root level="INFO">
