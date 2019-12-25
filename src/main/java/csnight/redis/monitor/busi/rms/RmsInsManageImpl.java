@@ -122,6 +122,7 @@ public class RmsInsManageImpl {
         String user_id = userRepository.findIdByUsername(BaseUtils.GetUserFromContext());
         ins.setId(IdentifyUtils.getUUID());
         ins.setUser_id(user_id);
+        ins.setBelong(user_id);
         ins.setIp(dto.getIp());
         ins.setPort(dto.getPort());
         ins.setInstance_name(dto.getName());

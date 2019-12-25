@@ -15,6 +15,8 @@ public class RmsInstance {
     private String user_id;
     @Column(name = "uin", length = 50)
     private String uin;
+    @Column(name = "belong", length = 50)
+    private String belong;
     @Column(name = "ip")
     private String ip;
     @Column(name = "port")
@@ -79,6 +81,14 @@ public class RmsInstance {
 
     public void setUin(String uin) {
         this.uin = uin;
+    }
+
+    public String getBelong() {
+        return belong;
+    }
+
+    public void setBelong(String belong) {
+        this.belong = belong;
     }
 
     public String getIp() {
