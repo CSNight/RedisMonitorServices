@@ -73,7 +73,6 @@ public class MsgBus {
         ChannelEntity che = channels.get(cid);
         if (che != null) {
             if (che.getCt().equals(ChannelType.PUBSUB)) {
-                //TODO unsubscribe
                 che.getHandlers().forEach((ent, handler) -> {
                     handler.destroy();
                 });
