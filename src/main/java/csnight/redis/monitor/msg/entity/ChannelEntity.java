@@ -1,9 +1,11 @@
 package csnight.redis.monitor.msg.entity;
 
+import csnight.redis.monitor.exception.ValidateException;
 import csnight.redis.monitor.msg.handler.WsChannelHandler;
 import csnight.redis.monitor.msg.series.ChannelType;
 import io.netty.channel.Channel;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -14,6 +16,7 @@ public class ChannelEntity {
     private Channel channel;
     private String id;
     private String user_id;
+    private Map<String, Set<String>> commandsAuth = new HashMap<>();
     private Set<String> authorities = new HashSet<>();
     private Map<String, WsChannelHandler> handlers = new ConcurrentHashMap<>();
 
@@ -64,7 +67,28 @@ public class ChannelEntity {
         this.authorities = authorities;
     }
 
+    public void setCommandsAuth(Map<String, Set<String>> commandsAuth) {
+        this.commandsAuth = commandsAuth;
+    }
+
     public Map<String, WsChannelHandler> getHandlers() {
         return handlers;
+    }
+
+    public boolean hasAuthorize(String authorize) {
+        if (authorities.contains(authorize)) {
+            return true;
+        } else {
+            throw new ValidateException("Dose not has authorize");
+        }
+    }
+
+    public boolean canExecute(String ins, String authorize) {
+        Set<String> commands = commandsAuth.get(ins);
+        if (commands != null && commands.contains(authorize)) {
+            return true;
+        } else {
+            throw new ValidateException("Dose not has authorize to execute command: " + authorize);
+        }
     }
 }

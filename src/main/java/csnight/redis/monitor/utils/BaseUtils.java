@@ -1,6 +1,8 @@
 package csnight.redis.monitor.utils;
 
+import csnight.redis.monitor.db.jpa.RmsCmdPermits;
 import csnight.redis.monitor.db.jpa.SysUser;
+import csnight.redis.monitor.db.repos.RmsCmdRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -77,6 +79,20 @@ public class BaseUtils {
             authorities = new HashSet<>();
         }
         return authorities;
+    }
+
+    public static Map<String, Set<String>> GetUserCmdAuth(String user_id) {
+        Map<String, Set<String>> cmdAuth = new HashMap<>();
+        try {
+            List<RmsCmdPermits> permits = ReflectUtils.getBean(RmsCmdRepository.class).findByUserId(user_id);
+            for (RmsCmdPermits permit : permits) {
+                Set<String> commands = new HashSet<>(Arrays.asList(permit.getCmd().split(",")));
+                cmdAuth.put(permit.getIns_id(), commands);
+            }
+        } catch (Exception ex) {
+            cmdAuth = new HashMap<>();
+        }
+        return cmdAuth;
     }
 
     public static String bytesToBase64(byte[] blob, String ext) {

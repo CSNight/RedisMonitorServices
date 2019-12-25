@@ -57,6 +57,7 @@ public class MsgBus {
     public void register(String user_id, Channel channel) {
         ChannelEntity ch = new ChannelEntity(ChannelType.COMMON, channel, user_id);
         ch.setAuthorities(BaseUtils.GetUserAuthorities(user_id));
+        ch.setCommandsAuth(BaseUtils.GetUserCmdAuth(user_id));
         channels.put(ch.getId(), ch);
         channelGroup.add(channel);
         UserChannels.put(channel.id().asShortText(), user_id);
@@ -112,9 +113,14 @@ public class MsgBus {
         try {
             switch (msgType) {
                 case "console":
-                    ConsoleMsgDispatcher.getIns().dispatchMsg(msg, ch);
+                    if (channels.get(ch.id().asShortText()).hasAuthorize("INS_CONSOLE")) {
+                        ConsoleMsgDispatcher.getIns().dispatchMsg(msg, ch);
+                    }
                     break;
                 case "dt_operation":
+                    if (channels.get(ch.id().asShortText()).hasAuthorize("INS_DT_OP")) {
+
+                    }
                     break;
                 default:
                     break;
@@ -125,4 +131,6 @@ public class MsgBus {
             WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
         }
     }
+
+
 }
