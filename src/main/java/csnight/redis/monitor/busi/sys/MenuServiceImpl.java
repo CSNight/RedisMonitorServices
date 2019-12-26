@@ -31,6 +31,13 @@ public class MenuServiceImpl {
     @Resource
     private SysUserRepository sysUserRepository;
 
+    /**
+     * 功能描述: 获取图标集
+     *
+     * @return java.util.List<csnight.redis.monitor.db.jpa.SysIcons>
+     * @author csnight
+     * @since 2019-12-26 22:16
+     */
     @Cacheable(value = "icons")
     public List<SysIcons> GetIconList() {
         System.gc();
@@ -38,9 +45,8 @@ public class MenuServiceImpl {
     }
 
     /**
-     * 功能描述:
+     * 功能描述:菜单列表查询
      *
-     * @param
      * @return : java.util.List<csnight.redis.monitor.db.jpa.SysMenu>
      * @author chens
      * @since 2019/12/26 10:26

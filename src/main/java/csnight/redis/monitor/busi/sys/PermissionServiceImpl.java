@@ -28,15 +28,39 @@ public class PermissionServiceImpl {
     @Resource
     private SysMenuRepository sysMenuRepository;
 
+    /**
+     * 功能描述: 搜索权限
+     *
+     * @param exp 查询条件
+     * @return java.util.List<csnight.redis.monitor.db.jpa.SysPermission>
+     * @author csnight
+     * @since 2019-12-26 22:19
+     */
     public List<SysPermission> QueryBy(PermitQueryExp exp) {
         return permissionRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder));
     }
 
+    /**
+     * 功能描述: 获取所有权限
+     *
+     * @return java.util.List<csnight.redis.monitor.db.jpa.SysPermission>
+     * @author csnight
+     * @since 2019-12-26 22:20
+     */
     @Cacheable(value = "permits")
     public List<SysPermission> GetAllPermission() {
         return permissionRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
     }
 
+    /**
+     * 功能描述: 新建权限
+     *
+     * @param dto      权限信息
+     * @param username 用户名
+     * @return csnight.redis.monitor.db.jpa.SysPermission
+     * @author csnight
+     * @since 2019-12-26 22:21
+     */
     @CacheEvict(value = "permits", beforeInvocation = true, allEntries = true)
     public SysPermission NewPermission(PermissionDto dto, String username) throws ConflictsException {
         SysPermission permission = new SysPermission();
@@ -52,10 +76,19 @@ public class PermissionServiceImpl {
         }
     }
 
+    /**
+     * 功能描述: 根据ID删除权限
+     *
+     * @param id 权限id
+     * @return java.lang.String
+     * @author csnight
+     * @since 2019-12-26 22:21
+     */
     @CacheEvict(value = "permits", beforeInvocation = true, allEntries = true)
     public String DeletePermitById(String id) {
         Optional<SysPermission> optPermit = permissionRepository.findById(id);
         if (optPermit.isPresent()) {
+            //解绑权限与角色关联
             permissionRepository.untiedPermission(id);
             permissionRepository.deleteById(id);
             return "success";
@@ -63,6 +96,14 @@ public class PermissionServiceImpl {
         return "failed";
     }
 
+    /**
+     * 功能描述: 修改权限
+     *
+     * @param dto 权限信息
+     * @return csnight.redis.monitor.db.jpa.SysPermission
+     * @author csnight
+     * @since 2019-12-26 22:21
+     */
     @CacheEvict(value = "permits", beforeInvocation = true, allEntries = true)
     public SysPermission ModifyPermission(PermissionDto dto) throws ConflictsException {
         Optional<SysPermission> optPermit = permissionRepository.findById(dto.getId());
@@ -80,6 +121,15 @@ public class PermissionServiceImpl {
         return null;
     }
 
+    /**
+     * 功能描述: 检查权限冲突
+     *
+     * @param permission 权限实体
+     * @param isNew      是否新增
+     * @return boolean
+     * @author csnight
+     * @since 2019-12-26 22:21
+     */
     private boolean checkConflictPermit(SysPermission permission, boolean isNew) {
         boolean isValid = true;
         if (isNew) {
@@ -102,6 +152,14 @@ public class PermissionServiceImpl {
         return isValid;
     }
 
+    /**
+     * 功能描述: 检查菜单可用性
+     *
+     * @param menu 菜单参数
+     * @return boolean
+     * @author csnight
+     * @since 2019-12-26 22:21
+     */
     private boolean MenuExist(SysMenu menu) {
         boolean isExist = true;
         Optional<SysMenu> exists = sysMenuRepository.findById(menu.getId());

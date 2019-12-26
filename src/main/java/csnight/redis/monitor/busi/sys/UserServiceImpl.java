@@ -41,10 +41,18 @@ public class UserServiceImpl {
     @Resource
     private JdbcTokenRepositoryExt tokenRepositoryExt;
 
+    /**
+     * 功能描述: 查询所有用户
+     *
+     * @return java.util.List<csnight.redis.monitor.db.jpa.SysUser>
+     * @author csnight
+     * @since 2019-12-26 22:31
+     */
     @Cacheable(value = "users")
     public List<SysUser> GetAllUser() {
         List<SysUser> users = sysUserRepository.findAll();
         users.sort(new ComparatorUser());
+        //清除用户头像及菜单信息,减小接口传输数据大小，避免json递归错误
         for (SysUser user : users) {
             user.setPassword("");
             user.getRoles().forEach(role -> {
@@ -55,17 +63,35 @@ public class UserServiceImpl {
         return users;
     }
 
+    /**
+     * 功能描述:
+     *
+     * @param exp 用户模糊查询条件
+     * @return java.util.List<csnight.redis.monitor.db.jpa.SysUser>
+     * @author csnight
+     * @since 2019-12-26 22:31
+     */
     public List<SysUser> QueryBy(UserQueryExp exp) {
         List<SysUser> users = sysUserRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder));
+        //清除用户头像及菜单信息,减小接口传输数据大小，避免json递归错误
         for (SysUser user : users) {
             user.setPassword("");
             user.getRoles().forEach(role -> role.setMenus(new HashSet<>()));
             user.setHead_img(new byte[]{});
         }
+        //用户排序
         users.sort(new ComparatorUser());
         return users;
     }
 
+    /**
+     * 功能描述: 根据部门id检索用户
+     *
+     * @param org_id 部门ID
+     * @return java.util.List<csnight.redis.monitor.db.jpa.SysUser>
+     * @author csnight
+     * @since 2019-12-26 22:31
+     */
     @CacheEvict(value = "users", beforeInvocation = true, allEntries = true)
     public List<SysUser> GetUsersByOrg(Long org_id) {
         List<SysUser> users = sysUserRepository.findByOrgId(org_id);
@@ -82,6 +108,7 @@ public class UserServiceImpl {
             }
         }
         users.sort(new ComparatorUser());
+        //清除用户头像及菜单信息,减小接口传输数据大小，避免json递归错误
         for (SysUser user : users) {
             user.setPassword("");
             user.setHead_img(new byte[]{});
@@ -89,6 +116,15 @@ public class UserServiceImpl {
         return users;
     }
 
+    /**
+     * 功能描述: 查询部门所属子部门
+     *
+     * @param sysOrg 部门实体
+     * @param ids    子部门列表
+     * @return void
+     * @author csnight
+     * @since 2019-12-26 22:31
+     */
     private void getOrgChildIds(SysOrg sysOrg, Set<SysOrg> ids) {
         for (SysOrg child : sysOrg.getChildren()) {
             ids.add(child);
@@ -98,6 +134,14 @@ public class UserServiceImpl {
         }
     }
 
+    /**
+     * 功能描述: 新增用户
+     *
+     * @param dto 用户Dto
+     * @return csnight.redis.monitor.rest.sys.vo.UserVo
+     * @author csnight
+     * @since 2019-12-26 22:31
+     */
     @CacheEvict(value = "users", beforeInvocation = true, allEntries = true)
     public UserVo NewUsr(UserEditDto dto) throws ConflictsException {
         SysUser sysUser = new SysUser();
@@ -118,6 +162,14 @@ public class UserServiceImpl {
         return null;
     }
 
+    /**
+     * 功能描述: 修改用户信息
+     *
+     * @param dto 用户Dto
+     * @return csnight.redis.monitor.rest.sys.vo.UserVo
+     * @author csnight
+     * @since 2019-12-26 22:31
+     */
     @CacheEvict(value = {"user_info", "users"}, beforeInvocation = true, allEntries = true)
     public UserVo ModifyUser(UserEditDto dto) throws ConflictsException {
         SysUser user = sysUserRepository.findByUsername(dto.getUsername());
@@ -137,6 +189,13 @@ public class UserServiceImpl {
         return null;
     }
 
+    /**
+     * 功能描述: 修改用户状态，若修改用户禁用，则踢出登录并清空该用户remember-me token存储
+     *
+     * @param username 用户名
+     * @author csnight
+     * @since 2019-12-26 22:31
+     */
     private void CheckEnable(String username) {
         List<Object> userList = registry.getAllPrincipals();
         for (Object o : userList) {
@@ -144,9 +203,11 @@ public class UserServiceImpl {
             if (userTemp.getUsername().equals(username)) {
                 List<SessionInformation> sessionInformationList = registry.getAllSessions(userTemp, false);
                 if (sessionInformationList != null) {
+                    //session过期，踢出登录
                     for (SessionInformation sessionInformation : sessionInformationList) {
                         sessionInformation.expireNow();
                     }
+                    //清空remember-me token
                     List<PersistentRememberMeToken> extTokenForName = tokenRepositoryExt.getTokenForName(username);
                     for (PersistentRememberMeToken persistentRememberMeToken : extTokenForName) {
                         String name = persistentRememberMeToken.getUsername();
@@ -158,25 +219,40 @@ public class UserServiceImpl {
         }
     }
 
+    /**
+     * 功能描述: 检查新增或修改用户的信息是否符合条件
+     *
+     * @param dto   用户dto
+     * @param user  原始用户
+     * @param isNew 是否新增
+     * @return boolean
+     * @author csnight
+     * @since 2019-12-26 22:31
+     */
     private boolean CheckParams(UserEditDto dto, SysUser user, boolean isNew) throws ConflictsException {
+        //用户名冲突检查
         if (!dto.getUsername().equals(user.getUsername()) || isNew) {
             if (sysUserRepository.findByUsername(dto.getUsername()) != null) {
                 throw new ConflictsException("Username already exists!");
             }
         }
+        //昵称冲突检查
         if (!dto.getNick_name().equals(user.getNick_name()) || isNew) {
             if (sysUserRepository.findByNickName(dto.getNick_name()) != null) {
                 throw new ConflictsException("Nickname already exists!");
             }
         }
+        //角色检查
         if (dto.getRoles().size() == 0) {
             throw new ConflictsException("Role must not be empty!");
         }
+        //邮箱冲突检查
         if (!dto.getEmail().equals(user.getEmail()) || isNew) {
             if (!RegexUtils.checkEmail(dto.getEmail()) || sysUserRepository.findByEmail(dto.getEmail()) != null) {
                 throw new ConflictsException("Email already exists or format wrong!");
             }
         }
+        //手机号冲突检查
         if (!dto.getPhone().equals(user.getPhone()) || isNew) {
             if (!RegexUtils.checkPhone(dto.getPhone()) || sysUserRepository.findByPhone(dto.getPhone()) != null) {
                 throw new ConflictsException("Phone already exists or format wrong!");
@@ -185,12 +261,22 @@ public class UserServiceImpl {
         return true;
     }
 
+    /**
+     * 功能描述: 修改密码
+     *
+     * @param user 用户密码Dto
+     * @return java.lang.String
+     * @author csnight
+     * @since 2019-12-26 22:32
+     */
     public String ChangePassword(UserPassDto user) {
         try {
             SysUser userExist = sysUserRepository.findByUsername(user.getUsername());
             if (userExist != null) {
+                //原始密码检查
                 boolean match = passwordEncoder.matches(user.getOld_password(), userExist.getPassword());
                 if (match) {
+                    //新密码加密存储
                     userExist.setPassword(passwordEncoder.encode(user.getPassword()));
                     return "success";
                 }
@@ -201,6 +287,15 @@ public class UserServiceImpl {
         }
     }
 
+    /**
+     * 功能描述: 修改用户头像
+     *
+     * @param file     用户头像
+     * @param username 用户名
+     * @return java.lang.String
+     * @author csnight
+     * @since 2019-12-26 22:32
+     */
     @CacheEvict(value = "user_info", key = "#username")
     public String changeAvatar(MultipartFile file, String username) {
         try {
@@ -221,6 +316,14 @@ public class UserServiceImpl {
         }
     }
 
+    /**
+     * 功能描述: 根据id 删除用户
+     *
+     * @param id 用户给id
+     * @return java.lang.String
+     * @author csnight
+     * @since 2019-12-26 22:32
+     */
     @CacheEvict(value = "users", beforeInvocation = true, allEntries = true)
     public String DeleteUserById(String id) {
         //TODO 删除用户资源
@@ -236,6 +339,14 @@ public class UserServiceImpl {
         return "failed";
     }
 
+    /**
+     * 功能描述:根据用户名删除用户
+     *
+     * @param username 用户名
+     * @return java.lang.String
+     * @author csnight
+     * @since 2019-12-26 22:32
+     */
     @CacheEvict(value = "user_info", key = "#username")
     public String DeleteUserByName(String username) {
         //TODO 删除用户资源
@@ -251,6 +362,12 @@ public class UserServiceImpl {
         return "failed";
     }
 
+    /**
+     * 功能描述: 根据用户角色级别排序
+     *
+     * @author csnight
+     * @since 2019-12-26 22:32
+     */
     private static class ComparatorUser implements Comparator<SysUser> {
         @Override
         public int compare(SysUser t0, SysUser t1) {

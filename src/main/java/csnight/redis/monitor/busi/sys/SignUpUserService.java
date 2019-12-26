@@ -51,6 +51,13 @@ public class SignUpUserService {
         return user != null;
     }
 
+    /**
+     * 功能描述: 用户注册
+     *
+     * @param userSignDto 用户注册信息
+     * @author csnight
+     * @since 2019-12-26 22:30
+     */
     public void registerNewAccount(UserSignDto userSignDto) {
         SysUser sysUser = new SysUser();
         sysUser.setUsername(userSignDto.getUsername());
