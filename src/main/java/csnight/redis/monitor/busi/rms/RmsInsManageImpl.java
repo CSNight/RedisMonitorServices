@@ -35,11 +35,20 @@ public class RmsInsManageImpl {
     @Resource
     private SysUserRepository userRepository;
 
+    /**
+     * 功能描述: 查询全部实例
+     *
+     * @param put 是否更新缓存
+     * @return java.util.List<com.alibaba.fastjson.JSONObject>
+     * @author csnight
+     * @since 2019-12-26 22:46
+     */
     @Cacheable(value = "instances", condition = "#put.equals('false')")
     public List<JSONObject> GetInstances(String put) {
         List<JSONObject> res = new ArrayList<>();
         Set<String> ids = new HashSet<>();
         List<RmsInstance> instances = rmsInsRepository.findAll(Sort.by(Sort.Direction.ASC, "ct"));
+        //实例用户id-》用户名
         for (RmsInstance ins : instances) {
             ids.add(ins.getUser_id());
         }
@@ -61,6 +70,14 @@ public class RmsInsManageImpl {
         return res;
     }
 
+    /**
+     * 功能描述: 根据用户查询实例
+     *
+     * @param user_id 用户给id
+     * @return java.util.List<com.alibaba.fastjson.JSONObject>
+     * @author csnight
+     * @since 2019-12-26 22:46
+     */
     @Cacheable(value = "instance", key = "#user_id")
     public List<JSONObject> GetInstanceByUser(String user_id) {
         List<JSONObject> res = new ArrayList<>();
@@ -73,10 +90,19 @@ public class RmsInsManageImpl {
         return res;
     }
 
+    /**
+     * 功能描述: 实例搜索
+     *
+     * @param exp 实例查询条件
+     * @return java.util.List<com.alibaba.fastjson.JSONObject>
+     * @author csnight
+     * @since 2019-12-26 22:46
+     */
     public List<JSONObject> QueryBy(InsQueryExp exp) {
         List<JSONObject> res = new ArrayList<>();
         SysUser user = userRepository.findByUsername(BaseUtils.GetUserFromContext());
         exp.setUser_id(user.getId());
+        //当用户具有开发者或超管角色 则为查询库中全部符合条件实例 否则为在当前用户实例中查询
         for (SysRole role : user.getRoles()) {
             if (role.getCode().equals("ROLE_DEV") || role.getCode().equals("ROLE_SUPER")) {
                 exp.setUser_id("%");
@@ -85,6 +111,7 @@ public class RmsInsManageImpl {
         }
         List<RmsInstance> instances = rmsInsRepository.findAll((root, criteriaQuery, criteriaBuilder) ->
                 QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder), Sort.by(Sort.Direction.ASC, "ct"));
+        //根据实例用户id 检索实例用户名
         if (exp.getUser_id().equals("%")) {
             Set<String> ids = new HashSet<>();
             for (RmsInstance ins : instances) {
@@ -115,6 +142,14 @@ public class RmsInsManageImpl {
         return res;
     }
 
+    /**
+     * 功能描述: 新增实例
+     *
+     * @param dto 实例Dto
+     * @return csnight.redis.monitor.db.jpa.RmsInstance
+     * @author csnight
+     * @since 2019-12-26 22:46
+     */
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
             @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
     public RmsInstance NewInstance(RmsInsDto dto) throws ConfigException, ConflictsException {
@@ -134,6 +169,7 @@ public class RmsInsManageImpl {
         config.setUser_id(user_id);
         config.setIns_id(ins.getId());
         config.checkMd5();
+        //实例连接信息冲突检查
         RmsInstance insConflict = rmsInsRepository.findByUin(config.getUin());
         if (insConflict != null) {
             throw new ConfigException("Redis instance conflict");
@@ -148,10 +184,20 @@ public class RmsInsManageImpl {
         }
     }
 
+    /**
+     * 功能描述: 删除实例
+     *
+     * @param ins_id 实例id
+     * @return java.lang.String
+     * @author csnight
+     * @since 2019-12-26 22:46
+     */
     @CacheEvict(value = {"instances", "instance"}, beforeInvocation = true, allEntries = true)
     public String DeleteInstance(String ins_id) {
         try {
+            //实例关联信息清除
             //TODO 停止关联定时任务
+            //TODO 清空实例用户给授权及实例命令授权
             boolean res = MultiRedisPool.getInstance().removePool(ins_id);
             rmsInsRepository.deleteById(ins_id);
             return "success";
@@ -160,12 +206,21 @@ public class RmsInsManageImpl {
         }
     }
 
+    /**
+     * 功能描述: 修改实例名称
+     *
+     * @param dto 实例Dto
+     * @return csnight.redis.monitor.db.jpa.RmsInstance
+     * @author csnight
+     * @since 2019-12-26 22:46
+     */
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
             @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
     public RmsInstance ModifyInsName(RmsInsDto dto) throws ConflictsException {
         Optional<RmsInstance> rms = rmsInsRepository.findById(dto.getId());
         if (rms.isPresent()) {
             RmsInstance oldIns = rms.get();
+            //如果名称发生变化，则检查实例名称冲突
             if (!dto.getName().equals(oldIns.getInstance_name())) {
                 oldIns.setInstance_name(dto.getName());
                 if (!checkInstanceName(oldIns)) {
@@ -178,6 +233,14 @@ public class RmsInsManageImpl {
         return null;
     }
 
+    /**
+     * 功能描述: 实例连接状态变更
+     *
+     * @param dto 实例Dto
+     * @return csnight.redis.monitor.db.jpa.RmsInstance
+     * @author csnight
+     * @since 2019-12-26 22:47
+     */
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
             @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
     public RmsInstance ModifyInsState(RmsInsDto dto) throws ConfigException {
@@ -185,10 +248,12 @@ public class RmsInsManageImpl {
         if (rms.isPresent()) {
             RmsInstance oldIns = rms.get();
             if (oldIns.isState() && !dto.isState()) {
+                //连接池不存在，则直接设置实例为关闭状态并保存
                 if (MultiRedisPool.getInstance().getPool(oldIns.getId()) == null) {
                     oldIns.setState(false);
                     return rmsInsRepository.save(oldIns);
                 }
+                //如果实例连接池存在，则关闭连接池并保存实例为关闭状态
                 //TODO 停止关联定时任务
                 boolean isShutdown = MultiRedisPool.getInstance().removePool(oldIns.getId());
                 if (isShutdown) {
@@ -196,6 +261,7 @@ public class RmsInsManageImpl {
                     return rmsInsRepository.save(oldIns);
                 }
             } else {
+                //新建连接池，连接成功则保存实例为已连接状态，更新实例元信息
                 PoolConfig config = JSONObject.parseObject(oldIns.getConn(), PoolConfig.class);
                 RedisPoolInstance pool = MultiRedisPool.getInstance().addNewPool(config);
                 if (pool != null) {
@@ -208,25 +274,39 @@ public class RmsInsManageImpl {
         return null;
     }
 
+    /**
+     * 功能描述: 修改实例连接状态
+     *
+     * @param dto 实例DTO
+     * @return csnight.redis.monitor.db.jpa.RmsInstance
+     * @author csnight
+     * @since 2019-12-26 22:47
+     */
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
             @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
     public RmsInstance ModifyInsConn(RmsInsDto dto) throws ConfigException {
         Optional<RmsInstance> rms = rmsInsRepository.findById(dto.getId());
         if (rms.isPresent()) {
             RmsInstance oldIns = rms.get();
+            //构建连接池连接配置
             PoolConfig config_old = JSONObject.parseObject(oldIns.getConn(), PoolConfig.class);
             PoolConfig config_new = BuildConfig(dto);
+            // 设置用户id及实例id
             config_new.setIns_id(oldIns.getId());
             config_new.setUser_id(oldIns.getUser_id());
+            //生成实例UIN
             config_old.checkMd5();
             config_new.checkMd5();
+            //实例UIN冲突检查
             RmsInstance temExist = rmsInsRepository.findByUin(config_new.getUin());
             if (temExist != null) {
+                //待变更实例uin与库中某实例相同（同一用户下，连接信息相同）且实例id不同，则待变更实例为用户已经存在的实例，实例变更冲突，抛出异常
                 if (!temExist.getId().equals(oldIns.getId())) {
                     throw new ConfigException("Redis instance conflict");
                 }
             }
             oldIns.setUin(config_new.getUin());
+            //如实例存在连接池，则关闭连接并保存为关闭状态
             if (oldIns.isState() && MultiRedisPool.getInstance().getPool(oldIns.getId()) != null) {
                 //TODO 停止关联定时任务
                 boolean isShutdown = MultiRedisPool.getInstance().removePool(oldIns.getId());
@@ -235,6 +315,7 @@ public class RmsInsManageImpl {
                     oldIns = rmsInsRepository.save(oldIns);
                 }
             }
+            //根据新连接信息新建连接池，更新实例元信息，新建失败抛出异常
             RedisPoolInstance pool = MultiRedisPool.getInstance().addNewPool(config_new);
             if (pool != null) {
                 oldIns.setState(true);
@@ -247,6 +328,14 @@ public class RmsInsManageImpl {
         return null;
     }
 
+    /**
+     * 功能描述: 更新实例元信息
+     *
+     * @param ins_id 实例ID
+     * @return csnight.redis.monitor.db.jpa.RmsInstance
+     * @author csnight
+     * @since 2019-12-26 22:47
+     */
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
             @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
     public RmsInstance UpdateInsMeta(String ins_id) throws ConfigException {
@@ -255,9 +344,11 @@ public class RmsInsManageImpl {
             RmsInstance oldIns = rms.get();
             PoolConfig config = JSONObject.parseObject(oldIns.getConn(), PoolConfig.class);
             RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(oldIns.getId());
+            //若连接池存在则直接查询元信息并更新
             if (pool != null) {
                 return parseInfo(oldIns, pool, config);
             } else {
+                //若不存在则新建连接池并更新状态
                 RedisPoolInstance poolTemp = MultiRedisPool.getInstance().addNewPool(config);
                 if (poolTemp != null) {
                     oldIns.setState(true);
@@ -270,6 +361,13 @@ public class RmsInsManageImpl {
         return null;
     }
 
+    /**
+     * 功能描述: 程序退出时关闭连接池，并设置实例状态
+     *
+     * @param ids 具有连接池的实例id列表
+     * @author csnight
+     * @since 2019-12-26 22:47
+     */
     public void ChangeAllState(Set<String> ids) {
         InsQueryExp exp = new InsQueryExp();
         exp.setIds(ids);
@@ -281,9 +379,20 @@ public class RmsInsManageImpl {
         rmsInsRepository.saveAll(instances);
     }
 
+    /**
+     * 功能描述: redis实例元信息查询
+     *
+     * @param ins    redis 实体
+     * @param pool   redis 连接池
+     * @param config 实例连接信息
+     * @return csnight.redis.monitor.db.jpa.RmsInstance
+     * @author csnight
+     * @since 2019-12-26 22:47
+     */
     private RmsInstance parseInfo(RmsInstance ins, RedisPoolInstance pool, PoolConfig config) throws ConfigException {
         try {
             Map<String, String> info = InfoCmdParser.GetInstanceInfo(pool, "Server");
+            //根据连接池类型设置实例连接类型字段
             ins.setType("Standalone");
             if (config.getSentinels().size() > 0) {
                 ins.setIp(pool.getHP().getHost());
@@ -299,6 +408,7 @@ public class RmsInsManageImpl {
             ins.setExec(info.get("executable"));
             ins.setConfig(info.get("config_file"));
             ins.setVersion(info.get("redis_version"));
+            //设置实例角色
             if (ins.getMode().equals("sentinel")) {
                 ins.setRole("sentinel");
             } else {
@@ -307,6 +417,7 @@ public class RmsInsManageImpl {
             ins.setConn(JSONObject.toJSONString(config));
             return rmsInsRepository.save(ins);
         } catch (Exception ex) {
+            //实例信息检查失败则关闭连接池，并设置实例状态为未连接，存储实例连接信息
             MultiRedisPool.getInstance().removePool(ins.getId());
             ins.setState(false);
             ins.setConn(JSONObject.toJSONString(config));
@@ -315,6 +426,14 @@ public class RmsInsManageImpl {
         }
     }
 
+    /**
+     * 功能描述: 根据redis连接信息构建连接池配置实例
+     *
+     * @param dto redis 连接信息
+     * @return csnight.redis.monitor.redis.pool.PoolConfig
+     * @author csnight
+     * @since 2019-12-26 22:47
+     */
     private PoolConfig BuildConfig(RmsInsDto dto) throws ConfigException {
         try {
             if (dto.getIp() != null && RegexUtils.checkIp(dto.getIp())) {
@@ -328,6 +447,14 @@ public class RmsInsManageImpl {
         throw new ConfigException("Can not parse redis connection config");
     }
 
+    /**
+     * 功能描述: 检查同一用户下实例名称冲突
+     *
+     * @param ins Redis实例
+     * @return boolean
+     * @author csnight
+     * @since 2019-12-26 22:47
+     */
     private boolean checkInstanceName(RmsInstance ins) {
         boolean valid = true;
         RmsInstance insExist = rmsInsRepository.findByInstanceName(ins.getInstance_name());
