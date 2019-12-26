@@ -18,4 +18,7 @@ public interface RmsInsRepository extends JpaRepository<RmsInstance, String>, Jp
 
     @Query(value = "select * from rmsdb.rms_instance where instance_name=?", nativeQuery = true)
     RmsInstance findByInstanceName(String ins_name);
+
+    @Query(value = "select * from rmsdb.rms_instance where belong=? and user_id<>? order by ct", nativeQuery = true)
+    List<RmsInstance> findByBelong(String user_id);
 }

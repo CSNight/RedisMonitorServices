@@ -10,7 +10,6 @@ import csnight.redis.monitor.db.jpa.SysRole;
 import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.db.repos.SysIconRepository;
 import csnight.redis.monitor.db.repos.SysMenuRepository;
-import csnight.redis.monitor.db.repos.SysRoleRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.exception.ConflictsException;
 import csnight.redis.monitor.rest.sys.dto.MenuDto;
@@ -38,6 +37,14 @@ public class MenuServiceImpl {
         return sysIconRepository.findAll();
     }
 
+    /**
+     * 功能描述:
+     *
+     * @param
+     * @return : java.util.List<csnight.redis.monitor.db.jpa.SysMenu>
+     * @author chens
+     * @since 2019/12/26 10:26
+     */
     @Cacheable(value = "menus_list")
     public List<SysMenu> GetMenuList() {
         List<SysMenu> menuList = sysMenuRepository.findAll(Sort.by("sort"));
@@ -47,7 +54,16 @@ public class MenuServiceImpl {
         return menuList;
     }
 
+    /**
+     * 功能描述: 菜单查询
+     *
+     * @param exp 查询条件实体
+     * @return : java.util.List<csnight.redis.monitor.db.jpa.SysMenu>
+     * @author chens
+     * @since 2019/12/26 10:20
+     */
     public List<SysMenu> QueryBy(MenuQueryExp exp) {
+
         List<SysMenu> menuList = sysMenuRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder));
         for (SysMenu sysMenu : menuList) {
             sysMenu.setChildren(null);
@@ -60,6 +76,14 @@ public class MenuServiceImpl {
         return sysMenuRepository.findByPidOrderBySortAsc(0L);
     }
 
+    /**
+     * 功能描述: 根据查询子菜单
+     *
+     * @param pid 父菜单id
+     * @return : java.util.List<csnight.redis.monitor.db.jpa.SysMenu>
+     * @author chens
+     * @since 2019/12/26 10:20
+     */
     public List<SysMenu> GetMenuByPid(String pid) {
         return sysMenuRepository.findByPidOrderBySortAsc(Long.parseLong(pid));
     }
@@ -79,6 +103,15 @@ public class MenuServiceImpl {
         return BuildMenuTree(0L, tmp);
     }
 
+    /**
+     * 功能描述: 递归生成菜单树
+     *
+     * @param pid   父菜单
+     * @param menus 菜单列表
+     * @return : java.util.List<csnight.redis.monitor.busi.sys.exp.MenuItem>
+     * @author chens
+     * @since 2019/12/26 10:27
+     */
     private List<MenuItem> BuildMenuTree(Long pid, List<MenuItem> menus) {
         List<MenuItem> list = new ArrayList<>();
         for (MenuItem menu : menus) {
@@ -90,6 +123,7 @@ public class MenuServiceImpl {
             Integer sort = o1.getSort();
             return sort.compareTo(o2.getSort());
         });
+        //遍历子菜单并递归调用
         for (MenuItem menu : list) {
             List<MenuItem> child = BuildMenuTree(menu.getId(), menus);
             child.sort((o1, o2) -> {
@@ -101,15 +135,25 @@ public class MenuServiceImpl {
         return list;
     }
 
+    /**
+     * 功能描述: 修改菜单
+     *
+     * @param menuDto 菜单实例
+     * @return : csnight.redis.monitor.db.jpa.SysMenu
+     * @author chens
+     * @since 2019/12/26 10:29
+     */
     @CacheEvict(value = {"menus_tree", "menus_list", "permits"}, beforeInvocation = true, allEntries = true)
     public SysMenu ModifyMenu(MenuDto menuDto) throws ConflictsException {
         Optional<SysMenu> sysMenu = sysMenuRepository.findById(menuDto.getId());
         if (sysMenu.isPresent()) {
             SysMenu old_menu = sysMenu.get();
             boolean hidden = old_menu.isHidden();
+            //自归属错误屏蔽
             if (menuDto.getPid().equals(old_menu.getId())) {
                 throw new ConflictsException("Component can not set parent to it self!");
             }
+            //菜单路径生成
             if (menuDto.getPid().equals(0L) && !menuDto.isIframe()) {
                 old_menu.setPath("/" + menuDto.getComponent_name());
             } else if (menuDto.getPid() > 0 && !menuDto.isIframe()) {
@@ -126,6 +170,7 @@ public class MenuServiceImpl {
             old_menu.setSort(menuDto.getSort());
             old_menu.setIframe(menuDto.isIframe());
             old_menu.setPid(menuDto.getPid());
+            //检查菜单目录冲突 并设置子菜单显隐状态
             if (checkMenuConflict(old_menu, false)) {
                 SysMenu res = sysMenuRepository.save(old_menu);
                 if (old_menu.isHidden() != hidden) {
@@ -136,6 +181,7 @@ public class MenuServiceImpl {
                         sysMenuRepository.save(child);
                     }
                 }
+                //设置父菜单显隐
                 ModifyParent(res);
                 return res;
             } else {
@@ -145,6 +191,14 @@ public class MenuServiceImpl {
         return null;
     }
 
+    /**
+     * 功能描述: 新增菜单
+     *
+     * @param menuDto 菜单实体
+     * @return : csnight.redis.monitor.db.jpa.SysMenu
+     * @author chens
+     * @since 2019/12/26 10:32
+     */
     @CacheEvict(value = {"menus_tree", "menus_list"}, beforeInvocation = true, allEntries = true)
     public SysMenu NewMenu(MenuDto menuDto) throws ConflictsException {
         SysMenu new_menu = new SysMenu();
@@ -172,6 +226,14 @@ public class MenuServiceImpl {
         }
     }
 
+    /**
+     * 功能描述: 删除菜单
+     *
+     * @param id 菜单Id
+     * @return : java.lang.String
+     * @author chens
+     * @since 2019/12/26 10:31
+     */
     @CacheEvict(value = {"menus_tree", "menus_list", "permits"}, beforeInvocation = true, allEntries = true)
     public String DeleteMenuById(String id) {
         Optional<SysMenu> sysMenuOpt = sysMenuRepository.findById(Long.parseLong(id));
@@ -192,6 +254,14 @@ public class MenuServiceImpl {
         return "failed";
     }
 
+    /**
+     * 功能描述: 递归查询子菜单
+     *
+     * @param sysMenu 当前菜单
+     * @param ids     子菜单列表
+     * @author chens
+     * @since 2019/12/26 10:54
+     */
     private void getMenuChildIds(SysMenu sysMenu, Set<SysMenu> ids) {
         for (SysMenu child : sysMenu.getChildren()) {
             ids.add(child);
@@ -201,6 +271,13 @@ public class MenuServiceImpl {
         }
     }
 
+    /**
+     * 功能描述: 修改父菜单状态
+     *
+     * @param current 当前菜单
+     * @author chens
+     * @since 2019/12/26 10:54
+     */
     private void ModifyParent(SysMenu current) {
         if (current.getPid() == 0) {
             return;
@@ -215,7 +292,15 @@ public class MenuServiceImpl {
         }
     }
 
-
+    /**
+     * 功能描述: 检查菜单名及组件名冲突
+     *
+     * @param sysMenu 当前菜单
+     * @param isNew   是否新增
+     * @return : boolean
+     * @author chens
+     * @since 2019/12/26 10:53
+     */
     private boolean checkMenuConflict(SysMenu sysMenu, boolean isNew) {
         boolean isValid = true;
         Set<SysMenu> ids = new HashSet<>();

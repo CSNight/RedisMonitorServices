@@ -15,12 +15,13 @@ import csnight.redis.monitor.utils.IdentifyUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class RmsCmdRuleImpl {
+public class RmsInsRightsImpl {
     @Resource
     private RmsInsRepository rmsInsRepository;
     @Resource
@@ -32,7 +33,23 @@ public class RmsCmdRuleImpl {
         return rmsCmdRepository.findAll();
     }
 
-    public RmsCmdPermits AddCmdPermits(InsRightsDto dto) throws ConflictsException {
+    public List<JSONObject> GetBelongs(String user_id) {
+        List<RmsInstance> instances = rmsInsRepository.findByBelong(user_id);
+        List<JSONObject> res = new ArrayList<>();
+        for (RmsInstance instance : instances) {
+            //去除用户所有权实例，仅返回授权用户实例
+            if (instance.getUser_id().equals(user_id)) {
+                continue;
+            }
+            String username = userRepository.findUsernameById(instance.getUser_id());
+            JSONObject ins = JSONObject.parseObject(JSONObject.toJSONString(instance));
+            ins.put("authorize", username);
+            res.add(ins);
+        }
+        return res;
+    }
+
+    public RmsCmdPermits AddInsPermits(InsRightsDto dto) throws ConflictsException {
         String user_id = userRepository.findIdByUsername(dto.getUsername());
         if (user_id == null) {
             throw new ValidateException("User not found");

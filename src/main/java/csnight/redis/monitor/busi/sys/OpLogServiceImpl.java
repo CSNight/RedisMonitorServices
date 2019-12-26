@@ -24,10 +24,27 @@ public class OpLogServiceImpl {
     @Resource
     private SysUserRepository userRepository;
 
+    /**
+     * 功能描述: 日志保存
+     *
+     * @param logs 日志实体
+     * @author chens
+     * @since 2019/12/26 10:34
+     */
     public void SaveAll(List<SysOpLog> logs) {
         sysLogRepository.saveAll(logs);
     }
 
+    /**
+     * 功能描述: 分页日志查询
+     *
+     * @param username 用户名
+     * @param cur      当前页
+     * @param size     每页数量
+     * @return : org.springframework.data.domain.Page<csnight.redis.monitor.db.jpa.SysOpLog>
+     * @author chens
+     * @since 2019/12/26 10:34
+     */
     public Page<SysOpLog> GetLogsByUser(String username, int cur, int size) {
         Sort s = Sort.by(Sort.Direction.ASC, "ct");
         cur = cur - 1;
@@ -35,6 +52,14 @@ public class OpLogServiceImpl {
         return sysLogRepository.findByUn(username, pageable);
     }
 
+    /**
+     * 功能描述: 日志条件查询
+     *
+     * @param exp 日志查询条件
+     * @return : org.springframework.data.domain.Page<csnight.redis.monitor.db.jpa.SysOpLog>
+     * @author chens
+     * @since 2019/12/26 10:35
+     */
     public Page<SysOpLog> QueryLogsByCond(OpLogQueryExp exp) {
         SysUser user = userRepository.findByUsername(exp.getUn());
         if (user == null) {
@@ -66,6 +91,14 @@ public class OpLogServiceImpl {
 
     }
 
+    /**
+     * 功能描述: 清空用户日志
+     *
+     * @param user 用户名
+     * @return : java.lang.String
+     * @author chens
+     * @since 2019/12/26 10:35
+     */
     public String ClearOpLog(String user) {
         if (user.equals("all")) {
             sysLogRepository.deleteAll();

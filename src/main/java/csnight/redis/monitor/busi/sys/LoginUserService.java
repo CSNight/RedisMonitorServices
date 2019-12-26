@@ -32,6 +32,14 @@ public class LoginUserService implements UserDetailsService {
         this.userMapper = userMapper;
     }
 
+    /**
+     * 功能描述: 用户登录检查
+     *
+     * @param username 用户名
+     * @return : org.springframework.security.core.userdetails.UserDetails
+     * @author chens
+     * @since 2019/12/26 10:32
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         SysUser user = checkByIdentify(username);
@@ -43,10 +51,19 @@ public class LoginUserService implements UserDetailsService {
                 user.isCredentialsNonExpired(), user.isAccountNonLocked(), simpleGrantedAuthorities);
     }
 
+    /**
+     * 功能描述: 用户信息插叙
+     *
+     * @param username 用户名
+     * @return : csnight.redis.monitor.db.jpa.SysUser
+     * @author chens
+     * @since 2019/12/26 10:32
+     */
     @Cacheable(value = "user_info", key = "#username")
     public SysUser GetUserInfo(String username) {
         SysUser user = userMapper.findByUsername(username);
         Optional<SysOrg> org = orgRepository.findById(user.getOrg_id());
+        //利用密码字段传输部门信息，密码不应返回前端
         if (org.isPresent()) {
             user.setPassword(org.get().getName());
         } else {
@@ -55,6 +72,14 @@ public class LoginUserService implements UserDetailsService {
         return user;
     }
 
+    /**
+     * 功能描述:检查登录用户名类型
+     *
+     * @param identify
+     * @return : csnight.redis.monitor.db.jpa.SysUser
+     * @author chens
+     * @since 2019/12/26 10:33
+     */
     private SysUser checkByIdentify(String identify) {
         if (identify.contains("@") && RegexUtils.checkEmail(identify)) {
             return userMapper.findByUsernameOrEmail(identify, identify);

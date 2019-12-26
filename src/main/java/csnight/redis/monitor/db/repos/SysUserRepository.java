@@ -30,4 +30,8 @@ public interface SysUserRepository extends JpaRepository<SysUser, String>, JpaSp
     @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
     @Query(value = "select id from sys_user where username=?", nativeQuery = true)
     String findIdByUsername(String username);
+
+    @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
+    @Query(value = "select username from sys_user where id=?", nativeQuery = true)
+    String findUsernameById(String user_id);
 }
