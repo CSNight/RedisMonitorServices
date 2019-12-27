@@ -13,6 +13,8 @@ import csnight.redis.monitor.redis.pool.PoolConfig;
 import csnight.redis.monitor.rest.rms.dto.InsRightsDto;
 import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.IdentifyUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -30,8 +32,27 @@ public class RmsInsRightsImpl {
     @Resource
     private RmsCmdRepository rmsCmdRepository;
 
-    public List<RmsCmdPermits> GetPermitsList() {
-        return rmsCmdRepository.findAll();
+    /**
+     * 功能描述:获取所有实例授权（管理员）
+     *
+     * @author csnight
+     * @since 2019/12/27 9:27
+     */
+    @Cacheable(value = "ins_permits")
+    public List<JSONObject> GetPermitsList() {
+        List<RmsCmdPermits> cmdPermits = rmsCmdRepository.findAll();
+        List<JSONObject> res = new ArrayList<>();
+        for (RmsCmdPermits permits : cmdPermits) {
+            String username = userRepository.findUsernameById(permits.getUser_id());
+            Optional<RmsInstance> instance = rmsInsRepository.findById(permits.getIns_id());
+            if (instance.isPresent()) {
+                JSONObject ins = JSONObject.parseObject(JSONObject.toJSONString(instance));
+                ins.put("authorize", username);
+                ins.put("cmd_right", permits);
+                res.add(ins);
+            }
+        }
+        return res;
     }
 
     /**
@@ -42,6 +63,7 @@ public class RmsInsRightsImpl {
      * @author csnight
      * @since 2019/12/27 8:56
      */
+    @Cacheable(value = "ins_belongs")
     public List<JSONObject> GetBelongs(String user_id) {
         List<RmsInstance> instances = rmsInsRepository.findByBelong(user_id);
         List<JSONObject> res = new ArrayList<>();
@@ -52,6 +74,10 @@ public class RmsInsRightsImpl {
             }
             String username = userRepository.findUsernameById(instance.getUser_id());
             JSONObject ins = JSONObject.parseObject(JSONObject.toJSONString(instance));
+            RmsCmdPermits cmdRights = rmsCmdRepository.findByUserIdAndInsId(instance.getUser_id(), instance.getId());
+            if (cmdRights != null) {
+                ins.put("cmd_right", cmdRights);
+            }
             ins.put("authorize", username);
             res.add(ins);
         }
@@ -66,6 +92,7 @@ public class RmsInsRightsImpl {
      * @author csnight
      * @since 2019/12/27 8:57
      */
+    @CacheEvict(value = {"ins_permits", "ins_belongs"}, beforeInvocation = true, allEntries = true)
     public RmsCmdPermits AddInsPermits(InsRightsDto dto) throws ConflictsException {
         String user_id = userRepository.findIdByUsername(dto.getUsername());
         if (user_id == null) {
@@ -106,6 +133,7 @@ public class RmsInsRightsImpl {
      * @author csnight
      * @since 2019/12/27 9:07
      */
+    @CacheEvict(value = {"ins_permits", "ins_belongs"}, beforeInvocation = true, allEntries = true)
     public RmsCmdPermits ModifyInsRight(InsRightsDto dto) {
         String user_id = userRepository.findIdByUsername(dto.getUsername());
         if (user_id == null) {
@@ -127,6 +155,7 @@ public class RmsInsRightsImpl {
      * @author csnight
      * @since 2019/12/27 9:24
      */
+    @CacheEvict(value = {"ins_permits", "ins_belongs"}, beforeInvocation = true, allEntries = true)
     public String DeleteInsRight(String id) {
         Optional<RmsCmdPermits> optPermit = rmsCmdRepository.findById(id);
         if (optPermit.isPresent()) {
