@@ -14,7 +14,10 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class OrgServiceImpl {
@@ -35,8 +38,7 @@ public class OrgServiceImpl {
      */
     @Cacheable(value = "orgTree")
     public SysOrg GetOrgTree() {
-        Optional<SysOrg> sysOrg = sysOrgRepository.findById(1L);
-        return sysOrg.orElse(null);
+        return sysOrgRepository.findOnly(1L);
     }
 
     /**
@@ -93,10 +95,9 @@ public class OrgServiceImpl {
      * @since 2019/12/26 10:38
      */
     public SysOrg GetOrgByIdAndEnabled(String id, boolean enabled) {
-        Optional<SysOrg> org = sysOrgRepository.findById(Long.parseLong(id));
+        SysOrg org_old = sysOrgRepository.findOnly(Long.parseLong(id));
         SysOrg copy_org = new SysOrg();
-        if (org.isPresent()) {
-            SysOrg org_old = org.get();
+        if (org_old != null) {
             copy_org = JSONObject.parseObject(JSONObject.toJSONString(org_old), SysOrg.class);
             getOrgChildFilter(org_old, copy_org, enabled);
         }
@@ -114,9 +115,8 @@ public class OrgServiceImpl {
     @CacheEvict(value = {"orgTree", "orgList"}, beforeInvocation = true, allEntries = true)
     public SysOrg ModifyOrg(JSONObject jo_org) throws ConflictsException {
         if (jo_org.containsKey("id")) {
-            Optional<SysOrg> sysOrg = sysOrgRepository.findById(jo_org.getLong("id"));
-            if (sysOrg.isPresent()) {
-                SysOrg old_org = sysOrg.get();
+            SysOrg old_org = sysOrgRepository.findOnly(jo_org.getLong("id"));
+            if (old_org != null) {
                 //屏蔽自归属错误
                 if (jo_org.getLong("pid").equals(old_org.getId())) {
                     throw new ConflictsException("Organization can not set parent to it self!");
@@ -182,9 +182,8 @@ public class OrgServiceImpl {
      */
     @CacheEvict(value = {"orgTree", "orgList"}, beforeInvocation = true, allEntries = true)
     public String DeleteOrgById(String id) {
-        Optional<SysOrg> sysOrgOpt = sysOrgRepository.findById(Long.parseLong(id));
-        if (sysOrgOpt.isPresent()) {
-            SysOrg sysOrg = sysOrgOpt.get();
+        SysOrg sysOrg = sysOrgRepository.findOnly(Long.parseLong(id));
+        if (sysOrg != null) {
             if (sysOrg.getChildren().size() > 0) {
                 Set<SysOrg> ids = new HashSet<>();
                 getOrgChildIds(sysOrg, ids);
@@ -239,9 +238,8 @@ public class OrgServiceImpl {
                 isValid = false;
             }
         } else {
-            Optional<SysOrg> original = sysOrgRepository.findById(sysOrg.getId());
-            if (original.isPresent()) {
-                SysOrg origin_org = original.get();
+            SysOrg origin_org = sysOrgRepository.findOnly(sysOrg.getId());
+            if (origin_org != null) {
                 if (!origin_org.getName().equals(sysOrg.getName())) {
                     SysOrg hasSame = sysOrgRepository.findByName(sysOrg.getName());
                     if (hasSame != null) {
@@ -319,9 +317,8 @@ public class OrgServiceImpl {
             return;
         }
         List<Boolean> enables = sysOrgRepository.findEnabledByPid(current.getPid());
-        Optional<SysOrg> top_parent_option = sysOrgRepository.findById(current.getPid());
-        if (top_parent_option.isPresent() && BaseUtils.any(enables)) {
-            SysOrg top_parent = top_parent_option.get();
+        SysOrg top_parent = sysOrgRepository.findOnly(current.getPid());
+        if (top_parent != null && BaseUtils.any(enables)) {
             top_parent.setEnabled(current.isEnabled());
             SysOrg top_modify = sysOrgRepository.save(top_parent);
             ModifyParent(top_modify);

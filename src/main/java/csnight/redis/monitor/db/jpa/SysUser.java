@@ -12,7 +12,6 @@ import java.util.*;
 
 @Entity
 @Table(name = "sys_user")
-@DynamicUpdate(value = true)
 public class SysUser implements UserDetails {
     @Id
     @GenericGenerator(name = "jpa-uuid", strategy = "org.hibernate.id.UUIDGenerator")

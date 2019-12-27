@@ -151,9 +151,8 @@ public class MenuServiceImpl {
      */
     @CacheEvict(value = {"menus_tree", "menus_list", "permits"}, beforeInvocation = true, allEntries = true)
     public SysMenu ModifyMenu(MenuDto menuDto) throws ConflictsException {
-        Optional<SysMenu> sysMenu = sysMenuRepository.findById(menuDto.getId());
-        if (sysMenu.isPresent()) {
-            SysMenu old_menu = sysMenu.get();
+        SysMenu old_menu = sysMenuRepository.findOnly(menuDto.getId());
+        if (old_menu != null) {
             boolean hidden = old_menu.isHidden();
             //自归属错误屏蔽
             if (menuDto.getPid().equals(old_menu.getId())) {
@@ -163,8 +162,10 @@ public class MenuServiceImpl {
             if (menuDto.getPid().equals(0L) && !menuDto.isIframe()) {
                 old_menu.setPath("/" + menuDto.getComponent_name());
             } else if (menuDto.getPid() > 0 && !menuDto.isIframe()) {
-                Optional<SysMenu> parent = sysMenuRepository.findById(menuDto.getPid());
-                parent.ifPresent(parent_ins -> old_menu.setPath(parent_ins.getPath() + "/" + menuDto.getComponent_name()));
+                SysMenu parent = sysMenuRepository.findOnly(menuDto.getPid());
+                if (parent != null) {
+                    old_menu.setPath(parent.getPath() + "/" + menuDto.getComponent_name());
+                }
             } else {
                 old_menu.setPath(menuDto.getPath());
             }
@@ -211,8 +212,10 @@ public class MenuServiceImpl {
         if (menuDto.getPid().equals(0L) && !menuDto.isIframe()) {
             new_menu.setPath("/" + menuDto.getComponent_name());
         } else if (menuDto.getPid() > 0 && !menuDto.isIframe()) {
-            Optional<SysMenu> parent = sysMenuRepository.findById(menuDto.getPid());
-            parent.ifPresent(sysMenu -> new_menu.setPath(sysMenu.getPath() + "/" + menuDto.getComponent_name()));
+            SysMenu parent = sysMenuRepository.findOnly(menuDto.getPid());
+            if (parent != null) {
+                new_menu.setPath(parent.getPath() + "/" + menuDto.getComponent_name());
+            }
         } else {
             new_menu.setPath(menuDto.getPath());
         }
@@ -242,9 +245,8 @@ public class MenuServiceImpl {
      */
     @CacheEvict(value = {"menus_tree", "menus_list", "permits"}, beforeInvocation = true, allEntries = true)
     public String DeleteMenuById(String id) {
-        Optional<SysMenu> sysMenuOpt = sysMenuRepository.findById(Long.parseLong(id));
-        if (sysMenuOpt.isPresent()) {
-            SysMenu sysMenu = sysMenuOpt.get();
+        SysMenu sysMenu = sysMenuRepository.findOnly(Long.parseLong(id));
+        if (sysMenu != null) {
             if (sysMenu.getChildren().size() > 0) {
                 Set<SysMenu> ids = new HashSet<>();
                 getMenuChildIds(sysMenu, ids);
@@ -289,9 +291,8 @@ public class MenuServiceImpl {
             return;
         }
         List<Boolean> enables = sysMenuRepository.findHiddenByPid(current.getPid());
-        Optional<SysMenu> top_parent_option = sysMenuRepository.findById(current.getPid());
-        if (top_parent_option.isPresent() && BaseUtils.any(enables)) {
-            SysMenu top_parent = top_parent_option.get();
+        SysMenu top_parent = sysMenuRepository.findOnly(current.getPid());
+        if (top_parent != null && BaseUtils.any(enables)) {
             top_parent.setHidden(current.isHidden());
             SysMenu top_modify = sysMenuRepository.save(top_parent);
             ModifyParent(top_modify);
@@ -326,9 +327,8 @@ public class MenuServiceImpl {
                 isValid = false;
             }
         } else {
-            Optional<SysMenu> original = sysMenuRepository.findById(sysMenu.getId());
-            if (original.isPresent()) {
-                SysMenu origin_menu = original.get();
+            SysMenu origin_menu = sysMenuRepository.findOnly(sysMenu.getId());
+            if (origin_menu != null) {
                 if (!origin_menu.getName().equals(sysMenu.getName())) {
                     SysMenu hasSame = sysMenuRepository.findByName(sysMenu.getName());
                     if (hasSame != null) {

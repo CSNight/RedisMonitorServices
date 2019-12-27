@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -62,10 +61,10 @@ public class LoginUserService implements UserDetailsService {
     @Cacheable(value = "user_info", key = "#username")
     public SysUser GetUserInfo(String username) {
         SysUser user = userMapper.findByUsername(username);
-        Optional<SysOrg> org = orgRepository.findById(user.getOrg_id());
+        SysOrg org = orgRepository.findOnly(user.getOrg_id());
         //利用密码字段传输部门信息，密码不应返回前端
-        if (org.isPresent()) {
-            user.setPassword(org.get().getName());
+        if (org != null) {
+            user.setPassword(org.getName());
         } else {
             user.setPassword("");
         }

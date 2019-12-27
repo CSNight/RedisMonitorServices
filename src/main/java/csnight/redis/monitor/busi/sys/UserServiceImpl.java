@@ -95,10 +95,9 @@ public class UserServiceImpl {
     @CacheEvict(value = "users", beforeInvocation = true, allEntries = true)
     public List<SysUser> GetUsersByOrg(Long org_id) {
         List<SysUser> users = sysUserRepository.findByOrgId(org_id);
-        Optional<SysOrg> orgOpt = sysOrgRepository.findById(org_id);
-        if (orgOpt.isPresent()) {
+        SysOrg org = sysOrgRepository.findOnly(org_id);
+        if (org != null) {
             Set<SysOrg> ids = new HashSet<>();
-            SysOrg org = orgOpt.get();
             getOrgChildIds(org, ids);
             if (org.getChildren().size() != 0) {
                 for (SysOrg ch : ids) {
@@ -328,9 +327,9 @@ public class UserServiceImpl {
     public String DeleteUserById(String id) {
         //TODO 删除用户资源
         try {
-            Optional<SysUser> userOpt = sysUserRepository.findById(id);
-            if (userOpt.isPresent()) {
-                sysUserRepository.delete(userOpt.get());
+            SysUser user = sysUserRepository.findOnly(id);
+            if (user != null) {
+                sysUserRepository.delete(user);
                 return "success";
             }
         } catch (Exception e) {

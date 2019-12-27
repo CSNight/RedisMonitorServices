@@ -44,8 +44,8 @@ public class RmsInsRightsImpl {
         List<JSONObject> res = new ArrayList<>();
         for (RmsCmdPermits permits : cmdPermits) {
             String username = userRepository.findUsernameById(permits.getUser_id());
-            Optional<RmsInstance> instance = rmsInsRepository.findById(permits.getIns_id());
-            if (instance.isPresent()) {
+            RmsInstance instance = rmsInsRepository.findOnly(permits.getIns_id());
+            if (instance != null) {
                 JSONObject ins = JSONObject.parseObject(JSONObject.toJSONString(instance));
                 ins.put("authorize", username);
                 ins.put("cmd_right", permits);
@@ -161,8 +161,10 @@ public class RmsInsRightsImpl {
         if (optPermit.isPresent()) {
             RmsCmdPermits permits = optPermit.get();
             MultiRedisPool.getInstance().removePool(permits.getIns_id());
-            Optional<RmsInstance> optIns = rmsInsRepository.findById(permits.getIns_id());
-            optIns.ifPresent(rmsInstance -> rmsInsRepository.delete(rmsInstance));
+            RmsInstance optIns = rmsInsRepository.findOnly(permits.getIns_id());
+            if (optIns != null) {
+                rmsInsRepository.delete(optIns);
+            }
             rmsCmdRepository.delete(permits);
             return "success";
         }
@@ -179,13 +181,13 @@ public class RmsInsRightsImpl {
      * @since 2019/12/27 8:58
      */
     private RmsInstance getIns(InsRightsDto dto, String user_id) {
-        Optional<RmsInstance> insExist = rmsInsRepository.findById(dto.getIns_id());
-        if (!insExist.isPresent()) {
+        RmsInstance insExist = rmsInsRepository.findOnly(dto.getIns_id());
+        if (insExist == null) {
             throw new ValidateException("Instance dose not exist");
         }
-        RmsInstance instance = rmsInsRepository.findByUserIdAndBelong(user_id, insExist.get().getUser_id());
+        RmsInstance instance = rmsInsRepository.findByUserIdAndBelong(user_id, insExist.getUser_id());
         if (instance == null) {
-            return insExist.get();
+            return insExist;
         } else {
             return instance;
         }

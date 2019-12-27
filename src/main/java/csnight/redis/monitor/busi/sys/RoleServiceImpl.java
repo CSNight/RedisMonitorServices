@@ -95,9 +95,9 @@ public class RoleServiceImpl {
      */
     @CacheEvict(value = "roles", beforeInvocation = true, allEntries = true)
     public String DeleteRoleById(String id) {
-        Optional<SysRole> optRole = sysRoleRepository.findById(id);
-        if (optRole.isPresent()) {
-            optRole.get().getUsers().forEach(user -> {
+        SysRole role = sysRoleRepository.findOnly(id);
+        if (role != null) {
+            role.getUsers().forEach(user -> {
                 user.setRoles(new HashSet<>());
                 userRepository.save(user);
             });
@@ -117,9 +117,8 @@ public class RoleServiceImpl {
      */
     @CacheEvict(value = "roles", beforeInvocation = true, allEntries = true)
     public SysRole ModifyRole(RoleDto dto) throws ConflictsException {
-        Optional<SysRole> optRole = sysRoleRepository.findById(dto.getId());
-        if (optRole.isPresent()) {
-            SysRole old_role = optRole.get();
+        SysRole old_role = sysRoleRepository.findOnly(dto.getId());
+        if (old_role != null) {
             if (checkConflictPermit(old_role, false)) {
                 old_role.setCode(dto.getCode());
                 old_role.setName(dto.getName());
@@ -142,9 +141,8 @@ public class RoleServiceImpl {
      */
     @CacheEvict(value = "roles", beforeInvocation = true, allEntries = true)
     public SysRole UpdateRoleMenus(RoleDto dto) {
-        Optional<SysRole> optRole = sysRoleRepository.findById(dto.getId());
-        if (optRole.isPresent()) {
-            SysRole old_role = optRole.get();
+        SysRole old_role = sysRoleRepository.findOnly(dto.getId());
+        if (old_role != null) {
             Set<SysMenu> menus = new HashSet<>();
             for (SysMenuVo menuVo : dto.getMenuSet()) {
                 SysMenu sysMenu = new SysMenu();
@@ -171,9 +169,8 @@ public class RoleServiceImpl {
      */
     @CacheEvict(value = "roles", beforeInvocation = true, allEntries = true)
     public SysRole UpdateRolePermissions(RoleDto dto) {
-        Optional<SysRole> optRole = sysRoleRepository.findById(dto.getId());
-        if (optRole.isPresent()) {
-            SysRole old_role = optRole.get();
+        SysRole old_role = sysRoleRepository.findOnly(dto.getId());
+        if (old_role != null) {
             old_role.setPermission(dto.getPermissionSet());
             SysRole sysRole = sysRoleRepository.save(old_role);
             for (SysMenu sysMenu : sysRole.getMenus()) {
@@ -206,9 +203,8 @@ public class RoleServiceImpl {
                 isValid = false;
             }
         } else {
-            Optional<SysRole> original = sysRoleRepository.findById(old_role.getId());
-            if (original.isPresent()) {
-                SysRole origin_role = original.get();
+            SysRole origin_role = sysRoleRepository.findOnly(old_role.getId());
+            if (origin_role != null) {
                 if (!origin_role.getName().equals(old_role.getName())) {
                     SysRole hasSame = sysRoleRepository.findByName(old_role.getName());
                     if (hasSame != null) {

@@ -217,9 +217,8 @@ public class RmsInsManageImpl {
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
             @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
     public RmsInstance ModifyInsName(RmsInsDto dto) throws ConflictsException {
-        Optional<RmsInstance> rms = rmsInsRepository.findById(dto.getId());
-        if (rms.isPresent()) {
-            RmsInstance oldIns = rms.get();
+        RmsInstance oldIns = rmsInsRepository.findOnly(dto.getId());
+        if (oldIns != null) {
             //如果名称发生变化，则检查实例名称冲突
             if (!dto.getName().equals(oldIns.getInstance_name())) {
                 oldIns.setInstance_name(dto.getName());
@@ -244,9 +243,8 @@ public class RmsInsManageImpl {
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
             @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
     public RmsInstance ModifyInsState(RmsInsDto dto) throws ConfigException {
-        Optional<RmsInstance> rms = rmsInsRepository.findById(dto.getId());
-        if (rms.isPresent()) {
-            RmsInstance oldIns = rms.get();
+        RmsInstance oldIns = rmsInsRepository.findOnly(dto.getId());
+        if (oldIns != null) {
             if (oldIns.isState() && !dto.isState()) {
                 //连接池不存在，则直接设置实例为关闭状态并保存
                 if (MultiRedisPool.getInstance().getPool(oldIns.getId()) == null) {
@@ -285,9 +283,8 @@ public class RmsInsManageImpl {
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
             @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
     public RmsInstance ModifyInsConn(RmsInsDto dto) throws ConfigException {
-        Optional<RmsInstance> rms = rmsInsRepository.findById(dto.getId());
-        if (rms.isPresent()) {
-            RmsInstance oldIns = rms.get();
+        RmsInstance oldIns = rmsInsRepository.findOnly(dto.getId());
+        if (oldIns != null) {
             //构建连接池连接配置
             PoolConfig config_old = JSONObject.parseObject(oldIns.getConn(), PoolConfig.class);
             PoolConfig config_new = BuildConfig(dto);
@@ -339,9 +336,8 @@ public class RmsInsManageImpl {
     @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
             @CacheEvict(value = "instance", key = "#result.user_id", condition = "#result!=null")})
     public RmsInstance UpdateInsMeta(String ins_id) throws ConfigException {
-        Optional<RmsInstance> rms = rmsInsRepository.findById(ins_id);
-        if (rms.isPresent()) {
-            RmsInstance oldIns = rms.get();
+        RmsInstance oldIns = rmsInsRepository.findOnly(ins_id);
+        if (oldIns != null) {
             PoolConfig config = JSONObject.parseObject(oldIns.getConn(), PoolConfig.class);
             RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(oldIns.getId());
             //若连接池存在则直接查询元信息并更新

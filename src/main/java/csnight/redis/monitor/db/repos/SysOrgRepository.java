@@ -13,5 +13,9 @@ public interface SysOrgRepository extends JpaRepository<SysOrg, Long>, JpaSpecif
     @Query(value = "select enabled from rmsdb.sys_org where pid=?", nativeQuery = true)
     List<Boolean> findEnabledByPid(Long pid);
 
+
+    @Query(value = "select * from rmsdb.sys_org where id=?", nativeQuery = true)
+    SysOrg findOnly(Long id);
+
     SysOrg findByName(String name);
 }

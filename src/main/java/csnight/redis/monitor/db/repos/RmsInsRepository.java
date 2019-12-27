@@ -16,6 +16,9 @@ public interface RmsInsRepository extends JpaRepository<RmsInstance, String>, Jp
 
     RmsInstance findByUin(String uin);
 
+    @Query(value = "select * from rmsdb.rms_instance where id=?", nativeQuery = true)
+    RmsInstance findOnly(String id);
+
     @Query(value = "select * from rmsdb.rms_instance where instance_name=?", nativeQuery = true)
     RmsInstance findByInstanceName(String ins_name);
 

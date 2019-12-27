@@ -72,7 +72,7 @@ public class BaseUtils {
     public static Set<String> GetUserAuthorities(String user_id) {
         Set<String> authorities;
         try {
-            SysUser user = ReflectUtils.getBean(SysUserRepository.class).getOne(user_id);
+            SysUser user = ReflectUtils.getBean(SysUserRepository.class).findOnly(user_id);
             Collection<? extends GrantedAuthority> userAuthorities = user.getAuthorities();
             authorities = AuthorityUtils.authorityListToSet(userAuthorities);
         } catch (Exception ex) {
