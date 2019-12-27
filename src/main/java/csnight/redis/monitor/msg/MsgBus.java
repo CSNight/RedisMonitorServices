@@ -55,7 +55,7 @@ public class MsgBus {
     }
 
     /**
-     * 功能描述: 管道注册
+     * 功能描述: 管道注册 并加载权限
      *
      * @param user_id 用户名
      * @param channel channel

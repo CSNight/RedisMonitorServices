@@ -75,7 +75,7 @@ public class LoginUserService implements UserDetailsService {
     /**
      * 功能描述:检查登录用户名类型
      *
-     * @param identify
+     * @param identify 登录键
      * @return : csnight.redis.monitor.db.jpa.SysUser
      * @author chens
      * @since 2019/12/26 10:33
