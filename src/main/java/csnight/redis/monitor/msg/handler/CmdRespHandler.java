@@ -35,6 +35,14 @@ public class CmdRespHandler implements WsChannelHandler {
         }
     }
 
+    /**
+     * 功能描述: 命令解析
+     *
+     * @param cmd 命令
+     * @return : boolean
+     * @author csnight
+     * @since 2019/12/27 8:52
+     */
     public boolean parseCmd(String cmd) {
         if (cmd != null && !cmd.equals("")) {
             String[] parts = cmd.split(" ");
@@ -82,6 +90,14 @@ public class CmdRespHandler implements WsChannelHandler {
         return response;
     }
 
+    /**
+     * 功能描述: 消息递归解析
+     *
+     * @param res 消息体
+     * @return : java.util.List<java.lang.Object>
+     * @author csnight
+     * @since 2019/12/27 8:53
+     */
     private List<Object> ArrayMsgParser(Object res) {
         ArrayList<Object> resp = (ArrayList) res;
         List<Object> tmp = new ArrayList<>();

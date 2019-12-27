@@ -52,6 +52,7 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
         sysUser.setLast_login(new Date());
         sysUserRepository.save(sysUser);
         LoginUserList.put(sysUser.getUsername(), request.getSession().getId());
+        //清理冗余remember-me token
         List<PersistentRememberMeToken> extTokenForName = tokenRepositoryExt.getTokenForName(userDetails.getUsername());
         for (int i = extTokenForName.size() - 1; i > 0; i--) {
             String username = extTokenForName.get(i).getUsername();

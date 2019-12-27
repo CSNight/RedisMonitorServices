@@ -33,6 +33,7 @@ public class CusLogoutSuccessHandler extends HttpStatusReturningLogoutSuccessHan
         response.getWriter().write(JSONObject.toJSONString(new RespTemplate(200, HttpStatus.OK, jo_res, "/auth/logout", "Logout")));
         super.onLogoutSuccess(request, response, authentication);
         PrintWriter out = response.getWriter();
+        out.flush();
         out.close();
     }
 }

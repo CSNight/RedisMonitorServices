@@ -54,6 +54,14 @@ public class MsgBus {
         return channelGroup;
     }
 
+    /**
+     * 功能描述: 管道注册
+     *
+     * @param user_id 用户名
+     * @param channel channel
+     * @author csnight
+     * @since 2019/12/27 8:50
+     */
     public void register(String user_id, Channel channel) {
         ChannelEntity ch = new ChannelEntity(ChannelType.COMMON, channel, user_id);
         ch.setAuthorities(BaseUtils.GetUserAuthorities(user_id));
@@ -63,6 +71,14 @@ public class MsgBus {
         UserChannels.put(channel.id().asShortText(), user_id);
     }
 
+    /**
+     * 功能描述: 设置管道类型
+     *
+     * @param ct  管道类型
+     * @param cid 管道id
+     * @author csnight
+     * @since 2019/12/27 8:50
+     */
     public void setChannelType(ChannelType ct, String cid) {
         ChannelEntity entity = channels.get(cid);
         if (entity != null) {
@@ -70,9 +86,17 @@ public class MsgBus {
         }
     }
 
+    /**
+     * 功能描述: 移除管道
+     *
+     * @param cid 管道id
+     * @author csnight
+     * @since 2019/12/27 8:51
+     */
     public void remove(String cid) {
         ChannelEntity che = channels.get(cid);
         if (che != null) {
+            //销毁管道处理器实例
             if (che.getCt().equals(ChannelType.PUBSUB)) {
                 che.getHandlers().forEach((ent, handler) -> {
                     handler.destroy();
@@ -86,12 +110,25 @@ public class MsgBus {
         }
     }
 
+    /**
+     * 功能描述: 清理用户管道
+     *
+     * @param uid 用户id
+     * @author csnight
+     * @since 2019/12/27 8:52
+     */
     public void ClearUserChannel(String uid) {
         Set<String> channelIdx = new HashSet<>();
         UserChannels.entrySet().stream().filter(item -> item.getValue().equals(uid)).forEach(chs -> channelIdx.add(chs.getKey()));
         channelIdx.forEach(this::remove);
     }
 
+    /**
+     * 功能描述: 清理所有管道
+     *
+     * @author csnight
+     * @since 2019/12/27 8:52
+     */
     public void removeAll() {
         channels.values().forEach(che -> {
             che.getChannel().close();
@@ -131,6 +168,4 @@ public class MsgBus {
             WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
         }
     }
-
-
 }

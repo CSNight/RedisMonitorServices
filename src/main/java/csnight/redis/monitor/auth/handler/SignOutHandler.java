@@ -66,6 +66,7 @@ public class SignOutHandler implements LogoutHandler {
         }
     }
 
+    //关闭用户websocket管道
     private void ShutdownChannels(String username) {
         try {
             SysUser user = userRepository.findByUsername(username);

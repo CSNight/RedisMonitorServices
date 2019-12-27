@@ -37,6 +37,7 @@ public class ValidationHandler extends OncePerRequestFilter implements Filter {
         response.setHeader("Access-Control-Max-Age", "86400");
         response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         if (requestMatcher.matches(request)) {
+            //禁止重复登陆
             if (successHandler.getLoginUserList().containsKey(request.getParameter("username"))) {
                 String session_id = successHandler.getLoginUserList().get(request.getParameter("username"));
                 String request_session_id = request.getSession().getId();
@@ -50,6 +51,7 @@ public class ValidationHandler extends OncePerRequestFilter implements Filter {
                     return;
                 }
             }
+            //账户锁定则跳转登录失败处理器处理
             if (failureHandler.getLock_list().containsKey(request.getParameter("username"))) {
                 this.failureHandler.onAuthenticationFailure(request, response, new ValidateException(""));
                 return;

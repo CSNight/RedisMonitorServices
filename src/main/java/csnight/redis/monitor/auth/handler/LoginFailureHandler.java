@@ -66,6 +66,7 @@ public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
                 }
                 _log.warn(username + ":账户尝试登陆错误" + total_fails + "次");
                 if (total_fails >= 5) {
+                    //登录错误次数大于五次 启动锁定任务 60秒解锁 并不再记录错误次数
                     SysUser sysUser = sysUserRepository.findByUsername(username);
                     if (sysUser != null) {
                         sysUser.setEnabled(false);
@@ -83,6 +84,7 @@ public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
                 _log.warn(username + ":账户尝试登陆错误" + 1 + "次");
             }
         }
+        //用户锁定状态 消息提示
         if (username != null && lock_list.containsKey(username)) {
             long expire = (lock_list.get(username) - new Date().getTime()) / 1000;
             exception_msg = "错误次数过多，账户已锁定，解锁时间" + expire + "秒后";
