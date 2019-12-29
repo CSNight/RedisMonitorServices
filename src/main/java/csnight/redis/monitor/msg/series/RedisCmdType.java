@@ -232,4 +232,12 @@ public enum RedisCmdType implements ProtocolCommand {
                 .filter(cmd -> new String(cmd.raw).equals(key))
                 .findFirst().orElse(RedisCmdType.UNKNOWN);
     }
+
+    public static String toCommands() {
+        StringBuilder commands = new StringBuilder();
+        for (RedisCmdType cmd : RedisCmdType.values()) {
+            commands.append(cmd.name()).append(",");
+        }
+        return commands.toString().substring(0, commands.lastIndexOf(","));
+    }
 }
