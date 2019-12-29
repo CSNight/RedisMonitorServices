@@ -15,8 +15,6 @@ public class RmsInstance {
     private String user_id;
     @Column(name = "uin", length = 50)
     private String uin;
-    @Column(name = "belong", length = 50)
-    private String belong;
     @Column(name = "ip")
     private String ip;
     @Column(name = "port")
@@ -43,10 +41,6 @@ public class RmsInstance {
     private int proc_id;
     @Column(name = "uptime_in_seconds")
     private long uptime_in_seconds;
-    @Column(name = "exec")
-    private String exec;
-    @Column(name = "config")
-    private String config;
     @Column(name = "conn")
     private String conn;
     @Column(name = "ct")
@@ -81,14 +75,6 @@ public class RmsInstance {
 
     public void setUin(String uin) {
         this.uin = uin;
-    }
-
-    public String getBelong() {
-        return belong;
-    }
-
-    public void setBelong(String belong) {
-        this.belong = belong;
     }
 
     public String getIp() {
@@ -185,22 +171,6 @@ public class RmsInstance {
 
     public void setUptime_in_seconds(long uptime_in_seconds) {
         this.uptime_in_seconds = uptime_in_seconds;
-    }
-
-    public String getExec() {
-        return exec;
-    }
-
-    public void setExec(String exec) {
-        this.exec = exec;
-    }
-
-    public String getConfig() {
-        return config;
-    }
-
-    public void setConfig(String config) {
-        this.config = config;
     }
 
     public String getConn() {

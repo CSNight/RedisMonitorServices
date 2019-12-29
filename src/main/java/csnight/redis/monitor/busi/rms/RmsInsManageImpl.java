@@ -11,6 +11,7 @@ import csnight.redis.monitor.db.repos.RmsInsRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.exception.ConfigException;
 import csnight.redis.monitor.exception.ConflictsException;
+import csnight.redis.monitor.msg.MsgBus;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.PoolConfig;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
@@ -157,7 +158,6 @@ public class RmsInsManageImpl {
         String user_id = userRepository.findIdByUsername(BaseUtils.GetUserFromContext());
         ins.setId(IdentifyUtils.getUUID());
         ins.setUser_id(user_id);
-        ins.setBelong(user_id);
         ins.setIp(dto.getIp());
         ins.setPort(dto.getPort());
         ins.setInstance_name(dto.getName());
@@ -195,11 +195,15 @@ public class RmsInsManageImpl {
     @CacheEvict(value = {"instances", "instance"}, beforeInvocation = true, allEntries = true)
     public String DeleteInstance(String ins_id) {
         try {
-            //实例关联信息清除
-            //TODO 停止关联定时任务
-            //TODO 清空实例用户给授权及实例命令授权
-            boolean res = MultiRedisPool.getInstance().removePool(ins_id);
-            rmsInsRepository.deleteById(ins_id);
+            RmsInstance ins = rmsInsRepository.findOnly(ins_id);
+            if (ins != null) {
+                //关闭实例关联channel handler
+                closeRelateChannelHandler(ins.getId());
+                //TODO 停止关联定时任务
+                //TODO 实例关联信息清除
+                rmsInsRepository.delete(ins);
+                boolean res = MultiRedisPool.getInstance().removePool(ins_id);
+            }
             return "success";
         } catch (Exception ex) {
             return "failed";
@@ -253,6 +257,7 @@ public class RmsInsManageImpl {
                 }
                 //如果实例连接池存在，则关闭连接池并保存实例为关闭状态
                 //TODO 停止关联定时任务
+                closeRelateChannelHandler(oldIns.getId());
                 boolean isShutdown = MultiRedisPool.getInstance().removePool(oldIns.getId());
                 if (isShutdown) {
                     oldIns.setState(false);
@@ -306,6 +311,7 @@ public class RmsInsManageImpl {
             //如实例存在连接池，则关闭连接并保存为关闭状态
             if (oldIns.isState() && MultiRedisPool.getInstance().getPool(oldIns.getId()) != null) {
                 //TODO 停止关联定时任务
+                closeRelateChannelHandler(oldIns.getId());
                 boolean isShutdown = MultiRedisPool.getInstance().removePool(oldIns.getId());
                 if (isShutdown) {
                     oldIns.setState(false);
@@ -401,8 +407,6 @@ public class RmsInsManageImpl {
             ins.setProc_id(Integer.parseInt(info.get("process_id")));
             ins.setUptime_in_seconds(Integer.parseInt(info.get("uptime_in_seconds")));
             ins.setHz(Integer.parseInt(info.get("hz")));
-            ins.setExec(info.get("executable"));
-            ins.setConfig(info.get("config_file"));
             ins.setVersion(info.get("redis_version"));
             //设置实例角色
             if (ins.getMode().equals("sentinel")) {
@@ -458,5 +462,15 @@ public class RmsInsManageImpl {
             valid = false;
         }
         return valid;
+    }
+
+    private void closeRelateChannelHandler(String ins) {
+        MsgBus.getIns().getChannels().forEach((cid, chEnt) -> {
+            chEnt.getHandlers().forEach((hid, handler) -> {
+                if (handler.getIns().equals(ins)) {
+                    handler.destroy();
+                }
+            });
+        });
     }
 }
