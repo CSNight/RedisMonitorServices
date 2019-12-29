@@ -15,10 +15,8 @@ public class RmsCmdPermits {
     private String id;
     @Column(name = "user_id", length = 50)
     private String user_id;
-    @Column(name = "ins_id", length = 50)
-    private String ins_id;
-    @Column(name = "cmd")
-    private String cmd;
+    @Column(name = "commands")
+    private String commands;
     @Column(name = "create_user")
     private String create_user;
     @Column(name = "create_time")
@@ -41,20 +39,12 @@ public class RmsCmdPermits {
         this.user_id = user_id;
     }
 
-    public String getIns_id() {
-        return ins_id;
+    public String getCommands() {
+        return commands;
     }
 
-    public void setIns_id(String ins_id) {
-        this.ins_id = ins_id;
-    }
-
-    public String getCmd() {
-        return cmd;
-    }
-
-    public void setCmd(String cmd) {
-        this.cmd = cmd;
+    public void setCommands(String commands) {
+        this.commands = commands;
     }
 
     public String getCreate_user() {
