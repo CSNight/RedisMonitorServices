@@ -81,16 +81,15 @@ public class BaseUtils {
         return authorities;
     }
 
-    public static Map<String, Set<String>> GetUserCmdAuth(String user_id) {
-        Map<String, Set<String>> cmdAuth = new HashMap<>();
+    public static Set<String> GetUserCmdAuth(String user_id) {
+        Set<String> cmdAuth = null;
         try {
-            List<RmsCmdPermits> permits = ReflectUtils.getBean(RmsCmdRepository.class).findByUserId(user_id);
-            for (RmsCmdPermits permit : permits) {
-                Set<String> commands = new HashSet<>(Arrays.asList(permit.getCmd().split(",")));
-                cmdAuth.put(permit.getIns_id(), commands);
+            RmsCmdPermits permits = ReflectUtils.getBean(RmsCmdRepository.class).findByUserId(user_id);
+            if (permits != null) {
+                cmdAuth = new HashSet<>(Arrays.asList(permits.getCommands().split(",")));
             }
         } catch (Exception ex) {
-            cmdAuth = new HashMap<>();
+            cmdAuth = new HashSet<>();
         }
         return cmdAuth;
     }
