@@ -19,13 +19,19 @@ public class CmdRespHandler implements WsChannelHandler {
     private RedisPoolInstance rpi;
     private JediSQL jedis;
     private String jid = IdentifyUtils.getUUID();
+    private String ins;
+
+    @Override
+    public String getIns() {
+        return ins;
+    }
 
     @Override
     public void initialize(JSONObject msg) throws CmdMsgException {
         if (!parseCmd(msg.getString("msg"))) {
             throw new CmdMsgException("Redis command parse error");
         }
-        String ins = msg.getString("ins");
+        ins = msg.getString("ins");
         if (ins == null || ins.equals("")) {
             throw new CmdMsgException("Must specify a redis instance");
         }

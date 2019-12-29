@@ -20,11 +20,17 @@ public class SubscribeHandler implements WsChannelHandler {
     private JediSQL jediSQL;
     private CmdMsgType t;
     private String[] params;
+    private String ins;
 
     public SubscribeHandler(String appId, Channel ch, CmdMsgType t) {
         this.appId = appId;
         this.channel = ch;
         this.t = t;
+    }
+
+    @Override
+    public String getIns() {
+        return ins;
     }
 
     public void setPool(RedisPoolInstance pool) {
@@ -33,7 +39,7 @@ public class SubscribeHandler implements WsChannelHandler {
 
     @Override
     public void initialize(JSONObject msg) throws CmdMsgException {
-        String ins = msg.getString("ins");
+        ins = msg.getString("ins");
         if (ins == null || ins.equals("")) {
             throw new CmdMsgException("Must specify a redis instance");
         }

@@ -17,6 +17,7 @@ public class MonitorHandler implements WsChannelHandler {
     private RedisPoolInstance pool;
     private String appId;
     private JediSQL jediSQL;
+    private String ins;
 
     public MonitorHandler(String appId, Channel ch) {
         this.appId = appId;
@@ -24,8 +25,13 @@ public class MonitorHandler implements WsChannelHandler {
     }
 
     @Override
+    public String getIns() {
+        return ins;
+    }
+
+    @Override
     public void initialize(JSONObject msg) throws CmdMsgException {
-        String ins = msg.getString("ins");
+        ins = msg.getString("ins");
         if (ins == null || ins.equals("")) {
             throw new CmdMsgException("Must specify a redis instance");
         }
