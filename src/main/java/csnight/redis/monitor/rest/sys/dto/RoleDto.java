@@ -1,5 +1,6 @@
 package csnight.redis.monitor.rest.sys.dto;
 
+import csnight.redis.monitor.db.jpa.SysCommands;
 import csnight.redis.monitor.db.jpa.SysPermission;
 import csnight.redis.monitor.rest.sys.vo.SysMenuVo;
 import io.swagger.annotations.ApiModel;
@@ -29,6 +30,7 @@ public class RoleDto {
 
     private Set<SysPermission> permissionSet;
     private Set<SysMenuVo> menuSet;
+    private SysCommands commands;
 
     public String getId() {
         return id;
@@ -84,5 +86,13 @@ public class RoleDto {
 
     public void setCreate_time(Date create_time) {
         this.create_time = create_time;
+    }
+
+    public SysCommands getCommands() {
+        return commands;
+    }
+
+    public void setCommands(SysCommands commands) {
+        this.commands = commands;
     }
 }

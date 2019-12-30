@@ -6,15 +6,13 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "rms_cmd_permits")
-public class RmsCmdPermits {
+@Table(name = "sys_commands")
+public class SysCommands {
     @Id
     @GenericGenerator(name = "jpa-uuid", strategy = "org.hibernate.id.UUIDGenerator")
     @GeneratedValue(generator = "jpa-uuid")
     @Column(name = "id", length = 50)
     private String id;
-    @Column(name = "user_id", length = 50)
-    private String user_id;
     @Column(name = "commands")
     private String commands;
     @Column(name = "create_user")
@@ -29,14 +27,6 @@ public class RmsCmdPermits {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getUser_id() {
-        return user_id;
-    }
-
-    public void setUser_id(String user_id) {
-        this.user_id = user_id;
     }
 
     public String getCommands() {

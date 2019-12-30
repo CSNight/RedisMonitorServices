@@ -1,14 +1,19 @@
 package csnight.redis.monitor.busi.sys;
 
+import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.busi.sys.exp.RoleQueryExp;
 import csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
+import csnight.redis.monitor.db.jpa.SysCommands;
 import csnight.redis.monitor.db.jpa.SysMenu;
 import csnight.redis.monitor.db.jpa.SysRole;
+import csnight.redis.monitor.db.repos.SysCommandRepository;
 import csnight.redis.monitor.db.repos.SysRoleRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.exception.ConflictsException;
+import csnight.redis.monitor.msg.series.RedisCmdType;
 import csnight.redis.monitor.rest.sys.dto.RoleDto;
 import csnight.redis.monitor.rest.sys.vo.SysMenuVo;
+import csnight.redis.monitor.utils.BaseUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
@@ -23,6 +28,20 @@ public class RoleServiceImpl {
     private SysRoleRepository sysRoleRepository;
     @Resource
     private SysUserRepository userRepository;
+    @Resource
+    private SysCommandRepository commandRepository;
+
+    public List<JSONObject> GetCommands() {
+        List<JSONObject> JoCommands = new ArrayList<>();
+        String[] commands = RedisCmdType.toCommands().split(",");
+        for (String cmd : commands) {
+            JSONObject joCmd = new JSONObject();
+            joCmd.put("key", cmd);
+            joCmd.put("label", cmd);
+            JoCommands.add(joCmd);
+        }
+        return JoCommands;
+    }
 
     /**
      * 功能描述: 角色查询
@@ -102,6 +121,9 @@ public class RoleServiceImpl {
                 userRepository.save(user);
             });
             sysRoleRepository.deleteById(id);
+            if (role.getCommands() != null) {
+                commandRepository.delete(role.getCommands());
+            }
             return "success";
         }
         return "failed";
@@ -177,6 +199,26 @@ public class RoleServiceImpl {
                 sysMenu.setChildren(new ArrayList<>());
             }
             return sysRole;
+        }
+        return null;
+    }
+
+    @CacheEvict(value = "roles", beforeInvocation = true, allEntries = true)
+    public SysRole UpdateRoleCommands(RoleDto dto) {
+        SysRole old_role = sysRoleRepository.findOnly(dto.getId());
+        if (old_role != null) {
+            SysCommands commands;
+            if (old_role.getCommands() != null) {
+                commands = old_role.getCommands();
+                commands.setCommands(dto.getCommands().getCommands());
+            } else {
+                commands = dto.getCommands();
+                commands.setCreate_time(new Date());
+                commands.setCreate_user(BaseUtils.GetUserFromContext());
+            }
+            SysCommands sysCommands = commandRepository.save(commands);
+            old_role.setCommands(sysCommands);
+            return sysRoleRepository.save(old_role);
         }
         return null;
     }

@@ -24,6 +24,14 @@ public class RoleController {
     @Resource
     private RoleServiceImpl roleService;
 
+    @LogAsync(module = "ROLES", auth = "ROLE_COMMANDS")
+    @PreAuthorize("hasAuthority('ROLE_QUERY')")
+    @ApiOperation(value = "命令列表")
+    @RequestMapping(value = "/get_commands", method = RequestMethod.GET)
+    public RespTemplate GetCommandList() {
+        return new RespTemplate(HttpStatus.OK, roleService.GetCommands());
+    }
+
     @LogAsync(module = "ROLES", auth = "ROLE_QUERY")
     @PreAuthorize("hasAuthority('ROLE_QUERY')")
     @ApiOperation(value = "搜索角色")
@@ -75,6 +83,14 @@ public class RoleController {
     @RequestMapping(value = "/update_role_permits", method = RequestMethod.PUT)
     public RespTemplate ModifyRolePermits(@Valid @RequestBody RoleDto dto) {
         return new RespTemplate(HttpStatus.OK, roleService.UpdateRolePermissions(dto));
+    }
+
+    @LogAsync(module = "ROLES", auth = "ROLE_ACCESS")
+    @PreAuthorize("hasAuthority('ROLE_ACCESS') AND hasAuthority('RIGHTS_QUERY')")
+    @ApiOperation(value = "编辑角色命令")
+    @RequestMapping(value = "/update_role_commands", method = RequestMethod.PUT)
+    public RespTemplate ModifyRoleCommands(@Valid @RequestBody RoleDto dto) {
+        return new RespTemplate(HttpStatus.OK, roleService.UpdateRoleCommands(dto));
     }
 
     @LogAsync(module = "ROLES", auth = "ROLE_DEL")

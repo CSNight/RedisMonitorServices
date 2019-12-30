@@ -48,6 +48,10 @@ public class SysRole {
     @JSONField(serialize = false)
     private Set<SysUser> users = new HashSet<>();
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "cmd_id")
+    private SysCommands commands;
+
     public String getId() {
         return id;
     }
@@ -110,5 +114,13 @@ public class SysRole {
 
     public void setUsers(Set<SysUser> users) {
         this.users = users;
+    }
+
+    public SysCommands getCommands() {
+        return commands;
+    }
+
+    public void setCommands(SysCommands commands) {
+        this.commands = commands;
     }
 }
