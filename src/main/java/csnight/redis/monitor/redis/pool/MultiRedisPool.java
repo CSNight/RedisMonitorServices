@@ -91,6 +91,9 @@ public class MultiRedisPool {
 
     public boolean shutdownUserPools(String user_id) {
         List<String> instances = UserPools.get(user_id);
+        if (instances == null) {
+            return true;
+        }
         try {
             for (String ins_id : instances) {
                 RedisPoolInstance pool = ConnPools.get(ins_id);

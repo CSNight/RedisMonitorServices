@@ -45,6 +45,11 @@ public class ConsoleMsgDispatcher {
         WssResponseEntity wre;
         int requestType = msg.getIntValue("rt");
         String appId = msg.getString("appId");
+        if (!checkAuthority(msg, requestType, ch)) {
+            wre = new WssResponseEntity(ResponseMsgType.ERROR, "Does not has authority to execute");
+            wre.setAppId(appId);
+            WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
+        }
         try {
             switch (CmdMsgType.getEnumType(requestType)) {
                 default:
@@ -112,6 +117,24 @@ public class ConsoleMsgDispatcher {
             wre.setAppId(appId);
             WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
         }
+    }
+
+    private boolean checkAuthority(JSONObject msg, int requestType, Channel ch) {
+        boolean isAuth;
+        ChannelEntity che = channels.get(ch.id().asShortText());
+        if (requestType == 100 || requestType == 200 || requestType == 201 || requestType == 204) {
+            String command = msg.getString("msg");
+            if (command == null || command.split(" ").length == 0) {
+                isAuth = false;
+            } else {
+                isAuth = che.canExecute(command.split(" ")[0].toUpperCase());
+            }
+        } else if (requestType == 202) {
+            isAuth = che.canExecute("UNSUBSCRIBE");
+        } else if (requestType == 203) {
+            isAuth = che.canExecute("PUNSUBSCRIBE");
+        } else isAuth = requestType == 205;
+        return isAuth;
     }
 }
 

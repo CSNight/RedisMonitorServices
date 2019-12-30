@@ -1,8 +1,7 @@
 package csnight.redis.monitor.utils;
 
-import csnight.redis.monitor.db.jpa.RmsCmdPermits;
+import csnight.redis.monitor.db.jpa.SysRole;
 import csnight.redis.monitor.db.jpa.SysUser;
-import csnight.redis.monitor.db.repos.RmsCmdRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -82,11 +81,14 @@ public class BaseUtils {
     }
 
     public static Set<String> GetUserCmdAuth(String user_id) {
-        Set<String> cmdAuth = null;
+        Set<String> cmdAuth = new HashSet<>();
         try {
-            RmsCmdPermits permits = ReflectUtils.getBean(RmsCmdRepository.class).findByUserId(user_id);
-            if (permits != null) {
-                cmdAuth = new HashSet<>(Arrays.asList(permits.getCommands().split(",")));
+            SysUser user = ReflectUtils.getBean(SysUserRepository.class).findOnly(user_id);
+            if (user_id != null) {
+                for (SysRole role : user.getRoles()) {
+                    String[] commands = role.getCommands().getCommands().split(",");
+                    cmdAuth.addAll(Arrays.asList(commands));
+                }
             }
         } catch (Exception ex) {
             cmdAuth = new HashSet<>();
