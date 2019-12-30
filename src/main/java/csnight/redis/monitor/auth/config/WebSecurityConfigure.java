@@ -76,7 +76,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 .logout().logoutUrl("/auth/logout").addLogoutHandler(signOutHandler).logoutSuccessHandler(logoutSuccessHandler).permitAll()
                 .and().rememberMe().tokenRepository(jdbcTokenRepositoryExt).tokenValiditySeconds(60 * 60 * 24 * 7);
         http.sessionManagement().maximumSessions(1).sessionRegistry(sessionRegistry());
-        http.headers().frameOptions().sameOrigin();
+        http.headers().frameOptions().sameOrigin().disable();
     }
 
     @Bean
