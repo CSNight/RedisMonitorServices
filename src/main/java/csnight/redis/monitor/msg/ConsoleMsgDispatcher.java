@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 public class ConsoleMsgDispatcher {
-    private Logger _log = LoggerFactory.getLogger(MsgBus.class);
     private Map<String, ChannelEntity> channels;
     private static ConsoleMsgDispatcher ourInstance;
 
@@ -41,7 +40,6 @@ public class ConsoleMsgDispatcher {
     }
 
     public void dispatchMsg(JSONObject msg, Channel ch) {
-        _log.info(msg.toJSONString());
         WssResponseEntity wre;
         int requestType = msg.getIntValue("rt");
         String appId = msg.getString("appId");

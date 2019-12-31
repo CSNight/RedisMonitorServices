@@ -8,7 +8,7 @@
         <version>2.2.2.RELEASE</version>
         <relativePath/>
     </parent>
-    <groupId>com.csnight.redis</groupId>
+    <groupId>csnight.redis</groupId>
     <artifactId>monitor</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>RedisMonitorServices</name>
