@@ -54,9 +54,15 @@ public class RedisPoolInstance {
         if (config.getPoolType().equals("sen") && config.checkSentinelsConfig()) {
             jedisSenPool = new JedisSentinelPool(config.getMaster(), config.getSentinels(),
                     config.BuildJedisConfig(), config.getTimeOut(), config.getPassword(), config.getDb());
+            //connect test;
+            JediSQL j = jedisSenPool.getResource();
+            j.close();
         } else if (config.getPoolType().equals("sin")) {
             jedisPool = new JedisPool(config.BuildJedisConfig(), config.getIp(), config.getPort(),
                     config.getTimeOut(), config.getPassword(), config.getDb());
+            //connect test;
+            JediSQL j = jedisPool.getResource();
+            j.close();
         } else {
             throw new ValidateException("Redis pool build failed due to config");
         }
