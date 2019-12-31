@@ -30,12 +30,13 @@ public class RmsDtManageImpl {
         List<JSONObject> res = new ArrayList<>();
         List<RmsInstance> instances = rmsInsRepository.findAll(Sort.by(Sort.Direction.ASC, "ct"));
         for (RmsInstance instance : instances) {
-            List<JSONObject> dbs = InstanceDBCount(instance);
+            List<JSONObject> dbs = InstanceDBCount(instance,false);
             JSONObject JoIns = JSONObject.parseObject(JSONObject.toJSONString(instance));
             JoIns.put("children", dbs);
             JoIns.put("label", instance.getInstance_name());
             JoIns.put("type", "ins");
             JoIns.put("dbCount", dbs.size());
+            res.add(JoIns);
         }
         return res;
     }
@@ -44,32 +45,54 @@ public class RmsDtManageImpl {
         List<JSONObject> res = new ArrayList<>();
         List<RmsInstance> instances = rmsInsRepository.findByUserId(user_id);
         for (RmsInstance instance : instances) {
-            List<JSONObject> dbs = InstanceDBCount(instance);
+            List<JSONObject> dbs = InstanceDBCount(instance,false);
             JSONObject JoIns = JSONObject.parseObject(JSONObject.toJSONString(instance));
             JoIns.put("children", dbs);
             JoIns.put("label", instance.getInstance_name());
             JoIns.put("type", "ins");
             JoIns.put("dbCount", dbs.size());
+            res.add(JoIns);
         }
         return res;
     }
 
-    private List<JSONObject> InstanceDBCount(RmsInstance instance) throws ConfigException {
+    public JSONObject GetDatabaseById(String ins_id) throws ConfigException {
+        RmsInstance instance = rmsInsRepository.findOnly(ins_id);
+        if (instance != null) {
+            List<JSONObject> dbs = InstanceDBCount(instance, true);
+            JSONObject JoIns = JSONObject.parseObject(JSONObject.toJSONString(instance));
+            JoIns.put("children", dbs);
+            JoIns.put("label", instance.getInstance_name());
+            JoIns.put("type", "ins");
+            JoIns.put("dbCount", dbs.size());
+            return JoIns;
+        }
+        return null;
+    }
+
+    private List<JSONObject> InstanceDBCount(RmsInstance instance, boolean tryConnect) throws ConfigException {
         RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(instance.getId());
         List<JSONObject> dbs = new ArrayList<>();
         boolean needShut = false;
-        if (pool == null) {
-            PoolConfig poolConfig = JSONObject.parseObject(instance.getConn(), PoolConfig.class);
-            pool = MultiRedisPool.getInstance().addNewPool(poolConfig);
-            needShut = true;
+        if (pool == null && !tryConnect) {
+            return dbs;
+        } else if (pool == null && tryConnect) {
+            PoolConfig config = JSONObject.parseObject(instance.getConn(), PoolConfig.class);
+            pool = MultiRedisPool.getInstance().addNewPool(config);
+            if (pool != null) {
+                needShut = true;
+            } else {
+                return dbs;
+            }
         }
         String jid = IdentifyUtils.getUUID();
         JediSQL jediSQL = pool.getJedis(jid);
         List<String> res = jediSQL.configGet("databases");
-        long keyCount = jediSQL.dbSize();
         if (res != null && res.size() == 2) {
             int dbCount = Integer.parseInt(res.get(1));
             for (int i = 0; i < dbCount; i++) {
+                jediSQL.select(i);
+                long keyCount = jediSQL.dbSize();
                 JSONObject joDb = new JSONObject();
                 joDb.put("id", "");
                 joDb.put("keySize", keyCount);
@@ -80,6 +103,7 @@ public class RmsDtManageImpl {
                 dbs.add(joDb);
             }
         }
+        jediSQL.select(0);
         pool.close(jid);
         if (needShut) {
             MultiRedisPool.getInstance().removePool(pool.getId());

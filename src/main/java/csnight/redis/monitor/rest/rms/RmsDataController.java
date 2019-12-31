@@ -28,7 +28,7 @@ public class RmsDataController {
     private RmsDtManageImpl dtManage;
 
     @LogAsync(module = "DBA", auth = "DBA_QUERY_ALL")
-    @ApiOperation("查询Redis实例列表")
+    @ApiOperation("查询Redis实例库列表")
     @PreAuthorize("hasAuthority('DBA_QUERY_ALL')")
     @RequestMapping(value = "/databases/all", method = RequestMethod.GET)
     public RespTemplate GetAllInstances() throws ConfigException {
@@ -36,10 +36,18 @@ public class RmsDataController {
     }
 
     @LogAsync(module = "DBA", auth = "DBA_QUERY")
-    @ApiOperation("根据用户id查询Redis实例")
+    @ApiOperation("根据用户id查询Redis实例库")
     @PreAuthorize("hasAuthority('DBA_QUERY')")
     @RequestMapping(value = "/databases/{user_id}", method = RequestMethod.GET)
     public RespTemplate GetInstanceByUser(@PathVariable String user_id) throws ConfigException {
         return new RespTemplate(HttpStatus.OK, dtManage.GetDatabaseByUser(user_id));
+    }
+
+    @LogAsync(module = "DBA", auth = "DBA_QUERY_SINGLE")
+    @ApiOperation("根据实例id查询Redis实例库")
+    @PreAuthorize("hasAuthority('DBA_QUERY')")
+    @RequestMapping(value = "/database/{ins_id}", method = RequestMethod.GET)
+    public RespTemplate GetInstanceById(@PathVariable String ins_id) throws ConfigException {
+        return new RespTemplate(HttpStatus.OK, dtManage.GetDatabaseById(ins_id));
     }
 }
