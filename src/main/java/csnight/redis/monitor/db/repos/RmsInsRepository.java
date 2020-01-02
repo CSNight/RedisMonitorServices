@@ -18,4 +18,10 @@ public interface RmsInsRepository extends JpaRepository<RmsInstance, String>, Jp
 
     @Query(value = "select * from rmsdb.rms_instance where instance_name=?", nativeQuery = true)
     RmsInstance findByInstanceName(String ins_name);
+
+    @Query(value = "select * from rmsdb.rms_instance where user_id=? and mode<>'sentinel' order by ct", nativeQuery = true)
+    List<RmsInstance> findAllByUserIdAndMode(String user_id);
+
+    @Query(value = "select * from rmsdb.rms_instance where mode<>'sentinel' order by ct", nativeQuery = true)
+    List<RmsInstance> findAllFilterByMode();
 }

@@ -28,7 +28,7 @@ public class RmsDtManageImpl {
 
     public List<JSONObject> GetDatabases() throws ConfigException {
         List<JSONObject> res = new ArrayList<>();
-        List<RmsInstance> instances = rmsInsRepository.findAll(Sort.by(Sort.Direction.ASC, "ct"));
+        List<RmsInstance> instances = rmsInsRepository.findAllFilterByMode();
         for (RmsInstance instance : instances) {
             List<JSONObject> dbs = InstanceDBCount(instance, false);
             JSONObject JoIns = JSONObject.parseObject(JSONObject.toJSONString(instance));
@@ -44,7 +44,7 @@ public class RmsDtManageImpl {
 
     public List<JSONObject> GetDatabaseByUser(String user_id) throws ConfigException {
         List<JSONObject> res = new ArrayList<>();
-        List<RmsInstance> instances = rmsInsRepository.findByUserId(user_id);
+        List<RmsInstance> instances = rmsInsRepository.findAllByUserIdAndMode(user_id);
         for (RmsInstance instance : instances) {
             List<JSONObject> dbs = InstanceDBCount(instance, false);
             JSONObject JoIns = JSONObject.parseObject(JSONObject.toJSONString(instance));
