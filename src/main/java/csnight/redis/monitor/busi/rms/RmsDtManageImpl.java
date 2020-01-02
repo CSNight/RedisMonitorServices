@@ -30,12 +30,13 @@ public class RmsDtManageImpl {
         List<JSONObject> res = new ArrayList<>();
         List<RmsInstance> instances = rmsInsRepository.findAll(Sort.by(Sort.Direction.ASC, "ct"));
         for (RmsInstance instance : instances) {
-            List<JSONObject> dbs = InstanceDBCount(instance,false);
+            List<JSONObject> dbs = InstanceDBCount(instance, false);
             JSONObject JoIns = JSONObject.parseObject(JSONObject.toJSONString(instance));
             JoIns.put("children", dbs);
             JoIns.put("label", instance.getInstance_name());
             JoIns.put("type", "ins");
             JoIns.put("dbCount", dbs.size());
+            JoIns.put("reachable", dbs.size() != 0);
             res.add(JoIns);
         }
         return res;
@@ -45,12 +46,13 @@ public class RmsDtManageImpl {
         List<JSONObject> res = new ArrayList<>();
         List<RmsInstance> instances = rmsInsRepository.findByUserId(user_id);
         for (RmsInstance instance : instances) {
-            List<JSONObject> dbs = InstanceDBCount(instance,false);
+            List<JSONObject> dbs = InstanceDBCount(instance, false);
             JSONObject JoIns = JSONObject.parseObject(JSONObject.toJSONString(instance));
             JoIns.put("children", dbs);
             JoIns.put("label", instance.getInstance_name());
             JoIns.put("type", "ins");
             JoIns.put("dbCount", dbs.size());
+            JoIns.put("reachable", dbs.size() != 0);
             res.add(JoIns);
         }
         return res;
@@ -65,6 +67,7 @@ public class RmsDtManageImpl {
             JoIns.put("label", instance.getInstance_name());
             JoIns.put("type", "ins");
             JoIns.put("dbCount", dbs.size());
+            JoIns.put("reachable", dbs.size() != 0);
             return JoIns;
         }
         return null;
