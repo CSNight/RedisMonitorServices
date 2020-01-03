@@ -115,13 +115,11 @@ public class RedisPoolInstance {
             if (jedisSenPool != null) {
                 rcs.forEach((key, jedis) -> jedis.close());
                 jedisSenPool.close();
-                jedisSenPool.destroy();
             }
         } else {
             if (jedisPool != null) {
                 rcs.forEach((key, jedis) -> jedis.close());
                 jedisPool.close();
-                jedisPool.destroy();
             }
         }
     }
