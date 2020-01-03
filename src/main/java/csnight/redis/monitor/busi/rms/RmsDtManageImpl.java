@@ -5,11 +5,11 @@ import com.csnight.jedisql.JediSQL;
 import csnight.redis.monitor.db.jpa.RmsInstance;
 import csnight.redis.monitor.db.repos.RmsInsRepository;
 import csnight.redis.monitor.exception.ConfigException;
+import csnight.redis.monitor.exception.ValidateException;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.PoolConfig;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
 import csnight.redis.monitor.utils.IdentifyUtils;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -71,6 +71,41 @@ public class RmsDtManageImpl {
             return JoIns;
         }
         return null;
+    }
+
+    public String FlushDatabase(String ins_id, int db) throws ConfigException {
+        RmsInstance instance = rmsInsRepository.findOnly(ins_id);
+        if (instance == null) {
+            throw new ValidateException("instance dose not exist");
+        } else if (!instance.getRole().equals("master")) {
+            throw new ValidateException("instance can not flush because cluster mode role");
+        }
+        RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(ins_id);
+        boolean needShut = false;
+        String result;
+        if (pool == null) {
+            PoolConfig config = JSONObject.parseObject(instance.getConn(), PoolConfig.class);
+            pool = MultiRedisPool.getInstance().addNewPool(config);
+            if (pool != null) {
+                needShut = true;
+            } else {
+                return "failed";
+            }
+        }
+        String jid = IdentifyUtils.getUUID();
+        JediSQL jediSQL = pool.getJedis(jid);
+        if (db == -1) {
+            result = jediSQL.flushAll();
+        } else {
+            jediSQL.select(db);
+            result = jediSQL.flushDB();
+        }
+        jediSQL.select(0);
+        pool.close(jid);
+        if (needShut) {
+            MultiRedisPool.getInstance().removePool(pool.getId());
+        }
+        return result;
     }
 
     private List<JSONObject> InstanceDBCount(RmsInstance instance, boolean tryConnect) throws ConfigException {

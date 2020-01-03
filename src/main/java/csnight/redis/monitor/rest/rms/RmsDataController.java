@@ -50,4 +50,20 @@ public class RmsDataController {
     public RespTemplate GetInstanceById(@PathVariable String ins_id) throws ConfigException {
         return new RespTemplate(HttpStatus.OK, dtManage.GetDatabaseById(ins_id));
     }
+
+    @LogAsync(module = "DBA", auth = "DBA_FLUSH_ALL")
+    @ApiOperation("清空实例库数据")
+    @PreAuthorize("hasAuthority('DBA_FLUSH_ALL')")
+    @RequestMapping(value = "/flush/{ins_id}", method = RequestMethod.DELETE)
+    public RespTemplate InsFlushAll(@PathVariable String ins_id) throws ConfigException {
+        return new RespTemplate(HttpStatus.OK, dtManage.FlushDatabase(ins_id, -1));
+    }
+
+    @LogAsync(module = "DBA", auth = "DBA_FLUSH_DB")
+    @ApiOperation("清空实例指定库数据")
+    @PreAuthorize("hasAuthority('DBA_FLUSH_DB')")
+    @RequestMapping(value = "/flush/{ins_id}/{db}", method = RequestMethod.DELETE)
+    public RespTemplate InsFlushDB(@PathVariable String ins_id, @PathVariable int db) throws ConfigException {
+        return new RespTemplate(HttpStatus.OK, dtManage.FlushDatabase(ins_id, db));
+    }
 }
