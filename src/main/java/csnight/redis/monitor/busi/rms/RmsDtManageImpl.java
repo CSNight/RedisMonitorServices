@@ -5,16 +5,19 @@ import com.csnight.jedisql.JediSQL;
 import csnight.redis.monitor.db.jpa.RmsInstance;
 import csnight.redis.monitor.db.repos.RmsInsRepository;
 import csnight.redis.monitor.exception.ConfigException;
-import csnight.redis.monitor.exception.ValidateException;
+import csnight.redis.monitor.redis.data.KeyScanner;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.PoolConfig;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
+import csnight.redis.monitor.rest.rms.dto.KeyScanDto;
 import csnight.redis.monitor.utils.IdentifyUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author csnight
@@ -25,12 +28,13 @@ import java.util.List;
 public class RmsDtManageImpl {
     @Resource
     private RmsInsRepository rmsInsRepository;
+    private KeyScanner keyScanner = new KeyScanner();
 
     public List<JSONObject> GetDatabases() throws ConfigException {
         List<JSONObject> res = new ArrayList<>();
         List<RmsInstance> instances = rmsInsRepository.findAllFilterByMode();
         for (RmsInstance instance : instances) {
-            List<JSONObject> dbs = InstanceDBCount(instance, false);
+            List<Map<String, Object>> dbs = InstanceDBCount(instance, false);
             JSONObject JoIns = JSONObject.parseObject(JSONObject.toJSONString(instance));
             JoIns.put("children", dbs);
             JoIns.put("label", instance.getInstance_name());
@@ -39,6 +43,7 @@ public class RmsDtManageImpl {
             JoIns.put("reachable", dbs.size() != 0);
             res.add(JoIns);
         }
+        instances.clear();
         return res;
     }
 
@@ -46,7 +51,7 @@ public class RmsDtManageImpl {
         List<JSONObject> res = new ArrayList<>();
         List<RmsInstance> instances = rmsInsRepository.findAllByUserIdAndMode(user_id);
         for (RmsInstance instance : instances) {
-            List<JSONObject> dbs = InstanceDBCount(instance, false);
+            List<Map<String, Object>> dbs = InstanceDBCount(instance, false);
             JSONObject JoIns = JSONObject.parseObject(JSONObject.toJSONString(instance));
             JoIns.put("children", dbs);
             JoIns.put("label", instance.getInstance_name());
@@ -55,13 +60,14 @@ public class RmsDtManageImpl {
             JoIns.put("reachable", dbs.size() != 0);
             res.add(JoIns);
         }
+        instances.clear();
         return res;
     }
 
     public JSONObject GetDatabaseById(String ins_id) throws ConfigException {
         RmsInstance instance = rmsInsRepository.findOnly(ins_id);
         if (instance != null) {
-            List<JSONObject> dbs = InstanceDBCount(instance, true);
+            List<Map<String, Object>> dbs = InstanceDBCount(instance, true);
             JSONObject JoIns = JSONObject.parseObject(JSONObject.toJSONString(instance));
             JoIns.put("children", dbs);
             JoIns.put("label", instance.getInstance_name());
@@ -76,9 +82,9 @@ public class RmsDtManageImpl {
     public String FlushDatabase(String ins_id, int db) throws ConfigException {
         RmsInstance instance = rmsInsRepository.findOnly(ins_id);
         if (instance == null) {
-            throw new ValidateException("instance dose not exist");
+            return "instance dose not exist";
         } else if (!instance.getRole().equals("master")) {
-            throw new ValidateException("instance can not flush because cluster mode role");
+            return "instance can not flush because cluster mode role";
         }
         RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(ins_id);
         boolean needShut = false;
@@ -108,9 +114,28 @@ public class RmsDtManageImpl {
         return result;
     }
 
-    private List<JSONObject> InstanceDBCount(RmsInstance instance, boolean tryConnect) throws ConfigException {
+    public Map<String, Object> GetDBKeys(KeyScanDto dto) throws ConfigException {
+        RmsInstance instance = rmsInsRepository.findOnly(dto.getIns_id());
+        if (instance == null || !instance.getRole().equals("master")) {
+            return new HashMap<>();
+        }
         RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(instance.getId());
-        List<JSONObject> dbs = new ArrayList<>();
+        if (pool == null) {
+            PoolConfig config = JSONObject.parseObject(instance.getConn(), PoolConfig.class);
+            pool = MultiRedisPool.getInstance().addNewPool(config);
+            if (pool != null) {
+                instance.setState(true);
+                rmsInsRepository.save(instance);
+            } else {
+                return new HashMap<>();
+            }
+        }
+        return keyScanner.ScanKeys(pool, dto);
+    }
+
+    private List<Map<String, Object>> InstanceDBCount(RmsInstance instance, boolean tryConnect) throws ConfigException {
+        RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(instance.getId());
+        List<Map<String, Object>> dbs = new ArrayList<>();
         boolean needShut = false;
         if (pool == null && !tryConnect) {
             return dbs;
@@ -131,8 +156,8 @@ public class RmsDtManageImpl {
             for (int i = 0; i < dbCount; i++) {
                 jediSQL.select(i);
                 long keyCount = jediSQL.dbSize();
-                JSONObject joDb = new JSONObject();
-                joDb.put("id", "");
+                Map<String, Object> joDb = new HashMap<>();
+                joDb.put("id", "db-" + i + "-" + instance.getId().replaceAll("-", ""));
                 joDb.put("keySize", keyCount);
                 joDb.put("type", "db");
                 joDb.put("label", "db" + i);

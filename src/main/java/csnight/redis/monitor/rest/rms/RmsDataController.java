@@ -3,17 +3,16 @@ package csnight.redis.monitor.rest.rms;
 import csnight.redis.monitor.aop.LogAsync;
 import csnight.redis.monitor.busi.rms.RmsDtManageImpl;
 import csnight.redis.monitor.exception.ConfigException;
+import csnight.redis.monitor.rest.rms.dto.KeyScanDto;
 import csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 /**
  * @author csnight
@@ -49,6 +48,14 @@ public class RmsDataController {
     @RequestMapping(value = "/database/{ins_id}", method = RequestMethod.GET)
     public RespTemplate GetInstanceById(@PathVariable String ins_id) throws ConfigException {
         return new RespTemplate(HttpStatus.OK, dtManage.GetDatabaseById(ins_id));
+    }
+
+    @LogAsync(module = "DBA", auth = "DBA_KEY_SCAN")
+    @ApiOperation("检索实例库键值")
+    @PreAuthorize("hasAuthority('DBA_KEY_SCAN')")
+    @RequestMapping(value = "/scanner", method = RequestMethod.GET)
+    public RespTemplate GetInstanceById(@Valid KeyScanDto dto) throws ConfigException {
+        return new RespTemplate(HttpStatus.OK, dtManage.GetDBKeys(dto));
     }
 
     @LogAsync(module = "DBA", auth = "DBA_FLUSH_ALL")
