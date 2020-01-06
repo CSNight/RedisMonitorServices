@@ -13,7 +13,7 @@ public class KeyScanDto {
     private int db;
     @NotNull
     private String cursor;
-    @Max(100)
+    @Max(1000)
     @Min(10)
     private int count = 10;
     @NotEmpty

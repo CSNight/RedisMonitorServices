@@ -1,9 +1,6 @@
 package csnight.redis.monitor.redis.data;
 
-import com.csnight.jedisql.JediSQL;
-import com.csnight.jedisql.ScanParams;
-import com.csnight.jedisql.ScanResult;
-import com.csnight.jedisql.Tuple;
+import com.csnight.jedisql.*;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
 import csnight.redis.monitor.rest.rms.dto.KeyScanDto;
 import csnight.redis.monitor.utils.IdentifyUtils;
@@ -29,55 +26,182 @@ public class KeyScanner {
             ScanResult<String> keysRes = jediSQL.scan(dto.getCursor(), params);
             keysRes.getCursor();
             List<String> keys = keysRes.getResult();
+            Pipeline pipeline = jediSQL.pipelined();
+            Map<String, Response<String>> typePipeRes = new HashMap<>();
+            Map<String, Response<Long>> ttlPipeRes = new HashMap<>();
+
             for (String key : keys) {
-                long ttl = jediSQL.pttl(key);
-                String t = jediSQL.type(key);
-                if (ttl == -2L || t.equals("none")) {
-                    continue;
-                }
+                typePipeRes.put(key, pipeline.type(key));
+            }
+            pipeline.sync();
+            for (String key : keys) {
+                ttlPipeRes.put(key, pipeline.pttl(key));
+            }
+            pipeline.sync();
+            for (String key : keys) {
+                long ttl = ttlPipeRes.get(key).get();
+                String t = typePipeRes.get(key).get();
                 Map<String, Object> joKey = new HashMap<>();
                 joKey.put("key", key);
                 joKey.put("ttl", ttl);
                 joKey.put("type", t);
+                if (ttl == -2L || t.equals("none")) {
+                    continue;
+                }
                 keySet.add(joKey);
             }
+
+            pipeline.close();
+            ttlPipeRes.clear();
+            typePipeRes.clear();
             keys.clear();
             res.put("cursor", keysRes.getCursor());
-            GetKeySize(jediSQL,keySet);
-            res.put("keys", keySet);
+            res.put("keys", GetKeySize(jediSQL, keySet));
+
         } finally {
             jediSQL.select(0);
             pool.close(jid);
+            System.gc();
         }
         return res;
     }
 
-    private void GetKeySize(JediSQL jediSQL, List<Map<String, Object>> keySet) {
+    private List<Map<String, Object>> GetKeySize(JediSQL jediSQL, List<Map<String, Object>> keySet) {
+        List<Map<String, Object>> strArr = new ArrayList<>();
+        List<Map<String, Object>> listArr = new ArrayList<>();
+        List<Map<String, Object>> zsetArr = new ArrayList<>();
+        List<Map<String, Object>> hashArr = new ArrayList<>();
+        List<Map<String, Object>> setArr = new ArrayList<>();
         for (Map<String, Object> kt : keySet) {
-            String key = kt.get("key").toString();
             switch (kt.get("type").toString()) {
                 case "string":
-                    String kv = jediSQL.get(key);
-                    kt.put("size", kv.length());
+                    strArr.add(kt);
                     break;
                 case "hash":
-                    long hs = jediSQL.hlen(key);
-                    kt.put("size", hs);
+                    hashArr.add(kt);
                     break;
                 case "zset":
-                    long zs = jediSQL.zcount(key, "-inf", "+inf");
-                    kt.put("size", zs);
+                    zsetArr.add(kt);
                     break;
                 case "set":
-                    long ss = jediSQL.scard(key);
-                    kt.put("size", ss);
+                    setArr.add(kt);
                     break;
                 case "list":
-                    long ls = jediSQL.llen(key);
-                    kt.put("size", ls);
+                    listArr.add(kt);
                     break;
             }
         }
+        getStringSizes(jediSQL, strArr);
+        getListSizes(jediSQL, listArr);
+        getSetSizes(jediSQL, setArr);
+        getZSetSizes(jediSQL, zsetArr);
+        getHashSizes(jediSQL, hashArr);
+        List<Map<String, Object>> res = new ArrayList<>();
+        res.addAll(strArr);
+        res.addAll(listArr);
+        res.addAll(setArr);
+        res.addAll(zsetArr);
+        res.addAll(hashArr);
+        strArr.clear();
+        listArr.clear();
+        setArr.clear();
+        zsetArr.clear();
+        hashArr.clear();
+        System.gc();
+        return res;
+    }
+
+    private void getStringSizes(JediSQL jediSQL, List<Map<String, Object>> strArr) {
+        Map<String, Response<Long>> pipeRes = new HashMap<>();
+        Pipeline p = jediSQL.pipelined();
+        for (Map<String, Object> kt : strArr) {
+            String key = kt.get("key").toString();
+            pipeRes.put(key, p.strlen(key));
+        }
+        long s = System.currentTimeMillis();
+        p.sync();
+        long e = System.currentTimeMillis();
+        System.out.println(e - s);
+        for (Map<String, Object> kt : strArr) {
+            String key = kt.get("key").toString();
+            long size = pipeRes.get(key).get();
+            kt.put("size", size);
+        }
+        p.close();
+        pipeRes.clear();
+        pipeRes = null;
+    }
+
+    private void getListSizes(JediSQL jediSQL, List<Map<String, Object>> listArr) {
+        Map<String, Response<Long>> pipeRes = new HashMap<>();
+        Pipeline p = jediSQL.pipelined();
+        for (Map<String, Object> kt : listArr) {
+            String key = kt.get("key").toString();
+            pipeRes.put(key, p.llen(key));
+        }
+        p.sync();
+        for (Map<String, Object> kt : listArr) {
+            String key = kt.get("key").toString();
+            long size = pipeRes.get(key).get();
+            kt.put("size", size);
+        }
+        p.close();
+        pipeRes.clear();
+        pipeRes = null;
+    }
+
+    private void getSetSizes(JediSQL jediSQL, List<Map<String, Object>> setArr) {
+        Map<String, Response<Long>> pipeRes = new HashMap<>();
+        Pipeline p = jediSQL.pipelined();
+        for (Map<String, Object> kt : setArr) {
+            String key = kt.get("key").toString();
+            pipeRes.put(key, p.scard(key));
+        }
+        p.sync();
+        for (Map<String, Object> kt : setArr) {
+            String key = kt.get("key").toString();
+            long size = pipeRes.get(key).get();
+            kt.put("size", size);
+        }
+        p.close();
+        pipeRes.clear();
+        pipeRes = null;
+    }
+
+    private void getZSetSizes(JediSQL jediSQL, List<Map<String, Object>> zsetArr) {
+        Map<String, Response<Long>> pipeRes = new HashMap<>();
+        Pipeline p = jediSQL.pipelined();
+        for (Map<String, Object> kt : zsetArr) {
+            String key = kt.get("key").toString();
+            pipeRes.put(key, p.zcount(key, "-inf", "+inf"));
+        }
+        p.sync();
+        for (Map<String, Object> kt : zsetArr) {
+            String key = kt.get("key").toString();
+            long size = pipeRes.get(key).get();
+            kt.put("size", size);
+        }
+        p.close();
+        pipeRes.clear();
+        pipeRes = null;
+    }
+
+    private void getHashSizes(JediSQL jediSQL, List<Map<String, Object>> hashArr) {
+        Map<String, Response<Long>> pipeRes = new HashMap<>();
+        Pipeline p = jediSQL.pipelined();
+        for (Map<String, Object> kt : hashArr) {
+            String key = kt.get("key").toString();
+            pipeRes.put(key, p.hlen(key));
+        }
+        p.sync();
+        for (Map<String, Object> kt : hashArr) {
+            String key = kt.get("key").toString();
+            long size = pipeRes.get(key).get();
+            kt.put("size", size);
+        }
+        p.close();
+        pipeRes.clear();
+        pipeRes = null;
     }
 
     private void GetKeyValue(JediSQL jediSQL, Map<String, Object> kt) {
@@ -86,9 +210,6 @@ public class KeyScanner {
             case "string":
                 String kv = jediSQL.get(key);
                 kt.put("val", kv);
-                if (kv.startsWith("HYLL")) {
-                    kt.put("type", "hyperLogLog");
-                }
                 break;
             case "hash":
                 Map<String, String> table = jediSQL.hgetAll(key);
