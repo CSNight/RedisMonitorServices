@@ -5,11 +5,9 @@ import com.csnight.jedisql.JediSQL;
 import csnight.redis.monitor.db.jpa.RmsInstance;
 import csnight.redis.monitor.db.repos.RmsInsRepository;
 import csnight.redis.monitor.exception.ConfigException;
-import csnight.redis.monitor.redis.data.KeyScanner;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.PoolConfig;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
-import csnight.redis.monitor.rest.rms.dto.KeyScanDto;
 import csnight.redis.monitor.utils.IdentifyUtils;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +26,6 @@ import java.util.Map;
 public class RmsDtManageImpl {
     @Resource
     private RmsInsRepository rmsInsRepository;
-    private KeyScanner keyScanner = new KeyScanner();
 
     public List<JSONObject> GetDatabases() throws ConfigException {
         List<JSONObject> res = new ArrayList<>();
@@ -112,25 +109,6 @@ public class RmsDtManageImpl {
             MultiRedisPool.getInstance().removePool(pool.getId());
         }
         return result;
-    }
-
-    public Map<String, Object> GetDBKeys(KeyScanDto dto) throws ConfigException {
-        RmsInstance instance = rmsInsRepository.findOnly(dto.getIns_id());
-        if (instance == null || !instance.getRole().equals("master")) {
-            return new HashMap<>();
-        }
-        RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(instance.getId());
-        if (pool == null) {
-            PoolConfig config = JSONObject.parseObject(instance.getConn(), PoolConfig.class);
-            pool = MultiRedisPool.getInstance().addNewPool(config);
-            if (pool != null) {
-                instance.setState(true);
-                rmsInsRepository.save(instance);
-            } else {
-                return new HashMap<>();
-            }
-        }
-        return keyScanner.ScanKeys(pool, dto);
     }
 
     private List<Map<String, Object>> InstanceDBCount(RmsInstance instance, boolean tryConnect) throws ConfigException {
