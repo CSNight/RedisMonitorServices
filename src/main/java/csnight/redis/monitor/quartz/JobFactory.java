@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-@Component
 public class JobFactory {
     private static Logger _log = LoggerFactory.getLogger(JobFactory.class);
     private final Scheduler scheduler;
