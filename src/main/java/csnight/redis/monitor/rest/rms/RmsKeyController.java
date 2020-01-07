@@ -50,6 +50,15 @@ public class RmsKeyController {
         return new RespTemplate(HttpStatus.OK, res);
     }
 
+    @LogAsync(module = "KEYS", auth = "KEYS_KEY_EXPIRE")
+    @ApiOperation("设置键过期时间")
+    @PreAuthorize("hasAuthority('KEYS_KEY_EXPIRE')")
+    @RequestMapping(value = "/expires", method = RequestMethod.PUT)
+    public RespTemplate InsKeyExpire(@Valid @RequestBody KeyEntDto dto) {
+        String res = keyManage.SetKeysExpire(dto);
+        return new RespTemplate(HttpStatus.OK, res);
+    }
+
     @LogAsync(module = "KEYS", auth = "KEYS_KEY_DELETE")
     @ApiOperation("删除指定键")
     @PreAuthorize("hasAuthority('KEYS_KEY_DELETE')")

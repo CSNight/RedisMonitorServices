@@ -224,13 +224,19 @@ public class KeyOperator {
 
     public boolean SetKeyExpire(RedisPoolInstance pool, KeyEntDto kt) {
         String jid = IdentifyUtils.getUUID();
+        boolean res = true;
         JediSQL jediSQL = pool.getJedis(jid);
         jediSQL.select(kt.getDb());
-        boolean res;
-        try {
-            String key = kt.getKeyName();
-            long suc = jediSQL.pexpire(key, kt.getTtl());
-            res = suc != 0;
+        try (Pipeline pipeline = jediSQL.pipelined()) {
+            List<Response<Long>> pipeRes = new ArrayList<>();
+            List<String> keys = kt.getKeys();
+            for (String key : keys) {
+                pipeRes.add(pipeline.pexpire(key, kt.getTtl()));
+            }
+            pipeline.sync();
+            for (Response<Long> r : pipeRes) {
+                res = r.get() == 1L;
+            }
         } finally {
             jediSQL.select(0);
             pool.close(jid);

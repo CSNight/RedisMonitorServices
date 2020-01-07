@@ -51,7 +51,20 @@ public class RmsKeyManageImpl {
         }
         return keyOperator.GetKeyValue(pool, dto);
     }
-
+    public String SetKeysExpire(KeyEntDto dto) {
+        RmsInstance instance = rmsInsRepository.findOnly(dto.getIns_id());
+        if (instance == null || !instance.getRole().equals("master")) {
+            return "failed";
+        }
+        RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(instance.getId());
+        if (pool == null) {
+            return "failed";
+        }
+        if (dto.getKeys().size() == 0) {
+            return "success";
+        }
+        return keyOperator.SetKeyExpire(pool, dto) ? "success" : "failed";
+    }
     public String DeleteKeys(KeyEntDto dto) {
         RmsInstance instance = rmsInsRepository.findOnly(dto.getIns_id());
         if (instance == null || !instance.getRole().equals("master")) {
