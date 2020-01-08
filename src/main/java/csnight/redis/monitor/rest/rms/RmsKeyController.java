@@ -10,10 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -33,7 +30,7 @@ public class RmsKeyController {
     public RespTemplate GetInstanceKeys(@Valid KeyScanDto dto) throws ConfigException {
         Map<String, Object> res = keyManage.GetDBKeys(dto);
         if (res == null) {
-            return new RespTemplate(HttpStatus.INTERNAL_SERVER_ERROR, "Can not get any key, please check redis role and connection");
+            return new RespTemplate(HttpStatus.BAD_REQUEST, "Can not get any key, please check redis role and connection");
         }
         return new RespTemplate(HttpStatus.OK, res);
     }
@@ -45,7 +42,19 @@ public class RmsKeyController {
     public RespTemplate GetInsKeyValue(@Valid KeyEntDto dto) {
         Map<String, Object> res = keyManage.GetDBKeyValue(dto);
         if (res == null) {
-            return new RespTemplate(HttpStatus.INTERNAL_SERVER_ERROR, "Can not get any key, please check redis role and connection");
+            return new RespTemplate(HttpStatus.BAD_REQUEST, "Can not get any key, please check redis role and connection");
+        }
+        return new RespTemplate(HttpStatus.OK, res);
+    }
+
+    @LogAsync(module = "KEYS", auth = "KEYS_KEY_REFRESH")
+    @ApiOperation("刷新键信息")
+    @PreAuthorize("hasAuthority('KEYS_KEY_REFRESH')")
+    @RequestMapping(value = "/refresh", method = RequestMethod.GET)
+    public RespTemplate RefreshKey(@Valid KeyEntDto dto) {
+        Map<String, Object> res = keyManage.RefreshKey(dto);
+        if (res == null) {
+            return new RespTemplate(HttpStatus.BAD_REQUEST, "Can not get any key, please check redis role and connection");
         }
         return new RespTemplate(HttpStatus.OK, res);
     }
@@ -53,9 +62,9 @@ public class RmsKeyController {
     @LogAsync(module = "KEYS", auth = "KEYS_KEY_EXPIRE")
     @ApiOperation("设置键过期时间")
     @PreAuthorize("hasAuthority('KEYS_KEY_EXPIRE')")
-    @RequestMapping(value = "/expires", method = RequestMethod.PUT)
-    public RespTemplate InsKeyExpire(@Valid @RequestBody KeyEntDto dto) {
-        String res = keyManage.SetKeysExpire(dto);
+    @RequestMapping(value = "/expires/{type}", method = RequestMethod.PUT)
+    public RespTemplate InsKeyExpire(@Valid @RequestBody KeyEntDto dto, @PathVariable String type) {
+        String res = keyManage.SetKeysExpire(dto, type);
         return new RespTemplate(HttpStatus.OK, res);
     }
 

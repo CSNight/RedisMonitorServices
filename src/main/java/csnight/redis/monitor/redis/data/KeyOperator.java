@@ -184,6 +184,41 @@ public class KeyOperator {
         pipeRes = null;
     }
 
+    public Map<String, Object> RefreshKey(RedisPoolInstance pool, KeyEntDto kt) {
+        String jid = IdentifyUtils.getUUID();
+        JediSQL jediSQL = pool.getJedis(jid);
+        jediSQL.select(kt.getDb());
+        String key = kt.getKeyName();
+        Map<String, Object> keyInfo = new HashMap<>();
+        try {
+            keyInfo.put("key", key);
+            keyInfo.put("ttl", jediSQL.pttl(key));
+            keyInfo.put("type", jediSQL.type(key));
+            switch (keyInfo.get("type").toString()) {
+                case "string":
+                    keyInfo.put("size", jediSQL.strlen(key));
+                    break;
+                case "hash":
+                    keyInfo.put("size", jediSQL.hlen(key));
+                    break;
+                case "zset":
+                    keyInfo.put("size", jediSQL.zcount(key, "-inf", "+inf"));
+                    break;
+                case "set":
+                    keyInfo.put("size", jediSQL.scard(key));
+                    break;
+                case "list":
+                    keyInfo.put("size", jediSQL.llen(key));
+                    break;
+            }
+        } finally {
+            jediSQL.select(0);
+            pool.close(jid);
+            System.gc();
+        }
+        return keyInfo;
+    }
+
     public Map<String, Object> GetKeyValue(RedisPoolInstance pool, KeyEntDto kt) {
         String jid = IdentifyUtils.getUUID();
         JediSQL jediSQL = pool.getJedis(jid);
@@ -222,7 +257,7 @@ public class KeyOperator {
         return keyVal;
     }
 
-    public boolean SetKeyExpire(RedisPoolInstance pool, KeyEntDto kt) {
+    public boolean SetKeyExpire(RedisPoolInstance pool, KeyEntDto kt, String type) {
         String jid = IdentifyUtils.getUUID();
         boolean res = true;
         JediSQL jediSQL = pool.getJedis(jid);
@@ -231,7 +266,15 @@ public class KeyOperator {
             List<Response<Long>> pipeRes = new ArrayList<>();
             List<String> keys = kt.getKeys();
             for (String key : keys) {
-                pipeRes.add(pipeline.pexpire(key, kt.getTtl()));
+                if (kt.getTtl() == -1) {
+                    pipeRes.add(pipeline.persist(key));
+                } else {
+                    if (type.equals("at")) {
+                        pipeRes.add(pipeline.pexpireAt(key, kt.getTtl()));
+                    } else {
+                        pipeRes.add(pipeline.pexpire(key, kt.getTtl()));
+                    }
+                }
             }
             pipeline.sync();
             for (Response<Long> r : pipeRes) {

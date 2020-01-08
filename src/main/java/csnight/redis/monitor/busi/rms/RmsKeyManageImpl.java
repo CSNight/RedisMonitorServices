@@ -51,7 +51,8 @@ public class RmsKeyManageImpl {
         }
         return keyOperator.GetKeyValue(pool, dto);
     }
-    public String SetKeysExpire(KeyEntDto dto) {
+
+    public String SetKeysExpire(KeyEntDto dto, String type) {
         RmsInstance instance = rmsInsRepository.findOnly(dto.getIns_id());
         if (instance == null || !instance.getRole().equals("master")) {
             return "failed";
@@ -63,8 +64,24 @@ public class RmsKeyManageImpl {
         if (dto.getKeys().size() == 0) {
             return "success";
         }
-        return keyOperator.SetKeyExpire(pool, dto) ? "success" : "failed";
+        return keyOperator.SetKeyExpire(pool, dto, type) ? "success" : "failed";
     }
+
+    public Map<String, Object> RefreshKey(KeyEntDto dto) {
+        RmsInstance instance = rmsInsRepository.findOnly(dto.getIns_id());
+        if (instance == null || !instance.getRole().equals("master")) {
+            return null;
+        }
+        RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(instance.getId());
+        if (pool == null) {
+            return null;
+        }
+        if (dto.getKeys().size() == 0) {
+            return null;
+        }
+        return keyOperator.RefreshKey(pool, dto);
+    }
+
     public String DeleteKeys(KeyEntDto dto) {
         RmsInstance instance = rmsInsRepository.findOnly(dto.getIns_id());
         if (instance == null || !instance.getRole().equals("master")) {
