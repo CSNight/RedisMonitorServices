@@ -76,9 +76,6 @@ public class RmsKeyManageImpl {
         if (pool == null) {
             return null;
         }
-        if (dto.getKeys().size() == 0) {
-            return null;
-        }
         return keyOperator.RefreshKey(pool, dto);
     }
 
