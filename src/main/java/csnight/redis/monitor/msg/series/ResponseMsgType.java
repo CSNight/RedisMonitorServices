@@ -16,6 +16,9 @@ public enum ResponseMsgType {
     MONITORCON(105),
     MONITOR(106),
     DEMONITOR(107),
+    KEYWATCHCON(200),
+    KEYWATCH(201),
+    DEKEYWATCH(202),
     ERROR(400);
 
     private int code;
