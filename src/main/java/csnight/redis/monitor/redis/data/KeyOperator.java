@@ -254,6 +254,7 @@ public class KeyOperator {
             pool.close(jid);
             System.gc();
         }
+        keyVal.put("type",kt.getType());
         return keyVal;
     }
 

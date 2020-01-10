@@ -40,6 +40,8 @@ public class MsgBus {
     private MsgBus() {
         ConsoleMsgDispatcher cmd = ConsoleMsgDispatcher.getIns();
         cmd.setChannels(channels);
+        DataMsgDispatcher dt = DataMsgDispatcher.getIns();
+        dt.setChannels(channels);
     }
 
     public Map<String, String> getUserChannels() {
@@ -97,7 +99,7 @@ public class MsgBus {
         ChannelEntity che = channels.get(cid);
         if (che != null) {
             //销毁管道处理器实例
-            if (che.getCt().equals(ChannelType.PUBSUB)) {
+            if (che.getCt().equals(ChannelType.PUBSUB) || che.getCt().equals(ChannelType.MONITOR)) {
                 che.getHandlers().forEach((ent, handler) -> {
                     handler.destroy();
                 });
@@ -156,7 +158,7 @@ public class MsgBus {
                     break;
                 case "dt_operation":
                     if (channels.get(ch.id().asShortText()).hasAuthorize("INS_DT_OP")) {
-
+                        DataMsgDispatcher.getIns().dispatchMsg(msg, ch);
                     }
                     break;
                 default:
