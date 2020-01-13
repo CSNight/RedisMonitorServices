@@ -46,7 +46,7 @@ public class PermissionServiceImpl {
      */
     @Cacheable(value = "permits")
     public List<SysPermission> GetAllPermission() {
-        return permissionRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
+        return permissionRepository.findAll(Sort.by(Sort.Direction.ASC, "menu.id", "name"));
     }
 
     /**
