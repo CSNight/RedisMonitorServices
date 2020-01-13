@@ -1,9 +1,12 @@
 package csnight.redis.monitor.redis.statistic;
 
 import com.csnight.jedisql.JediSQL;
+import csnight.redis.monitor.msg.series.RedisCmdType;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
+import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.IdentifyUtils;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +23,9 @@ public class InfoCmdParser {
     private static String GetInfoAll(RedisPoolInstance pool) {
         String jid = IdentifyUtils.getUUID();
         JediSQL j = pool.getJedis(jid);
-        String infos = j.info();
+        Object tmp = j.sendCommand(RedisCmdType.INFO,"");
+        String encoding = BaseUtils.getEncoding((byte[]) tmp);
+        String infos = new String((byte[]) tmp, Charset.forName(encoding));
         pool.close(jid);
         return infos;
     }
@@ -28,7 +33,9 @@ public class InfoCmdParser {
     private static String[] GetInfoSection(RedisPoolInstance pool, String section) {
         String jid = IdentifyUtils.getUUID();
         JediSQL j = pool.getJedis(jid);
-        String tmp = j.info(section).replaceAll("# " + section + "\\r\\n", "").replaceAll("\\r\\n", ";");
+        Object infos = j.sendCommand(RedisCmdType.INFO, section);
+        String encoding = BaseUtils.getEncoding((byte[]) infos);
+        String tmp = new String((byte[]) infos, Charset.forName(encoding)).replaceAll("# " + section + "\\r\\n", "").replaceAll("\\r\\n", ";");
         pool.close(jid);
         if (SECTIONS.contains(section)) {
             return tmp.substring(0, tmp.lastIndexOf(";")).split(";");

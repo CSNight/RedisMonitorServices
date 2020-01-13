@@ -102,4 +102,8 @@ public class RmsConfSetImpl {
             }
         }
     }
+
+    public void GetRedisInfo() {
+
+    }
 }
