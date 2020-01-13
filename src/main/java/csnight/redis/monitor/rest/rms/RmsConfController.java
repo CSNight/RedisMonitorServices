@@ -17,7 +17,7 @@ import java.util.Map;
 
 /**
  * @author csnight
- * @description
+ * @description Redis配置管理API
  * @since 2020-1-12 15:48
  */
 @RestController
@@ -43,7 +43,7 @@ public class RmsConfController {
     @ApiOperation("Redis配置查询")
     @PreAuthorize("hasAuthority('RMS_CONF_SAVE')")
     @RequestMapping(value = "/configs", method = RequestMethod.PUT)
-    public RespTemplate GetInstanceConfig(@Valid @RequestBody ConfigDto dto) throws ConfigException {
+    public RespTemplate SaveInstanceConfig(@Valid @RequestBody ConfigDto dto) throws ConfigException {
         String res = rmsConfSet.SaveConfig(dto);
         if (res == null) {
             return new RespTemplate(HttpStatus.BAD_REQUEST, "Please check redis role and connection");

@@ -5,14 +5,17 @@ import com.csnight.jedisql.JediSQL;
 import csnight.redis.monitor.db.jpa.RmsInstance;
 import csnight.redis.monitor.db.repos.RmsInsRepository;
 import csnight.redis.monitor.exception.ConfigException;
+import csnight.redis.monitor.msg.series.RedisCmdType;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.PoolConfig;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
 import csnight.redis.monitor.rest.rms.dto.ConfigDto;
+import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.IdentifyUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,11 +50,18 @@ public class RmsConfSetImpl {
         String jid = IdentifyUtils.getUUID();
         try {
             JediSQL jediSQL = pool.getJedis(jid);
-            List<String> configList = jediSQL.configGet("*");
-            int len = configList.size();
+            Object configList = jediSQL.sendCommand(RedisCmdType.CONFIG, "GET", "*");
+            List<byte[]> configBytes = (List<byte[]>) configList;
+            int len = configBytes.size();
             if (len % 2 == 0) {
                 for (int i = 0; i < len; i = i + 2) {
-                    configs.put(configList.get(i), configList.get(i + 1));
+                    byte[] value = configBytes.get(i + 1);
+                    String encoding = "utf-8";
+                    if (instance.getOs().toLowerCase().contains("windows") && !BaseUtils.getEncoding(value).toUpperCase().equals("UTF-8")) {
+                        encoding = "gbk";
+                    }
+                    String val = new String(value, Charset.forName(encoding));
+                    configs.put(new String(configBytes.get(i)), val);
                 }
             }
         } catch (Exception ex) {

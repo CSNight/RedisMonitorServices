@@ -8,8 +8,10 @@ import csnight.redis.monitor.msg.series.RedisCmdType;
 import csnight.redis.monitor.msg.series.ResponseMsgType;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
+import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.IdentifyUtils;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,7 +89,7 @@ public class CmdRespHandler implements WsChannelHandler {
     private Object MsgParser(Object res) {
         Object response;
         if (res instanceof byte[]) {
-            response = new String((byte[]) res);
+            response = new String((byte[]) res, Charset.forName(BaseUtils.getEncoding((byte[]) res)));
         } else if (res instanceof ArrayList) {
             response = ArrayMsgParser(res);
         } else {
@@ -109,7 +111,7 @@ public class CmdRespHandler implements WsChannelHandler {
         List<Object> tmp = new ArrayList<>();
         for (Object item : resp) {
             if (item instanceof byte[]) {
-                tmp.add(new String((byte[]) item));
+                tmp.add(new String((byte[]) item, Charset.forName(BaseUtils.getEncoding((byte[]) item))));
             } else if (item instanceof ArrayList) {
                 List<Object> recursive = ArrayMsgParser(item);
                 tmp.add(recursive);
