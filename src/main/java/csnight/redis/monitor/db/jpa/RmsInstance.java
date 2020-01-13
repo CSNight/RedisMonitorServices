@@ -43,6 +43,10 @@ public class RmsInstance {
     private long uptime_in_seconds;
     @Column(name = "conn")
     private String conn;
+    @Column(name = "exec")
+    private String exec;
+    @Column(name = "config")
+    private String config;
     @Column(name = "ct")
     @Temporal(TemporalType.TIMESTAMP)
     private Date ct;
@@ -179,6 +183,22 @@ public class RmsInstance {
 
     public void setConn(String conn) {
         this.conn = conn;
+    }
+
+    public String getExec() {
+        return exec;
+    }
+
+    public void setExec(String exec) {
+        this.exec = exec;
+    }
+
+    public String getConfig() {
+        return config;
+    }
+
+    public void setConfig(String config) {
+        this.config = config;
     }
 
     public Date getCt() {

@@ -408,6 +408,8 @@ public class RmsInsManageImpl {
             ins.setUptime_in_seconds(Integer.parseInt(info.get("uptime_in_seconds")));
             ins.setHz(Integer.parseInt(info.get("hz")));
             ins.setVersion(info.get("redis_version"));
+            ins.setConfig(info.get("executable"));
+            ins.setExec(info.get("config_file"));
             //设置实例角色
             if (ins.getMode().equals("sentinel")) {
                 ins.setRole("sentinel");
