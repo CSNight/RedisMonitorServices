@@ -23,8 +23,8 @@ public class SysRole {
     private String code;
     @Column(name = "name")
     private String name;
-    @Column(name = "level")
-    private int level;
+    @Column(name = "lv")
+    private int lv;
     @Column(name = "ct")
     @Temporal(TemporalType.TIMESTAMP)
     private Date ct;
@@ -76,12 +76,12 @@ public class SysRole {
         this.code = code;
     }
 
-    public int getLevel() {
-        return level;
+    public int getLv() {
+        return lv;
     }
 
-    public void setLevel(int level) {
-        this.level = level;
+    public void setLv(int lv) {
+        this.lv = lv;
     }
 
     public Date getCt() {

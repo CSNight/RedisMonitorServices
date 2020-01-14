@@ -371,9 +371,9 @@ public class UserServiceImpl {
         @Override
         public int compare(SysUser t0, SysUser t1) {
             List<Integer> t0_levels = new ArrayList<>();
-            t0.getRoles().forEach(r -> t0_levels.add(r.getLevel()));
+            t0.getRoles().forEach(r -> t0_levels.add(r.getLv()));
             List<Integer> t1_levels = new ArrayList<>();
-            t1.getRoles().forEach(r -> t1_levels.add(r.getLevel()));
+            t1.getRoles().forEach(r -> t1_levels.add(r.getLv()));
             if (t0_levels.size() == 0 || t1_levels.size() == 0) {
                 return t0_levels.size() == 0 ? 1 : -1;
             }

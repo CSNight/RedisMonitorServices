@@ -112,6 +112,11 @@
             <artifactId>juniversalchardet</artifactId>
             <version>1.0.3</version>
         </dependency>
+        <dependency>
+            <groupId>com.oracle.jdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>12.2.0.1</version>
+        </dependency>
         <!--        <dependency>-->
         <!--            <groupId>org.springframework.security.oauth.boot</groupId>-->
         <!--            <artifactId>spring-security-oauth2-autoconfigure</artifactId>-->

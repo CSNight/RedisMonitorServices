@@ -21,11 +21,11 @@ public class SysOpLog {
         this.auth = auth;
         this.cost = cost;
         if (this.st < 300) {
-            this.level = "INFO";
+            this.lv = "INFO";
         } else if (this.st > 300 && this.st < 400) {
-            this.level = "WARN";
+            this.lv = "WARN";
         } else {
-            this.level = "ERROR";
+            this.lv = "ERROR";
         }
     }
 
@@ -47,8 +47,8 @@ public class SysOpLog {
     private String mo;
     @Column(name = "auth")
     private String auth;
-    @Column(name = "level")
-    private String level;
+    @Column(name = "lv")
+    private String lv;
     @Column(name = "st")
     private int st;
     @Column(name = "cost")
@@ -118,12 +118,12 @@ public class SysOpLog {
         this.auth = auth;
     }
 
-    public String getLevel() {
-        return level;
+    public String getLv() {
+        return lv;
     }
 
-    public void setLevel(String level) {
-        this.level = level;
+    public void setLv(String lv) {
+        this.lv = lv;
     }
 
     public Long getCost() {

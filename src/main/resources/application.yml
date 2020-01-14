@@ -19,12 +19,12 @@ spring:
           batch_size: 100
         order_inserts: true
         order_updates: true
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.Oracle12cDialect
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/rmsdb?serverTimezone=Asia/Shanghai
-    username: csnight
-    password: qnyh@123
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:oracle:thin:@localhost:1521:orcl
+    username: c##csnight
+    password: qnyh123
+    driver-class-name: oracle.jdbc.OracleDriver
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       aop-patterns: csnight.redis.monitor.rest.*

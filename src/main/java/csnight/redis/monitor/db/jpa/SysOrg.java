@@ -9,18 +9,18 @@ import java.util.List;
 @Table(name = "sys_org")
 public class SysOrg {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private Long id;
     @Column(name = "name")
     private String name;
+    @Column(name = "pid")
+    private Long pid;
     @Column(name = "create_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date create_time;
-    @Column(name = "pid")
-    private Long pid;
     @Column(name = "enabled")
-    private boolean enabled;
+    private Boolean enabled;
     @Column(name = "create_user")
     private String create_user;
 
@@ -60,11 +60,11 @@ public class SysOrg {
         this.pid = pid;
     }
 
-    public boolean isEnabled() {
+    public Boolean isEnabled() {
         return enabled;
     }
 
-    public void setEnabled(boolean enabled) {
+    public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
     }
 

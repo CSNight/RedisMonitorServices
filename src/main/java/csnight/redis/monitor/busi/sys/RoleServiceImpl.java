@@ -95,7 +95,7 @@ public class RoleServiceImpl {
         role.setName(dto.getName());
         role.setCode(dto.getCode());
         role.setCt(new Date());
-        role.setLevel(dto.getLevel());
+        role.setLv(dto.getLevel());
         role.setPermission(dto.getPermissionSet());
         if (checkConflictPermit(role, true)) {
             return sysRoleRepository.save(role);
@@ -144,7 +144,7 @@ public class RoleServiceImpl {
             if (checkConflictPermit(old_role, false)) {
                 old_role.setCode(dto.getCode());
                 old_role.setName(dto.getName());
-                old_role.setLevel(dto.getLevel());
+                old_role.setLv(dto.getLevel());
                 return sysRoleRepository.save(old_role);
             } else {
                 throw new ConflictsException("Role with same name or code already exists!");

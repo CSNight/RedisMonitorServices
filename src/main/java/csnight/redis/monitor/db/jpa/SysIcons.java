@@ -6,14 +6,14 @@ import javax.persistence.*;
 @Table(name = "sys_icons")
 public class SysIcons {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column(name = "name")
     private String name;
-    @Column(name = "_class")
-    private String _class;
-    @Column(name = "_group")
-    private String _group;
+    @Column(name = "cclass")
+    private String cclass;
+    @Column(name = "cgroup")
+    private String cgroup;
 
     public Long getId() {
         return id;
@@ -31,19 +31,19 @@ public class SysIcons {
         this.name = name;
     }
 
-    public String get_class() {
-        return _class;
+    public String getCclass() {
+        return cclass;
     }
 
-    public void set_class(String _class) {
-        this._class = _class;
+    public void setCclass(String cclass) {
+        this.cclass = cclass;
     }
 
-    public String get_group() {
-        return _group;
+    public String getCgroup() {
+        return cgroup;
     }
 
-    public void set_group(String _group) {
-        this._group = _group;
+    public void setCgroup(String cgroup) {
+        this.cgroup = cgroup;
     }
 }
