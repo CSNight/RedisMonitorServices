@@ -39,6 +39,18 @@ public class RmsConfController {
         return new RespTemplate(HttpStatus.OK, res);
     }
 
+    @LogAsync(module = "CONF", auth = "RMS_CONF_INFO")
+    @ApiOperation("Redis信息查询")
+    @PreAuthorize("hasAuthority('RMS_CONF_INFO')")
+    @RequestMapping(value = "/infos/{ins_id}/{monitor}", method = RequestMethod.GET)
+    public RespTemplate GetInstanceInfo(@PathVariable String ins_id, @PathVariable String monitor) throws ConfigException {
+        Map<String, Map<String, String>> res = rmsConfSet.GetRedisInfo(ins_id, monitor);
+        if (res == null) {
+            return new RespTemplate(HttpStatus.BAD_REQUEST, "Please check redis role and connection");
+        }
+        return new RespTemplate(HttpStatus.OK, res);
+    }
+
     @LogAsync(module = "CONF", auth = "RMS_CONF_SAVE")
     @ApiOperation("Redis配置查询")
     @PreAuthorize("hasAuthority('RMS_CONF_SAVE')")
