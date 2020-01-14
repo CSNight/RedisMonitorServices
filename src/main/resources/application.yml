@@ -14,7 +14,7 @@ spring:
     open-in-view: false
     properties:
       hibernate:
-        # generate_statistics: true #sql统计
+        generate_statistics: true #sql统计
         jdbc:
           batch_size: 100
         order_inserts: true

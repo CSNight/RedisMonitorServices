@@ -14,6 +14,6 @@ public interface SysLogRepository extends JpaRepository<SysOpLog, String>, JpaSp
 
     @Transactional
     @Modifying
-    @Query(value = "delete from rmsdb.sys_operation_log where un=?", nativeQuery = true)
+    @Query(value = "delete from sys_operation_log where un=?", nativeQuery = true)
     void deleteByUn(String user);
 }

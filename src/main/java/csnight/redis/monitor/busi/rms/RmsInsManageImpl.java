@@ -403,7 +403,7 @@ public class RmsInsManageImpl {
             }
             ins.setArch_bits(Integer.parseInt(info.get("arch_bits")));
             ins.setOs(info.get("os"));
-            ins.setMode(info.get("redis_mode"));
+            ins.setMade(info.get("redis_mode"));
             ins.setProc_id(Integer.parseInt(info.get("process_id")));
             ins.setUptime_in_seconds(Integer.parseInt(info.get("uptime_in_seconds")));
             ins.setHz(Integer.parseInt(info.get("hz")));
@@ -411,7 +411,7 @@ public class RmsInsManageImpl {
             ins.setConfig(info.get("executable"));
             ins.setExec(info.get("config_file"));
             //设置实例角色
-            if (ins.getMode().equals("sentinel")) {
+            if (ins.getMade().equals("sentinel")) {
                 ins.setRole("sentinel");
             } else {
                 ins.setRole(InfoCmdParser.GetInfoBySectionKey(pool, "Replication", "role"));

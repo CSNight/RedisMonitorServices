@@ -31,8 +31,8 @@ public class RmsInstance {
     private String role;
     @Column(name = "version")
     private String version;
-    @Column(name = "mode")
-    private String mode;
+    @Column(name = "made")
+    private String made;
     @Column(name = "os")
     private String os = "";
     @Column(name = "arch_bits")
@@ -137,12 +137,12 @@ public class RmsInstance {
         this.version = version;
     }
 
-    public String getMode() {
-        return mode;
+    public String getMade() {
+        return made;
     }
 
-    public void setMode(String mode) {
-        this.mode = mode;
+    public void setMade(String made) {
+        this.made = made;
     }
 
     public String getOs() {

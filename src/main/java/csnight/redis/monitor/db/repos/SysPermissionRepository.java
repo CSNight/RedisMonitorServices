@@ -17,6 +17,6 @@ public interface SysPermissionRepository extends JpaRepository<SysPermission, St
      */
     @Transactional
     @Modifying
-    @Query(value = "delete from rmsdb.sys_role_permission where permission_id = ?", nativeQuery = true)
+    @Query(value = "delete from sys_role_permission where permission_id = ?", nativeQuery = true)
     void untiedPermission(String id);
 }

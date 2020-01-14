@@ -16,7 +16,7 @@ public interface SysUserRepository extends JpaRepository<SysUser, String>, JpaSp
 
     SysUser findByPhone(String phone);
 
-    @Query(value = "select * from rmsdb.sys_user where id=?", nativeQuery = true)
+    @Query(value = "select * from sys_user where id=?", nativeQuery = true)
     SysUser findOnly(String id);
 
     List<SysUser> findAllByEnabled(boolean enable);
