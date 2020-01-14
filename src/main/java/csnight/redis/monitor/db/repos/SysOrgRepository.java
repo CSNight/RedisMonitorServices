@@ -10,11 +10,11 @@ import java.util.List;
 public interface SysOrgRepository extends JpaRepository<SysOrg, Long>, JpaSpecificationExecutor<SysOrg> {
     List<SysOrg> findByPid(Long id);
 
-    @Query(value = "select enabled from rmsdb.sys_org where pid=?", nativeQuery = true)
+    @Query(value = "select enabled from sys_org where pid=?", nativeQuery = true)
     List<Boolean> findEnabledByPid(Long pid);
 
 
-    @Query(value = "select * from rmsdb.sys_org where id=?", nativeQuery = true)
+    @Query(value = "select * from sys_org where id=?", nativeQuery = true)
     SysOrg findOnly(Long id);
 
     SysOrg findByName(String name);

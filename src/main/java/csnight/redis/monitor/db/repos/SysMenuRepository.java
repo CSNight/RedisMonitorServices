@@ -12,15 +12,15 @@ import java.util.List;
 public interface SysMenuRepository extends JpaRepository<SysMenu, Long>, JpaSpecificationExecutor<SysMenu> {
     List<SysMenu> findByPidOrderBySortAsc(Long id);
 
-    @Query(value = "select hidden from rmsdb.sys_menu where pid=?", nativeQuery = true)
+    @Query(value = "select hidden from sys_menu where pid=?", nativeQuery = true)
     List<Boolean> findHiddenByPid(Long pid);
 
-    @Query(value = "select * from rmsdb.sys_menu where id=?", nativeQuery = true)
+    @Query(value = "select * from sys_menu where id=?", nativeQuery = true)
     SysMenu findOnly(Long id);
 
     SysMenu findByName(String name);
 
-    @Query(value = "select * from rmsdb.sys_menu where component_name=?", nativeQuery = true)
+    @Query(value = "select * from sys_menu where component_name=?", nativeQuery = true)
     SysMenu findByComponent_name(String component_name);
 
     /**
@@ -30,6 +30,6 @@ public interface SysMenuRepository extends JpaRepository<SysMenu, Long>, JpaSpec
      */
     @Transactional
     @Modifying
-    @Query(value = "delete from rmsdb.sys_role_menu where menu_id = ?", nativeQuery = true)
+    @Query(value = "delete from sys_role_menu where menu_id = ?", nativeQuery = true)
     void untiedMenu(Long id);
 }
