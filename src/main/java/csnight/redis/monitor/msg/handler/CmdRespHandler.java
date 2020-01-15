@@ -89,7 +89,11 @@ public class CmdRespHandler implements WsChannelHandler {
     private Object MsgParser(Object res) {
         Object response;
         if (res instanceof byte[]) {
-            response = new String((byte[]) res, Charset.forName(BaseUtils.getEncoding((byte[]) res)));
+            String charset = BaseUtils.getEncoding((byte[]) res);
+            if (!charset.toLowerCase().contains("gb")) {
+                charset = "utf-8";
+            }
+            response = new String((byte[]) res, Charset.forName(charset));
         } else if (res instanceof ArrayList) {
             response = ArrayMsgParser(res);
         } else {
@@ -111,7 +115,11 @@ public class CmdRespHandler implements WsChannelHandler {
         List<Object> tmp = new ArrayList<>();
         for (Object item : resp) {
             if (item instanceof byte[]) {
-                tmp.add(new String((byte[]) item, Charset.forName(BaseUtils.getEncoding((byte[]) item))));
+                String charset = BaseUtils.getEncoding((byte[]) item);
+                if (!charset.toLowerCase().contains("gb")) {
+                    charset = "utf-8";
+                }
+                tmp.add(new String((byte[]) item, Charset.forName(charset)));
             } else if (item instanceof ArrayList) {
                 List<Object> recursive = ArrayMsgParser(item);
                 tmp.add(recursive);
@@ -121,7 +129,6 @@ public class CmdRespHandler implements WsChannelHandler {
         }
         return tmp;
     }
-
 
     @Override
     public void destroy() {
