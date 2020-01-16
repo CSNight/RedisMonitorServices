@@ -125,7 +125,7 @@ public class ConsoleMsgDispatcher {
             if (command == null || command.split(" ").length == 0) {
                 isAuth = false;
             } else {
-                isAuth = che.canExecute(command.split(" ")[0].toUpperCase());
+                isAuth = che.canExecute(command.trim().split(" ")[0].toUpperCase());
             }
         } else if (requestType == 202) {
             isAuth = che.canExecute("UNSUBSCRIBE");

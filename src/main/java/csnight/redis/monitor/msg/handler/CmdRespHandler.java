@@ -13,6 +13,7 @@ import csnight.redis.monitor.utils.IdentifyUtils;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class CmdRespHandler implements WsChannelHandler {
@@ -54,6 +55,15 @@ public class CmdRespHandler implements WsChannelHandler {
     public boolean parseCmd(String cmd) {
         if (cmd != null && !cmd.equals("")) {
             String[] parts = cmd.split(" ");
+            List<String> ps = new LinkedList<>();
+            for (String p : parts) {
+                if (!p.equals("")) {
+                    ps.add(p);
+                }
+            }
+            parts = ps.toArray(new String[]{});
+            ps.clear();
+            ps = null;
             command = RedisCmdType.getEnumType(parts[0].toUpperCase());
             if (command.name().equals("UNKNOWN")) {
                 return false;
