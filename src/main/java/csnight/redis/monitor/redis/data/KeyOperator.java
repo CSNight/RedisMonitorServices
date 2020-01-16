@@ -71,6 +71,7 @@ public class KeyOperator {
         List<Map<String, Object>> zsetArr = new ArrayList<>();
         List<Map<String, Object>> hashArr = new ArrayList<>();
         List<Map<String, Object>> setArr = new ArrayList<>();
+        List<Map<String, Object>> streamArr = new ArrayList<>();
         for (Map<String, Object> kt : keySet) {
             switch (kt.get("type").toString()) {
                 case "string":
@@ -88,6 +89,8 @@ public class KeyOperator {
                 case "list":
                     listArr.add(kt);
                     break;
+                case "stream":
+                    streamArr.add(kt);
             }
         }
         getStringSizes(jediSQL, strArr);
@@ -95,17 +98,20 @@ public class KeyOperator {
         getSetSizes(jediSQL, setArr);
         getZSetSizes(jediSQL, zsetArr);
         getHashSizes(jediSQL, hashArr);
+        getStreamSizes(jediSQL, streamArr);
         List<Map<String, Object>> res = new ArrayList<>();
         res.addAll(strArr);
         res.addAll(listArr);
         res.addAll(setArr);
         res.addAll(zsetArr);
         res.addAll(hashArr);
+        res.addAll(streamArr);
         strArr.clear();
         listArr.clear();
         setArr.clear();
         zsetArr.clear();
         hashArr.clear();
+        streamArr.clear();
         System.gc();
         return res;
     }
@@ -149,15 +155,6 @@ public class KeyOperator {
         pipeRes = null;
     }
 
-    private void GetResponse(List<Map<String, Object>> setArr, Map<String, Response<Long>> pipeRes, Pipeline p) {
-        p.sync();
-        for (Map<String, Object> kt : setArr) {
-            String key = kt.get("key").toString();
-            long size = pipeRes.get(key).get();
-            kt.put("size", size);
-        }
-    }
-
     private void getZSetSizes(JediSQL jediSQL, List<Map<String, Object>> zsetArr) {
         Map<String, Response<Long>> pipeRes = new HashMap<>();
         Pipeline p = jediSQL.pipelined();
@@ -166,6 +163,19 @@ public class KeyOperator {
             pipeRes.put(key, p.zcount(key, "-inf", "+inf"));
         }
         GetResponse(zsetArr, pipeRes, p);
+        p.close();
+        pipeRes.clear();
+        pipeRes = null;
+    }
+
+    private void getStreamSizes(JediSQL jediSQL, List<Map<String, Object>> streamArr) {
+        Map<String, Response<Long>> pipeRes = new HashMap<>();
+        Pipeline p = jediSQL.pipelined();
+        for (Map<String, Object> kt : streamArr) {
+            String key = kt.get("key").toString();
+            pipeRes.put(key, p.xlen(key));
+        }
+        GetResponse(streamArr, pipeRes, p);
         p.close();
         pipeRes.clear();
         pipeRes = null;
@@ -182,6 +192,15 @@ public class KeyOperator {
         p.close();
         pipeRes.clear();
         pipeRes = null;
+    }
+
+    private void GetResponse(List<Map<String, Object>> setArr, Map<String, Response<Long>> pipeRes, Pipeline p) {
+        p.sync();
+        for (Map<String, Object> kt : setArr) {
+            String key = kt.get("key").toString();
+            long size = pipeRes.get(key).get();
+            kt.put("size", size);
+        }
     }
 
     public Map<String, Object> RefreshKey(RedisPoolInstance pool, KeyEntDto kt) {
@@ -210,6 +229,8 @@ public class KeyOperator {
                 case "list":
                     keyInfo.put("size", jediSQL.llen(key));
                     break;
+                case "stream":
+                    keyInfo.put("size", jediSQL.xlen(key));
             }
         } finally {
             jediSQL.select(0);
@@ -248,13 +269,18 @@ public class KeyOperator {
                     List<String> list = jediSQL.lrange(key, 0, -1);
                     keyVal.put(key, list);
                     break;
+                case "stream":
+                    List<StreamEntry> entries = jediSQL.xrange(key, null, null);
+                    keyVal.put(key, entries);
+                    break;
+
             }
         } finally {
             jediSQL.select(0);
             pool.close(jid);
             System.gc();
         }
-        keyVal.put("type",kt.getType());
+        keyVal.put("type", kt.getType());
         return keyVal;
     }
 
