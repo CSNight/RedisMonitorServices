@@ -22,7 +22,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("dba")
-@Api(tags = "Redis数据管理API")
+@Api(tags = "Redis数据监控API")
 public class RmsDataController {
     @Resource
     private RmsDtManageImpl dtManage;

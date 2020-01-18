@@ -35,7 +35,7 @@ public class RmsDtManageImpl {
             JSONObject JoIns = JSONObject.parseObject(JSONObject.toJSONString(instance));
             JoIns.put("children", dbs);
             JoIns.put("label", instance.getInstance_name());
-            JoIns.put("type", "ins");
+            JoIns.put("node_type", "ins");
             JoIns.put("dbCount", dbs.size());
             JoIns.put("reachable", dbs.size() != 0);
             res.add(JoIns);
@@ -52,7 +52,7 @@ public class RmsDtManageImpl {
             JSONObject JoIns = JSONObject.parseObject(JSONObject.toJSONString(instance));
             JoIns.put("children", dbs);
             JoIns.put("label", instance.getInstance_name());
-            JoIns.put("type", "ins");
+            JoIns.put("node_type", "ins");
             JoIns.put("dbCount", dbs.size());
             JoIns.put("reachable", dbs.size() != 0);
             res.add(JoIns);
@@ -68,7 +68,7 @@ public class RmsDtManageImpl {
             JSONObject JoIns = JSONObject.parseObject(JSONObject.toJSONString(instance));
             JoIns.put("children", dbs);
             JoIns.put("label", instance.getInstance_name());
-            JoIns.put("type", "ins");
+            JoIns.put("node_type", "ins");
             JoIns.put("dbCount", dbs.size());
             JoIns.put("reachable", dbs.size() != 0);
             return JoIns;
@@ -137,7 +137,7 @@ public class RmsDtManageImpl {
                 Map<String, Object> joDb = new HashMap<>();
                 joDb.put("id", "db-" + i + "-" + instance.getId().replaceAll("-", ""));
                 joDb.put("keySize", keyCount);
-                joDb.put("type", "db");
+                joDb.put("node_type", "db");
                 joDb.put("label", "db" + i);
                 joDb.put("children", new ArrayList<>());
                 joDb.put("ins", instance.getId());
