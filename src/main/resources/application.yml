@@ -71,5 +71,6 @@ logging:
   config: classpath:logback-config.xml
 dumpdir:
   conf-dir: tmpConf
+  record-dir: record
 #logging:
 #  config: classpath:log4j2-spring.xml
