@@ -27,6 +27,8 @@ public class RmsShakeRecord {
     private String shake_type;
     @Column(name = "relate_backup")
     private String relate_backup;
+    @Column(name = "filepath")
+    private String filepath;
     @Column(name = "conf")
     private String conf;
     @Column(name = "result")
@@ -75,6 +77,14 @@ public class RmsShakeRecord {
 
     public void setRelate_backup(String relate_backup) {
         this.relate_backup = relate_backup;
+    }
+
+    public String getFilepath() {
+        return filepath;
+    }
+
+    public void setFilepath(String filepath) {
+        this.filepath = filepath;
     }
 
     public String getConf() {
