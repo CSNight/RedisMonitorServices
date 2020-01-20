@@ -1,6 +1,7 @@
 package csnight.redis.monitor.busi.rms;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
 import csnight.redis.monitor.db.jpa.RmsShakeRecord;
 import csnight.redis.monitor.db.repos.RmsInsRepository;
 import csnight.redis.monitor.db.repos.RmsShakeRepository;
@@ -40,31 +41,29 @@ public class RmsDataDumpImpl {
         JSONObject joConfig = JSONObject.parseObject(dto.getConfigs());
         shakeRecord.setSource_ins(joConfig.getString("sourceId"));
         shakeRecord.setTarget_ins(joConfig.getString("targetId"));
-        String type = joConfig.getString("mode");
         switch (dto.getType()) {
             case "dump":
-            case "rump": {
                 boolean ins_source = insRepository.existsById(shakeRecord.getSource_ins());
                 if (!ins_source) {
                     return null;
                 }
+                String output = generateOutput(dto.getType());
+                JSONPath.set(joConfig, "$.target.rdb.output", output);
                 break;
-            }
-            case "restore": {
+            case "restore":
                 boolean ins_target = insRepository.existsById(shakeRecord.getTarget_ins());
                 if (!ins_target) {
                     return null;
                 }
                 break;
-            }
-            case "sync": {
-                boolean ins_source = insRepository.existsById(shakeRecord.getSource_ins());
-                boolean ins_target = insRepository.existsById(shakeRecord.getTarget_ins());
-                if (!ins_source || !ins_target) {
+            case "rump":
+            case "sync":
+                boolean syn_source = insRepository.existsById(shakeRecord.getSource_ins());
+                boolean syn_target = insRepository.existsById(shakeRecord.getTarget_ins());
+                if (!syn_source || !syn_target) {
                     return null;
                 }
                 break;
-            }
         }
         ShakeConfGenerator confGenerator = new ShakeConfGenerator();
         String file = confGenerator.GenerateFile(joConfig);
@@ -73,7 +72,7 @@ public class RmsDataDumpImpl {
         }
         shakeRecord.setFilepath(file);
         shakeRecord.setShake_type(dto.getType());
-        shakeRecord.setConf(dto.getConfigs().replaceAll(" ", ""));
+        shakeRecord.setConf(joConfig.toJSONString());
         shakeRecord.setCreate_time(new Date());
         shakeRecord.setCreate_user(BaseUtils.GetUserFromContext());
         return shakeRepository.save(shakeRecord);
@@ -87,5 +86,13 @@ public class RmsDataDumpImpl {
             return "success";
         }
         return "failed";
+    }
+
+    private String generateOutput(String mode) {
+        if (mode.equals("dump") || mode.equals("rump")) {
+            return mode + "_" + System.nanoTime() + ".rdb";
+        } else {
+            return mode + "_" + System.nanoTime() + ".json";
+        }
     }
 }
