@@ -71,6 +71,7 @@ logging:
   config: classpath:logback-config.xml
 dumpdir:
   conf-dir: tmpConf
-  record-dir: record
+  record-dir: dumpRecord
+  exec-dir: shakeBin
 #logging:
 #  config: classpath:log4j2-spring.xml
