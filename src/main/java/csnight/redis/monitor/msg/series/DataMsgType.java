@@ -7,6 +7,8 @@ import java.util.Arrays;
 public enum DataMsgType {
     KEYWATCH(100),
     UNKEYWATCH(101),
+    SHAKESTART(200),
+    SHAKEEND(201),
     UNKNOWN(-1);
     private int ct;
     private final byte[] raw = SafeEncoder.encode(this.name());

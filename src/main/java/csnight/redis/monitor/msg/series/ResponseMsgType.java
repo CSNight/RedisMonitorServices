@@ -6,9 +6,8 @@ import java.util.Arrays;
 
 public enum ResponseMsgType {
     INIT(1),
-    CONNECTED(2),
-    DISCONNECTED(3),
     UNKNOWN(404),
+
     RESP(101),
     SUBCON(102),
     PUBSUB(103),
@@ -16,9 +15,13 @@ public enum ResponseMsgType {
     MONITORCON(105),
     MONITOR(106),
     DEMONITOR(107),
+
     KEYWATCHCON(200),
     KEYWATCH(201),
     DEKEYWATCH(202),
+    SHAKESTART(203),
+    SHAKEPROCESS(204),
+    SHAKEFINISH(205),
     ERROR(400);
 
     private int code;

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.exception.CmdMsgException;
 import csnight.redis.monitor.msg.entity.ChannelEntity;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
+import csnight.redis.monitor.msg.handler.DtMoveHandler;
 import csnight.redis.monitor.msg.handler.KeyWatchHandler;
 import csnight.redis.monitor.msg.series.ChannelType;
 import csnight.redis.monitor.msg.series.DataMsgType;
@@ -64,6 +65,27 @@ public class DataMsgDispatcher {
                 MsgBus.getIns().setChannelType(ChannelType.COMMON, ch.id().asShortText());
                 channels.get(ch.id().asShortText()).getHandlers().remove(appId);
                 wre = new WssResponseEntity(ResponseMsgType.DEKEYWATCH, "Unmonitor success");
+                wre.setAppId(appId);
+                WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
+                break;
+            case SHAKESTART:
+                DtMoveHandler dtMoveHandler = new DtMoveHandler(appId, ch);
+                dtMoveHandler.initialize(msg);
+                channels.get(ch.id().asShortText()).getHandlers().put(appId, dtMoveHandler);
+                MsgBus.getIns().setChannelType(ChannelType.MONITOR, ch.id().asShortText());
+                wre = new WssResponseEntity(ResponseMsgType.SHAKESTART, "Data operation started");
+                wre.setAppId(appId);
+                WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
+                break;
+            case SHAKEEND:
+                channels.get(ch.id().asShortText()).getHandlers().forEach((id, handler) -> {
+                    if (id.equals(appId)) {
+                        handler.destroy();
+                    }
+                });
+                MsgBus.getIns().setChannelType(ChannelType.COMMON, ch.id().asShortText());
+                channels.get(ch.id().asShortText()).getHandlers().remove(appId);
+                wre = new WssResponseEntity(ResponseMsgType.SHAKEFINISH, "Date operation finished");
                 wre.setAppId(appId);
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
                 break;
