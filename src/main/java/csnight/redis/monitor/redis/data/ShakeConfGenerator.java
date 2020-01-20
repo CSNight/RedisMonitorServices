@@ -67,6 +67,10 @@ public class ShakeConfGenerator {
                 }
                 if (template[i].contains("input") || template[i].contains("output")) {
                     String recordDir = Root + "/" + YamlConfigUtils.getStrYmlVal("dumpdir.record-dir");
+                    File dir = new File(recordDir);
+                    if (!dir.exists()) {
+                        dir.mkdir();
+                    }
                     template[i] = String.format(template[i], recordDir + "/" + val);
                 } else {
                     template[i] = String.format(template[i], val);
@@ -94,6 +98,8 @@ public class ShakeConfGenerator {
             if (res) {
                 FileWriter fileWriter = new FileWriter(confFile);
                 BufferedWriter bw = new BufferedWriter(fileWriter);
+                bw.write("id = " + filename);
+                bw.newLine();
                 for (String line : confTemplate) {
                     bw.write(line);
                     bw.newLine();
