@@ -15,8 +15,12 @@ import org.springframework.core.io.ClassPathResource;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.security.KeyStore;
+
+import static csnight.redis.monitor.utils.BaseUtils.getResourceDir;
 
 public class WebSocketInitializer extends ChannelInitializer<SocketChannel> {
     private ChannelGroup channels;
@@ -41,7 +45,12 @@ public class WebSocketInitializer extends ChannelInitializer<SocketChannel> {
 
     private SSLContext CreateContext() throws Exception {
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
-        InputStream stream = new ClassPathResource(YamlConfigUtils.getStrYmlVal("server.ssl.key-store")).getInputStream();
+        InputStream stream;
+        try {
+            stream = new ClassPathResource(YamlConfigUtils.getStrYmlVal("server.ssl.key-store")).getInputStream();
+        } catch (FileNotFoundException e) {
+            stream = new FileInputStream(getResourceDir() + "www.csnight.xyz.pfx");
+        }
         keyStore.load(stream, YamlConfigUtils.getStrYmlVal("server.ssl.key-store-password").toCharArray());
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(keyStore, YamlConfigUtils.getStrYmlVal("server.ssl.key-store-password").toCharArray());
