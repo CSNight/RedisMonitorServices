@@ -35,24 +35,24 @@ public class RmsShakeController {
     }
 
     @LogAsync(module = "DUMP", auth = "DUMP_DEL_RECORD")
-    @ApiOperation("删除操作记录")
+    @ApiOperation("根据ID删除操作记录")
     @PreAuthorize("hasAuthority('DUMP_DEL_RECORD')")
     @RequestMapping(value = "/shakeRecord/{cid}", method = RequestMethod.DELETE)
     public RespTemplate DeleteShakeRecord(@PathVariable String cid) {
         return new RespTemplate(HttpStatus.OK, rmsDataDump.DeleteRecord(cid));
     }
 
-    @LogAsync(module = "DUMP", auth = "DUMP_GET_RECORD")
+    @LogAsync(module = "DUMP", auth = "DUMP_QUERY_ALL")
     @ApiOperation("查询操作记录")
-    @PreAuthorize("hasAuthority('DUMP_GET_RECORD')")
+    @PreAuthorize("hasAuthority('DUMP_QUERY_ALL')")
     @RequestMapping(value = "/shakeRecords", method = RequestMethod.GET)
     public RespTemplate GetShakeRecords() {
         return new RespTemplate(HttpStatus.OK, rmsDataDump.GetAll());
     }
 
-    @LogAsync(module = "DUMP", auth = "DUMP_GET_RECORD")
+    @LogAsync(module = "DUMP", auth = "DUMP_QUERY")
     @ApiOperation("根据用户查询操作记录")
-    @PreAuthorize("hasAuthority('DUMP_GET_RECORD')")
+    @PreAuthorize("hasAuthority('DUMP_QUERY')")
     @RequestMapping(value = "/shakeRecordsByUser", method = RequestMethod.GET)
     public RespTemplate GetShakeRecordsByUser() {
         return new RespTemplate(HttpStatus.OK, rmsDataDump.GetByUser());
