@@ -9,7 +9,7 @@ import csnight.redis.monitor.db.repos.RmsShakeRepository;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
 import csnight.redis.monitor.msg.series.ResponseMsgType;
 import csnight.redis.monitor.utils.ReflectUtils;
-import csnight.redis.monitor.utils.YamlConfigUtils;
+import csnight.redis.monitor.utils.YamlUtils;
 import csnight.redis.monitor.websocket.WebSocketServer;
 import io.netty.channel.Channel;
 
@@ -50,9 +50,9 @@ public class DtMoveHandler implements WsChannelHandler {
         configs = JSONObject.parseObject(shakeConf.getString("conf"));
         sid = shakeConf.getString("id");
         String confFile = shakeConf.getString("filepath");
-        String path = System.getProperty("user.dir") + "/" + YamlConfigUtils.getStrYmlVal("dumpdir.exec-dir") + "/";
+        String path = System.getProperty("user.dir") + "/" + YamlUtils.getStrYmlVal("dumpdir.exec-dir") + "/";
         String os = System.getProperty("os.name");
-        String config = System.getProperty("user.dir") + "/" + YamlConfigUtils.getStrYmlVal("dumpdir.conf-dir") + "/" + confFile;
+        String config = System.getProperty("user.dir") + "/" + YamlUtils.getStrYmlVal("dumpdir.conf-dir") + "/" + confFile;
         String cmdLine;
         if (os.toLowerCase().contains("windows")) {
             path += "redis-shake.windows.exe";
@@ -165,7 +165,7 @@ public class DtMoveHandler implements WsChannelHandler {
 
     private long CheckOutput(String output) {
         String outputFile = System.getProperty("user.dir") + "/"
-                + YamlConfigUtils.getStrYmlVal("dumpdir.record-dir") + "/" + output;
+                + YamlUtils.getStrYmlVal("dumpdir.record-dir") + "/" + output;
         File outputF = new File(outputFile);
         if (outputF.exists()) {
             return outputF.length();

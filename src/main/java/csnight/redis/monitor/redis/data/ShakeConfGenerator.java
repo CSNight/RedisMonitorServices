@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.IdentifyUtils;
-import csnight.redis.monitor.utils.YamlConfigUtils;
+import csnight.redis.monitor.utils.YamlUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -66,7 +66,7 @@ public class ShakeConfGenerator {
                     }
                 }
                 if (template[i].contains("input") || template[i].contains("output")) {
-                    String recordDir = Root + "/" + YamlConfigUtils.getStrYmlVal("dumpdir.record-dir");
+                    String recordDir = Root + "/" + YamlUtils.getStrYmlVal("dumpdir.record-dir");
                     File dir = new File(recordDir);
                     if (!dir.exists()) {
                         dir.mkdir();
@@ -83,7 +83,7 @@ public class ShakeConfGenerator {
 
     public String GenerateFile(JSONObject configs) throws IOException {
         boolean temp_res = FormatTemplate(configs);
-        String confDir = Root + "/" + YamlConfigUtils.getStrYmlVal("dumpdir.conf-dir") + "/";
+        String confDir = Root + "/" + YamlUtils.getStrYmlVal("dumpdir.conf-dir") + "/";
         File fileDir = new File(confDir);
         if (!fileDir.exists()) {
             boolean suc = fileDir.mkdir();
@@ -113,7 +113,7 @@ public class ShakeConfGenerator {
     }
 
     public static boolean clearConf(String filename) {
-        String confDir = Root + "/" + YamlConfigUtils.getStrYmlVal("dumpdir.conf-dir") + "/";
+        String confDir = Root + "/" + YamlUtils.getStrYmlVal("dumpdir.conf-dir") + "/";
         File file = new File(confDir + filename);
         if (file.exists()) {
             return file.delete();

@@ -70,8 +70,8 @@ spring:
 logging:
   config: classpath:logback-config.xml
 dumpdir:
-  conf-dir: tmpConf
-  record-dir: dumpRecord
-  exec-dir: shakeBin
+  conf-dir: tools/configs
+  record-dir: tools/backups
+  exec-dir: tools/shakeBin
 #logging:
 #  config: classpath:log4j2-spring.xml

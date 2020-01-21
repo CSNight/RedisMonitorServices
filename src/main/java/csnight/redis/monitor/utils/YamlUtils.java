@@ -2,10 +2,10 @@ package csnight.redis.monitor.utils;
 
 import java.util.Properties;
 
-public class YamlConfigUtils {
+public class YamlUtils {
     private static Properties ymlProperties = new Properties();
 
-    public YamlConfigUtils(Properties properties) {
+    public YamlUtils(Properties properties) {
         ymlProperties = properties;
     }
 
