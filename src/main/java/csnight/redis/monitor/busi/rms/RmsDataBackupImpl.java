@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author csnight
@@ -35,8 +36,9 @@ public class RmsDataBackupImpl {
 
     private String DeleteById(String id) {
         boolean delSuccess = false;
-        RmsDataRecord dataRecord = dataRecRepository.getOne(id);
-        if (dataRecord != null) {
+        Optional<RmsDataRecord> optDataRecord = dataRecRepository.findById(id);
+        if (optDataRecord.isPresent()) {
+            RmsDataRecord dataRecord = optDataRecord.get();
             String dataFilePath = recordDir + dataRecord.getFilename();
             File f = new File(dataFilePath);
             if (f.exists()) {
