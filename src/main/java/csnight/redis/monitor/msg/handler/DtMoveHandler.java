@@ -101,9 +101,6 @@ public class DtMoveHandler implements WsChannelHandler {
             WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.ERROR, "Process stop with an error " + e.getMessage());
             wre.setAppId(appId);
             WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), channel);
-            WssResponseEntity wres = new WssResponseEntity(ResponseMsgType.SHAKEFINISH, "Data process finished");
-            wres.setAppId(appId);
-            WebSocketServer.getInstance().send(JSONObject.toJSONString(wres), channel);
             SaveResult("failed");
         } finally {
             if (br != null)
@@ -160,7 +157,9 @@ public class DtMoveHandler implements WsChannelHandler {
                     shakeRepository.save(shakeRecord);
                     break;
             }
-
+            WssResponseEntity wres = new WssResponseEntity(ResponseMsgType.SHAKEFINISH, "Data process finished");
+            wres.setAppId(appId);
+            WebSocketServer.getInstance().send(JSONObject.toJSONString(wres), channel);
         }
     }
 

@@ -85,7 +85,7 @@ public class DataMsgDispatcher {
                 });
                 MsgBus.getIns().setChannelType(ChannelType.COMMON, ch.id().asShortText());
                 channels.get(ch.id().asShortText()).getHandlers().remove(appId);
-                wre = new WssResponseEntity(ResponseMsgType.SHAKEFINISH, "Date operation finished");
+                wre = new WssResponseEntity(ResponseMsgType.SHAKEFINISH, "Data operation finished");
                 wre.setAppId(appId);
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
                 break;
