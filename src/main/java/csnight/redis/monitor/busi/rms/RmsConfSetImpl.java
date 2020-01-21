@@ -10,6 +10,8 @@ import csnight.redis.monitor.redis.pool.PoolConfig;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
 import csnight.redis.monitor.redis.statistic.InfoCmdParser;
 import csnight.redis.monitor.rest.rms.dto.ConfigDto;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -79,9 +81,11 @@ public class RmsConfSetImpl {
         }
     }
 
+    @Caching(evict = {@CacheEvict(value = "instances", condition = "#isMonitor=='true'", beforeInvocation = true, allEntries = true),
+            @CacheEvict(value = "instance", condition = "#isMonitor=='true'", allEntries = true)})
     public Map<String, Map<String, String>> GetRedisInfo(String ins, String isMonitor) throws ConfigException {
         RmsInstance instance = rmsInsRepository.findOnly(ins);
-        if (instance == null ) {
+        if (instance == null) {
             return null;
         }
         RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(instance.getId());

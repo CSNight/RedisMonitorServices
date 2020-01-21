@@ -9,6 +9,8 @@ import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.PoolConfig;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
 import csnight.redis.monitor.utils.IdentifyUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -61,6 +63,8 @@ public class RmsDtManageImpl {
         return res;
     }
 
+    @Caching(evict = {@CacheEvict(value = "instances", beforeInvocation = true, allEntries = true),
+            @CacheEvict(value = "instance", beforeInvocation = true, allEntries = true)})
     public JSONObject GetDatabaseById(String ins_id) throws ConfigException {
         RmsInstance instance = rmsInsRepository.findOnly(ins_id);
         if (instance != null) {
