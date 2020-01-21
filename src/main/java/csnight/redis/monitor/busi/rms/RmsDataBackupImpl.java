@@ -34,7 +34,7 @@ public class RmsDataBackupImpl {
         return dataRecRepository.findById(id).orElse(null);
     }
 
-    private String DeleteById(String id) {
+    public String DeleteById(String id) {
         boolean delSuccess = false;
         Optional<RmsDataRecord> optDataRecord = dataRecRepository.findById(id);
         if (optDataRecord.isPresent()) {

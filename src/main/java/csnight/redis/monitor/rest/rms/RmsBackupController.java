@@ -30,7 +30,7 @@ public class RmsBackupController {
     @ApiOperation("根据用户查询备份文件")
     @PreAuthorize("hasAuthority('BACKUP_QUERY')")
     @RequestMapping(value = "/getByUser", method = RequestMethod.GET)
-    public RespTemplate GetBackup() {
+    public RespTemplate GetBackups() {
         return new RespTemplate(HttpStatus.OK, dataBackup.GetDataRecord());
     }
 
@@ -38,7 +38,7 @@ public class RmsBackupController {
     @ApiOperation("查询全部备份文件")
     @PreAuthorize("hasAuthority('BACKUP_QUERY_ALL')")
     @RequestMapping(value = "/getAll", method = RequestMethod.GET)
-    public RespTemplate GetBackupAll() {
+    public RespTemplate GetBackupsAll() {
         return new RespTemplate(HttpStatus.OK, dataBackup.GetAllDataRecord());
     }
 
@@ -46,7 +46,15 @@ public class RmsBackupController {
     @ApiOperation("根据ID查询备份文件")
     @PreAuthorize("hasAuthority('DUMP_QUERY')")
     @RequestMapping(value = "/getById/{id}", method = RequestMethod.GET)
-    public RespTemplate GetShakeRecordsById(@PathVariable String id) {
+    public RespTemplate GetBackupById(@PathVariable String id) {
         return new RespTemplate(HttpStatus.OK, dataBackup.GetDataRecordById(id));
+    }
+
+    @LogAsync(module = "BACKUP", auth = "BACKUP_DEL")
+    @ApiOperation("根据ID删除备份文件")
+    @PreAuthorize("hasAuthority('BACKUP_DEL')")
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+    public RespTemplate DeleteBackupsById(@PathVariable String id) {
+        return new RespTemplate(HttpStatus.OK, dataBackup.DeleteById(id));
     }
 }
