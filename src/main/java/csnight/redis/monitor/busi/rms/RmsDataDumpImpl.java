@@ -27,6 +27,8 @@ public class RmsDataDumpImpl {
     private RmsShakeRepository shakeRepository;
     @Resource
     private RmsInsRepository insRepository;
+    @Resource
+    private RmsDataBackupImpl rmsDataBackup;
 
     public List<RmsShakeRecord> GetAll() {
         return shakeRepository.findAll();
@@ -79,9 +81,13 @@ public class RmsDataDumpImpl {
     }
 
     public String DeleteRecord(String cid) {
-        Optional<RmsShakeRecord> shakeRecord = shakeRepository.findById(cid);
-        if (shakeRecord.isPresent()) {
-            ShakeConfGenerator.clearConf(shakeRecord.get().getFilepath());
+        Optional<RmsShakeRecord> optShakeRecord = shakeRepository.findById(cid);
+        if (optShakeRecord.isPresent()) {
+            RmsShakeRecord shakeRecord = optShakeRecord.get();
+            ShakeConfGenerator.clearConf(shakeRecord.getFilepath());
+            if (!shakeRecord.getRelate_backup().equals("")) {
+                rmsDataBackup.DeleteById(shakeRecord.getRelate_backup());
+            }
             shakeRepository.deleteById(cid);
             return "success";
         }
