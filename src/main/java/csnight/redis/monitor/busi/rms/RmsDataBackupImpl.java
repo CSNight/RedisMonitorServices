@@ -20,8 +20,6 @@ import java.util.Optional;
 public class RmsDataBackupImpl {
     @Resource
     private RmsDataRecRepository dataRecRepository;
-    private String recordDir = System.getProperty("user.dir") + "/" + YamlUtils.getStrYmlVal("dumpdir.record-dir") + "/";
-
     public List<RmsDataRecord> GetDataRecord() {
         return dataRecRepository.findByCreateUser(BaseUtils.GetUserFromContext());
     }
@@ -36,6 +34,7 @@ public class RmsDataBackupImpl {
 
     public String DeleteById(String id) {
         boolean delSuccess = false;
+        String recordDir = System.getProperty("user.dir") + "/" + YamlUtils.getStrYmlVal("dumpdir.record-dir") + "/";
         Optional<RmsDataRecord> optDataRecord = dataRecRepository.findById(id);
         if (optDataRecord.isPresent()) {
             RmsDataRecord dataRecord = optDataRecord.get();
