@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class ShakeConfGenerator {
     private final static String Root = System.getProperty("user.dir");
-    private String[] BaseConf = new String[]{"log.file=", "log.level = info", "parallel = %d",
+    private String[] BaseConf = new String[]{"log.file=", "log.level = info", "parallel = %d", "http_profile = -1",
             "fake_time =", "rewrite = %b", "big_key_threshold = 524288000", "psync = true",
             "qps = 200000", "keep_alive = 0", "replace_hash_tag = false", "metric = true",
             "metric.print_log = true"};
