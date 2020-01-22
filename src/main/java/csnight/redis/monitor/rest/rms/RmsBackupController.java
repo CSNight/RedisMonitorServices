@@ -44,7 +44,7 @@ public class RmsBackupController {
 
     @LogAsync(module = "BACKUP", auth = "BACKUP_QUERY_ID")
     @ApiOperation("根据ID查询备份文件")
-    @PreAuthorize("hasAuthority('DUMP_QUERY')")
+    @PreAuthorize("hasAuthority('BACKUP_QUERY_ID')")
     @RequestMapping(value = "/getById/{id}", method = RequestMethod.GET)
     public RespTemplate GetBackupById(@PathVariable String id) {
         return new RespTemplate(HttpStatus.OK, dataBackup.GetDataRecordById(id));

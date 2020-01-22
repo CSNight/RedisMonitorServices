@@ -52,6 +52,10 @@ public class RmsDataDumpImpl {
                 String output = generateOutput(dto.getType());
                 JSONPath.set(joConfig, "$.target.rdb.output", output);
                 break;
+            case "decode":
+                String outputDecode = generateOutput(dto.getType());
+                JSONPath.set(joConfig, "$.target.rdb.output", outputDecode);
+                break;
             case "restore":
                 boolean ins_target = insRepository.existsById(shakeRecord.getTarget_ins());
                 if (!ins_target) {
@@ -85,7 +89,7 @@ public class RmsDataDumpImpl {
         if (optShakeRecord.isPresent()) {
             RmsShakeRecord shakeRecord = optShakeRecord.get();
             ShakeConfGenerator.clearConf(shakeRecord.getFilepath());
-            if (!shakeRecord.getRelate_backup().equals("")) {
+            if (shakeRecord.getRelate_backup() != null) {
                 rmsDataBackup.DeleteById(shakeRecord.getRelate_backup());
             }
             shakeRepository.deleteById(cid);
@@ -95,9 +99,9 @@ public class RmsDataDumpImpl {
     }
 
     private String generateOutput(String mode) {
-        if (mode.equals("dump") || mode.equals("rump")) {
+        if (mode.equals("dump")) {
             return mode + "_" + System.nanoTime() + ".rdb";
-        } else {
+        } else  {
             return mode + "_" + System.nanoTime() + ".json";
         }
     }
