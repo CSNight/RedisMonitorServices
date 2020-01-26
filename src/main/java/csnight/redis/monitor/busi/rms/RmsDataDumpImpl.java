@@ -41,34 +41,36 @@ public class RmsDataDumpImpl {
     public RmsShakeRecord NewShakeConf(DumpDto dto) throws IOException {
         RmsShakeRecord shakeRecord = new RmsShakeRecord();
         JSONObject joConfig = JSONObject.parseObject(dto.getConfigs());
-        shakeRecord.setSource_ins(joConfig.getString("sourceId"));
-        shakeRecord.setTarget_ins(joConfig.getString("targetId"));
         switch (dto.getType()) {
             case "dump":
-                boolean ins_source = insRepository.existsById(shakeRecord.getSource_ins());
+                boolean ins_source = insRepository.existsById(joConfig.getString("sourceId"));
                 if (!ins_source) {
                     return null;
                 }
                 String output = generateOutput(dto.getType());
                 JSONPath.set(joConfig, "$.target.rdb.output", output);
+                shakeRecord.setSource_ins(joConfig.getString("sourceId"));
                 break;
             case "decode":
                 String outputDecode = generateOutput(dto.getType());
                 JSONPath.set(joConfig, "$.target.rdb.output", outputDecode);
                 break;
             case "restore":
-                boolean ins_target = insRepository.existsById(shakeRecord.getTarget_ins());
+                boolean ins_target = insRepository.existsById(joConfig.getString("targetId"));
                 if (!ins_target) {
                     return null;
                 }
+                shakeRecord.setTarget_ins(joConfig.getString("targetId"));
                 break;
             case "rump":
             case "sync":
-                boolean syn_source = insRepository.existsById(shakeRecord.getSource_ins());
-                boolean syn_target = insRepository.existsById(shakeRecord.getTarget_ins());
+                boolean syn_source = insRepository.existsById(joConfig.getString("sourceId"));
+                boolean syn_target = insRepository.existsById(joConfig.getString("targetId"));
                 if (!syn_source || !syn_target) {
                     return null;
                 }
+                shakeRecord.setSource_ins(joConfig.getString("sourceId"));
+                shakeRecord.setTarget_ins(joConfig.getString("targetId"));
                 break;
         }
         ShakeConfGenerator confGenerator = new ShakeConfGenerator();
@@ -101,7 +103,7 @@ public class RmsDataDumpImpl {
     private String generateOutput(String mode) {
         if (mode.equals("dump")) {
             return mode + "_" + System.nanoTime() + ".rdb";
-        } else  {
+        } else {
             return mode + "_" + System.nanoTime() + ".json";
         }
     }
