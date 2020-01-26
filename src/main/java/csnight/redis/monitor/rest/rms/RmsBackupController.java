@@ -7,10 +7,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -65,6 +62,7 @@ public class RmsBackupController {
     @ApiOperation("根据ID下载备份文件")
     @PreAuthorize("hasAuthority('BACKUP_DOWNLOAD')")
     @RequestMapping(value = "/download/{id}", method = RequestMethod.GET)
+    @ResponseBody
     public void getDownload(@PathVariable String id, HttpServletRequest request, HttpServletResponse response) throws IOException {
         dataBackup.DownloadBackup(id, request, response);
     }

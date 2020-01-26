@@ -118,10 +118,9 @@ public class RmsDataBackupImpl {
             response.setHeader("Content-Length", size + "");
             downloadSize = size;
         }
+        OutputStream out = response.getOutputStream();
+        try (RandomAccessFile in = new RandomAccessFile(downloadFile, "rw")) {
 
-        try (
-                RandomAccessFile in = new RandomAccessFile(downloadFile, "rw");
-                OutputStream out = response.getOutputStream();) {
             // 设置下载起始位置
             if (fromPos > 0) {
                 in.seek(fromPos);
@@ -148,9 +147,13 @@ public class RmsDataBackupImpl {
         } catch (IOException e) {
             response.setContentType("application/json");
             response.setStatus(400);
-            response.getWriter().write(JSONObject.toJSONString(
-                    new RespTemplate(200, HttpStatus.OK, e.getMessage(), "/backup/download", "DownloadBackup")));
-            response.getWriter().flush();
+            out.write(JSONObject.toJSONString(
+                    new RespTemplate(200, HttpStatus.OK, e.getMessage(), "/backup/download", "DownloadBackup")).getBytes());
+            out.flush();
+        } finally {
+            if (out != null) {
+                out.close();
+            }
         }
     }
 }
