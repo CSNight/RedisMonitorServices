@@ -118,8 +118,10 @@ public class RmsDataBackupImpl {
             response.setHeader("Content-Length", size + "");
             downloadSize = size;
         }
-        OutputStream out = null;
-        try (RandomAccessFile in = new RandomAccessFile(downloadFile, "rw")) {
+
+        try (
+                RandomAccessFile in = new RandomAccessFile(downloadFile, "rw");
+                OutputStream out = response.getOutputStream();) {
             // 设置下载起始位置
             if (fromPos > 0) {
                 in.seek(fromPos);
@@ -129,7 +131,6 @@ public class RmsDataBackupImpl {
             byte[] buffer = new byte[bufLen];
             int num;
             int count = 0; // 当前写到客户端的大小
-            out = response.getOutputStream();
             while ((num = in.read(buffer)) != -1) {
                 out.write(buffer, 0, num);
                 count += num;
@@ -145,15 +146,11 @@ public class RmsDataBackupImpl {
             }
             response.flushBuffer();
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (null != out) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            response.setContentType("application/json");
+            response.setStatus(400);
+            response.getWriter().write(JSONObject.toJSONString(
+                    new RespTemplate(200, HttpStatus.OK, e.getMessage(), "/backup/download", "DownloadBackup")));
+            response.getWriter().flush();
         }
     }
 }
