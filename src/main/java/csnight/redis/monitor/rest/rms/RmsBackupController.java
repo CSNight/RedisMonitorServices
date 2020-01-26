@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @author csnight
@@ -57,4 +60,13 @@ public class RmsBackupController {
     public RespTemplate DeleteBackupsById(@PathVariable String id) {
         return new RespTemplate(HttpStatus.OK, dataBackup.DeleteById(id));
     }
+
+    @LogAsync(module = "BACKUP", auth = "BACKUP_DOWNLOAD")
+    @ApiOperation("根据ID下载备份文件")
+    @PreAuthorize("hasAuthority('BACKUP_DOWNLOAD')")
+    @RequestMapping(value = "/download/{id}", method = RequestMethod.GET)
+    public void getDownload(@PathVariable String id, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        dataBackup.DownloadBackup(id, request, response);
+    }
+
 }
