@@ -63,8 +63,9 @@ public class RmsBackupController {
     @PreAuthorize("hasAuthority('BACKUP_DOWNLOAD')")
     @RequestMapping(value = "/download/{id}", method = RequestMethod.GET)
     @ResponseBody
-    public void getDownload(@PathVariable String id, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public String getDownload(@PathVariable String id, HttpServletRequest request, HttpServletResponse response) throws IOException {
         dataBackup.DownloadBackup(id, request, response);
+        return "Download complete";
     }
 
 }
