@@ -6,6 +6,7 @@ import csnight.redis.monitor.db.repos.RmsDataRecRepository;
 import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.RespTemplate;
 import csnight.redis.monitor.utils.YamlUtils;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +37,7 @@ public class RmsDataBackupImpl {
     }
 
     public List<RmsDataRecord> GetAllDataRecord() {
-        return dataRecRepository.findAll();
+        return dataRecRepository.findAllRecord();
     }
 
     public RmsDataRecord GetDataRecordById(String id) {
@@ -81,6 +83,10 @@ public class RmsDataBackupImpl {
             response.getWriter().flush();
             return;
         }
+        //保存下载信息
+        dataRecord.setDl_count(dataRecord.getDl_count() + 1);
+        dataRecord.setLast_down(new Date());
+        dataRecRepository.save(dataRecord);
         ServletContext context = request.getServletContext();
         // get MIME type of the file
         String mimeType = context.getMimeType(filePath);

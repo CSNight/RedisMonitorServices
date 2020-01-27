@@ -14,6 +14,9 @@ import java.util.List;
 public interface RmsDataRecRepository extends JpaRepository<RmsDataRecord, String> {
     RmsDataRecord findByFilename(String filename);
 
-    @Query(value = "select * from rms_data_record where create_user=?", nativeQuery = true)
+    @Query(value = "select * from rms_data_record  order by create_time,backup_type DESC", nativeQuery = true)
+    List<RmsDataRecord> findAllRecord();
+
+    @Query(value = "select * from rms_data_record where create_user=? order by create_time,backup_type DESC", nativeQuery = true)
     List<RmsDataRecord> findByCreateUser(String usr);
 }
