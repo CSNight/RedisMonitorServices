@@ -2,6 +2,7 @@ package csnight.redis.monitor.rest.sys.dto;
 
 import csnight.redis.monitor.db.jpa.SysMenu;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -9,15 +10,20 @@ import java.util.Date;
 
 @ApiModel(value = "权限模型")
 public class PermissionDto {
+    @ApiModelProperty(notes = "权限ID")
     private String id;
     @NotNull
     @NotEmpty
+    @ApiModelProperty(notes = "权限名称", required = true)
     private String name;
     @NotNull
+    @ApiModelProperty(notes = "所属菜单", required = true)
     private SysMenu menu;
+    @ApiModelProperty(notes = "权限描述")
     private String description;
-    private String access_role;
+    @ApiModelProperty(notes = "创建用户")
     private String create_user;
+    @ApiModelProperty(notes = "创建时间")
     private Date create_time;
 
     public String getId() {
@@ -50,14 +56,6 @@ public class PermissionDto {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getAccess_role() {
-        return access_role;
-    }
-
-    public void setAccess_role(String access_role) {
-        this.access_role = access_role;
     }
 
     public String getCreate_user() {

@@ -18,7 +18,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("instance")
-@Api(tags = "Redis实例API")
+@Api(tags = "Redis实例管理API")
 public class RmsInsController {
 
     @Resource

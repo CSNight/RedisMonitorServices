@@ -1,18 +1,27 @@
 package csnight.redis.monitor.rest.sys.vo;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
 
 @ApiModel(value = "用户信息模型")
 public class UserVo {
+    @ApiModelProperty(notes = "用户名")
     private String username;
+    @ApiModelProperty(notes = "昵称")
     private String nick_name;
+    @ApiModelProperty(notes = "邮箱")
     private String email;
+    @ApiModelProperty(notes = "电话")
     private String phone;
+    @ApiModelProperty(notes = "登录次数", example = "0")
     private int login_times;
+    @ApiModelProperty(notes = "上次登录时间")
     private Date last_login;
+    @ApiModelProperty(notes = "是否启用", example = "true")
     private boolean enabled;
+    @ApiModelProperty(notes = "关联组织机构ID", example = "0")
     private Long org_id;
 
     public String getUsername() {

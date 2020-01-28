@@ -4,6 +4,7 @@ import csnight.redis.monitor.db.jpa.SysCommands;
 import csnight.redis.monitor.db.jpa.SysPermission;
 import csnight.redis.monitor.rest.sys.vo.SysMenuVo;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -14,22 +15,27 @@ import java.util.Set;
 
 @ApiModel(value = "角色模型")
 public class RoleDto {
-
+    @ApiModelProperty(notes = "角色ID")
     private String id;
     @NotEmpty
     @NotNull
+    @ApiModelProperty(notes = "角色编码", required = true)
     private String code;
     @NotEmpty
     @NotNull
+    @ApiModelProperty(notes = "角色名称", required = true)
     private String name;
     @Min(0)
     @Max(3)
+    @ApiModelProperty(notes = "角色级别", example = "0")
     private int level;
-
+    @ApiModelProperty(notes = "角色创建时间")
     private Date create_time;
-
+    @ApiModelProperty(notes = "角色关联权限")
     private Set<SysPermission> permissionSet;
+    @ApiModelProperty(notes = "角色关联菜单")
     private Set<SysMenuVo> menuSet;
+    @ApiModelProperty(notes = "角色关联命令")
     private SysCommands commands;
 
     public String getId() {

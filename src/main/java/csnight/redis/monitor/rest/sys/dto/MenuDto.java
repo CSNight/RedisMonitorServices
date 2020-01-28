@@ -1,30 +1,41 @@
 package csnight.redis.monitor.rest.sys.dto;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @ApiModel(value = "菜单模型")
 public class MenuDto {
+    @ApiModelProperty(notes = "菜单ID", example = "0")
     private Long id;
+    @ApiModelProperty(notes = "是否为外部链接", example = "false")
     private boolean iframe;
     @NotEmpty
     @NotNull
+    @ApiModelProperty(notes = "菜单名称", required = true)
     private String name;
     @NotEmpty
     @NotNull
+    @ApiModelProperty(notes = "组件", required = true)
     private String component;
+    @ApiModelProperty(notes = "父目录id", example = "0")
     private Long pid;
+    @ApiModelProperty(notes = "排序索引", example = "0")
     private int sort;
     @NotEmpty
     @NotNull
+    @ApiModelProperty(notes = "图标", required = true)
     private String icon;
     @NotNull
+    @ApiModelProperty(notes = "路径")
     private String path;
+    @ApiModelProperty(notes = "是否隐藏", example = "false")
     private boolean hidden;
     @NotEmpty
     @NotNull
+    @ApiModelProperty(notes = "组件名称", required = true)
     private String component_name;
 
     public Long getId() {

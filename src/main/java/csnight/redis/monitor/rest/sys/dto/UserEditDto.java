@@ -28,11 +28,12 @@ public class UserEditDto {
     @NotNull
     @Size(min = 11, max = 11)
     private String phone;
-
+    @ApiModelProperty(notes = "关联角色")
     private Set<SysRole> roles = new HashSet<>();
-
+    @ApiModelProperty(notes = "是否启用", example = "true")
     private boolean enabled;
     @Min(0)
+    @ApiModelProperty(notes = "关联组织机构", example = "0")
     private Long org_id;
 
     public String getUsername() {
