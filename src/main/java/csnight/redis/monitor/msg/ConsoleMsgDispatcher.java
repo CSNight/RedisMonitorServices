@@ -12,8 +12,6 @@ import csnight.redis.monitor.msg.series.CmdMsgType;
 import csnight.redis.monitor.msg.series.ResponseMsgType;
 import csnight.redis.monitor.websocket.WebSocketServer;
 import io.netty.channel.Channel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 

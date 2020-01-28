@@ -2,7 +2,7 @@
 <!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
 <!--status="WARN" :用于设置log4j2自身内部日志的信息输出级别，默认是OFF-->
 <!--monitorInterval="30"  :间隔秒数,自动检测配置文件的变更和重新配置本身-->
-<configuration status="INFO" monitorInterval="30" xmlns:xi="http://www.w3.org/2001/XInclude">
+<configuration status="INFO" monitorInterval="30">
     <Properties>
         <Property name="LOG_EXCEPTION_CONVERSION_WORD">%xwEx</Property>
         <Property name="LOG_LEVEL_PATTERN">%5p</Property>

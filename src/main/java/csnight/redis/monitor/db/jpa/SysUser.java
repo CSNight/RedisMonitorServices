@@ -1,7 +1,6 @@
 package csnight.redis.monitor.db.jpa;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
