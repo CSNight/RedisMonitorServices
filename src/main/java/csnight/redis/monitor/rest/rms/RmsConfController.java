@@ -3,7 +3,7 @@ package csnight.redis.monitor.rest.rms;
 import csnight.redis.monitor.aop.LogAsync;
 import csnight.redis.monitor.busi.rms.RmsConfSetImpl;
 import csnight.redis.monitor.exception.ConfigException;
-import csnight.redis.monitor.rest.rms.dto.ConfigDto;
+import csnight.redis.monitor.rest.rms.dto.InsConfigDto;
 import csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -55,7 +55,7 @@ public class RmsConfController {
     @ApiOperation("Redis配置查询")
     @PreAuthorize("hasAuthority('RMS_CONF_SAVE')")
     @RequestMapping(value = "/configs", method = RequestMethod.PUT)
-    public RespTemplate SaveInstanceConfig(@Valid @RequestBody ConfigDto dto) throws ConfigException {
+    public RespTemplate SaveInstanceConfig(@Valid @RequestBody InsConfigDto dto) throws ConfigException {
         String res = rmsConfSet.SaveConfig(dto);
         if (res == null) {
             return new RespTemplate(HttpStatus.BAD_REQUEST, "Please check redis role and connection");

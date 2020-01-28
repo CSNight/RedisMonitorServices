@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
  * @description
  * @since 2020-1-12 17:05
  */
-public class ConfigDto {
+public class InsConfigDto {
     @NotNull
     @NotEmpty
     private String ins_id;

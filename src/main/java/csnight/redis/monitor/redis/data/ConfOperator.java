@@ -4,7 +4,7 @@ import com.csnight.jedisql.JediSQL;
 import csnight.redis.monitor.db.jpa.RmsInstance;
 import csnight.redis.monitor.msg.series.RedisCmdType;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
-import csnight.redis.monitor.rest.rms.dto.ConfigDto;
+import csnight.redis.monitor.rest.rms.dto.InsConfigDto;
 import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.IdentifyUtils;
 
@@ -47,7 +47,7 @@ public class ConfOperator {
         return configs;
     }
 
-    public String saveConfig(RedisPoolInstance pool, ConfigDto dto) {
+    public String saveConfig(RedisPoolInstance pool, InsConfigDto dto) {
         String jid = IdentifyUtils.getUUID();
         try {
             JediSQL jediSQL = pool.getJedis(jid);

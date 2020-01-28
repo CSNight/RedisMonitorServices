@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
  * @description
  * @since 2020-1-18 21:59
  */
-public class DumpDto {
+public class ShakeConfDto {
     @NotNull
     @NotEmpty
     private String configs;
