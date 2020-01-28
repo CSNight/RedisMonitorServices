@@ -16,6 +16,8 @@ target/
 ### IntelliJ IDEA ###
 .idea
 logs
+tools/backups
+tools/configs
 *.iws
 *.iml
 *.ipr
