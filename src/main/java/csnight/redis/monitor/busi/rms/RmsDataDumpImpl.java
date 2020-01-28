@@ -6,7 +6,8 @@ import csnight.redis.monitor.db.jpa.RmsShakeRecord;
 import csnight.redis.monitor.db.repos.RmsInsRepository;
 import csnight.redis.monitor.db.repos.RmsShakeRepository;
 import csnight.redis.monitor.redis.data.ShakeConfGenerator;
-import csnight.redis.monitor.rest.rms.dto.DumpDto;
+import csnight.redis.monitor.rest.rms.dto.RecordsDto;
+import csnight.redis.monitor.rest.rms.dto.ShakeConfDto;
 import csnight.redis.monitor.utils.BaseUtils;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +39,7 @@ public class RmsDataDumpImpl {
         return shakeRepository.findByCreateUser(BaseUtils.GetUserFromContext());
     }
 
-    public RmsShakeRecord NewShakeConf(DumpDto dto) throws IOException {
+    public RmsShakeRecord NewShakeConf(ShakeConfDto dto) throws IOException {
         RmsShakeRecord shakeRecord = new RmsShakeRecord();
         JSONObject joConfig = JSONObject.parseObject(dto.getConfigs());
         switch (dto.getType()) {
@@ -98,6 +99,19 @@ public class RmsDataDumpImpl {
             return "success";
         }
         return "failed";
+    }
+
+    public String ClearShakeRecords() {
+        shakeRepository.deleteAll();
+        rmsDataBackup.ClearRecord();
+        return "success";
+    }
+
+    public String DeleteMultiRecords(RecordsDto dto) {
+        for (String id : dto.getIds()) {
+            DeleteRecord(id);
+        }
+        return "success";
     }
 
     private String generateOutput(String mode) {

@@ -12,6 +12,6 @@ import java.util.List;
  * @since 2020-1-18 21:38
  */
 public interface RmsShakeRepository extends JpaRepository<RmsShakeRecord, String> {
-    @Query(value = "select * from rms_shake_record", nativeQuery = true)
-    List<RmsShakeRecord> findByCreateUser(String getUserFromContext);
+    @Query(value = "select * from rms_shake_record where create_user=? order by create_time desc", nativeQuery = true)
+    List<RmsShakeRecord> findByCreateUser(String user);
 }
