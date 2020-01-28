@@ -1,12 +1,14 @@
 package csnight.redis.monitor.busi.rms;
 
 import com.alibaba.fastjson.JSONObject;
+import csnight.redis.monitor.busi.rms.exp.BackupQueryExp;
+import csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import csnight.redis.monitor.db.jpa.RmsDataRecord;
 import csnight.redis.monitor.db.repos.RmsDataRecRepository;
+import csnight.redis.monitor.rest.rms.dto.RecordsDto;
 import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.RespTemplate;
 import csnight.redis.monitor.utils.YamlUtils;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +46,10 @@ public class RmsDataBackupImpl {
         return dataRecRepository.findById(id).orElse(null);
     }
 
+    public List<RmsDataRecord> QueryRecords(BackupQueryExp exp) {
+        return dataRecRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder));
+    }
+
     public String DeleteById(String id) {
         boolean delSuccess = false;
         String recordDir = System.getProperty("user.dir") + "/" + YamlUtils.getStrYmlVal("dumpdir.record-dir") + "/";
@@ -59,6 +65,26 @@ public class RmsDataBackupImpl {
             return delSuccess ? "success" : "failed";
         }
         return "failed";
+    }
+
+    public String DeleteMultiRecords(RecordsDto dto) {
+        for (String id : dto.getIds()) {
+            DeleteById(id);
+        }
+        return "success";
+    }
+
+    public String ClearRecord() {
+        List<RmsDataRecord> records = dataRecRepository.findAll();
+        String recordDir = System.getProperty("user.dir") + "/" + YamlUtils.getStrYmlVal("dumpdir.record-dir") + "/";
+        for (RmsDataRecord record : records) {
+            File file = new File(recordDir + record.getFilename());
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+        dataRecRepository.deleteAll();
+        return "success";
     }
 
     public void DownloadBackup(String id, HttpServletRequest request, HttpServletResponse response) throws IOException {
