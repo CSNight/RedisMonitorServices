@@ -9,7 +9,7 @@ import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.PoolConfig;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
 import csnight.redis.monitor.redis.statistic.InfoCmdParser;
-import csnight.redis.monitor.rest.rms.dto.ConfigDto;
+import csnight.redis.monitor.rest.rms.dto.InsConfigDto;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
@@ -55,7 +55,7 @@ public class RmsConfSetImpl {
         }
     }
 
-    public String SaveConfig(ConfigDto dto) throws ConfigException {
+    public String SaveConfig(InsConfigDto dto) throws ConfigException {
         RmsInstance instance = rmsInsRepository.findOnly(dto.getIns_id());
         if (instance == null || instance.getRole().equals("sentinel")) {
             return null;
