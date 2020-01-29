@@ -8,11 +8,12 @@ import com.csnight.jedisql.exceptions.JedisConnectionException;
 import csnight.redis.monitor.exception.ValidateException;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class RedisPoolInstance {
     private JedisPool jedisPool = null;
     private JedisSentinelPool jedisSenPool = null;
-    private HashMap<String, JediSQL> rcs = new HashMap<>();
+    private Map<String, JediSQL> rcs = new HashMap<>();
     private PoolConfig config;
     private String id = "";
     private String user_id = "";
@@ -30,7 +31,7 @@ public class RedisPoolInstance {
         return uin;
     }
 
-    public HashMap<String, JediSQL> getRcs() {
+    public Map<String, JediSQL> getRcs() {
         return rcs;
     }
 

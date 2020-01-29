@@ -42,7 +42,7 @@ public class InfoCmdParser {
         return infos;
     }
 
-    private static String[] GetInfoSection(JediSQL j, String section) {
+    public static String[] GetInfoSection(JediSQL j, String section) {
         Object infos = j.sendCommand(RedisCmdType.INFO, section);
         String encoding = BaseUtils.getEncoding((byte[]) infos);
         String tmp = new String((byte[]) infos, Charset.forName(encoding)).replaceAll("# " + section + "\\r\\n", "").replaceAll("\\r\\n", ";");
