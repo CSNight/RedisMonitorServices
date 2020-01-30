@@ -1,5 +1,8 @@
 package csnight.redis.monitor.db.jpa;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
@@ -50,12 +53,6 @@ public class RmsInstance {
     @Column(name = "ct")
     @Temporal(TemporalType.TIMESTAMP)
     private Date ct;
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "rms_job_relation",
-            inverseJoinColumns = {@JoinColumn(name = "inc_key", referencedColumnName = "id")},
-            joinColumns = {@JoinColumn(name = "job_key", referencedColumnName = "id")})
-    private Set<RmsJob> jobs = new HashSet<>();
 
     public String getId() {
         return id;
@@ -207,14 +204,6 @@ public class RmsInstance {
 
     public void setCt(Date ct) {
         this.ct = ct;
-    }
-
-    public Set<RmsJob> getJobs() {
-        return jobs;
-    }
-
-    public void setJobs(Set<RmsJob> jobs) {
-        this.jobs = jobs;
     }
 
     public String getType() {
