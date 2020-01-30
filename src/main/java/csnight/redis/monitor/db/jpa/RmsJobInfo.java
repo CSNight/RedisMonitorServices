@@ -1,29 +1,24 @@
 package csnight.redis.monitor.db.jpa;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
-@Table(name = "rms_jobs")
-public class RmsJob {
+@Table(name = "rms_jobs_info")
+public class RmsJobInfo {
     @Id
+    @GenericGenerator(name = "jpa-uuid", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(generator = "jpa-uuid")
     @Column(name = "id", length = 50)
     private String id;
-    @Column(name = "ins_id", length = 50)
-    private String ins_id;
     @Column(name = "job_name")
     private String job_name;
     @Column(name = "job_group")
     private String job_group;
     @Column(name = "trigger_type")
     private int trigger_type;
-    @Column(name = "job_func")
-    private String job_func;
     @Column(name = "job_class")
     private String job_class;
     @Column(name = "job_describe")
@@ -33,10 +28,11 @@ public class RmsJob {
     @Column(name = "create_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date create_time;
-    @ManyToMany(mappedBy = "jobs", fetch = FetchType.EAGER)
-    @JsonIgnore
-    @JSONField(serialize = false)
-    private Set<RmsInstance> instances = new HashSet<>();
+    @Column(name = "create_user")
+    private String create_user;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ins_id")
+    private RmsInstance instance;
 
     public String getId() {
         return id;
@@ -44,14 +40,6 @@ public class RmsJob {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getIns_id() {
-        return ins_id;
-    }
-
-    public void setIns_id(String ins_id) {
-        this.ins_id = ins_id;
     }
 
     public String getJob_name() {
@@ -76,14 +64,6 @@ public class RmsJob {
 
     public void setTrigger_type(int trigger_type) {
         this.trigger_type = trigger_type;
-    }
-
-    public String getJob_func() {
-        return job_func;
-    }
-
-    public void setJob_func(String job_func) {
-        this.job_func = job_func;
     }
 
     public String getJob_class() {
@@ -118,11 +98,19 @@ public class RmsJob {
         this.create_time = create_time;
     }
 
-    public Set<RmsInstance> getInstances() {
-        return instances;
+    public String getCreate_user() {
+        return create_user;
     }
 
-    public void setInstances(Set<RmsInstance> instances) {
-        this.instances = instances;
+    public void setCreate_user(String create_user) {
+        this.create_user = create_user;
+    }
+
+    public RmsInstance getInstance() {
+        return instance;
+    }
+
+    public void setInstance(RmsInstance instance) {
+        this.instance = instance;
     }
 }

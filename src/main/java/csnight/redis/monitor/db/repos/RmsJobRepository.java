@@ -1,7 +1,7 @@
 package csnight.redis.monitor.db.repos;
 
-import csnight.redis.monitor.db.jpa.RmsJob;
+import csnight.redis.monitor.db.jpa.RmsJobInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface RmsJobRepository extends JpaRepository<RmsJob, String> {
+public interface RmsJobRepository extends JpaRepository<RmsJobInfo, String> {
 }
