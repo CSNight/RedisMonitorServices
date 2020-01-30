@@ -2,38 +2,36 @@ package csnight.redis.monitor.redis.statistic;
 
 import com.csnight.jedisql.JediSQL;
 import csnight.redis.monitor.db.repos.RmsRpsRepository;
-import csnight.redis.monitor.redis.pool.RedisPoolInstance;
-import csnight.redis.monitor.utils.IdentifyUtils;
 import csnight.redis.monitor.utils.ReflectUtils;
 
 public class PhysicalStatistic {
-    private RedisPoolInstance pool;
-    private String jid = IdentifyUtils.getUUID();
+    private String appId;
     private JediSQL jediSQL;
     private String ins_id;
     private RmsRpsRepository rpsRepository;
 
-    public PhysicalStatistic(RedisPoolInstance pool) {
-        this.pool = pool;
+
+    public PhysicalStatistic(JediSQL jediSQL, String ins_id, String appId) {
+        this.jediSQL = jediSQL;
+        this.ins_id = ins_id;
+        this.appId = appId;
         this.rpsRepository = ReflectUtils.getBean(RmsRpsRepository.class);
     }
 
-    public boolean initialize() {
-        boolean success = true;
-        try {
-            if (pool != null) {
-                jediSQL = pool.getJedis(jid);
-                ins_id = pool.getId();
-            } else {
-                success = false;
-            }
-        } catch (Exception ex) {
-            success = false;
-        }
-        return success;
+    public String getAppId() {
+        return appId;
     }
 
-    public void destory() {
-        pool.close(jid);
+    public void setAppId(String appId) {
+        this.appId = appId;
+    }
+
+    public String getIns_id() {
+        return ins_id;
+    }
+
+
+    public void execute() {
+
     }
 }

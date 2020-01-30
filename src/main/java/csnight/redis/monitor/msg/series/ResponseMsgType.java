@@ -22,6 +22,10 @@ public enum ResponseMsgType {
     SHAKESTART(203),
     SHAKEPROCESS(204),
     SHAKEFINISH(205),
+
+    PHYSICAL_STARTED(1000),
+    PHYSICAL_STOPPED(1001),
+    PHYSICAL_STAT(1002),
     ERROR(400);
 
     private int code;

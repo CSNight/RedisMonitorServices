@@ -43,7 +43,25 @@ public class JobFactory {
             _log.error(ex.getMessage());
             return "failed";
         }
+    }
 
+    public boolean ExistsJob(String jobName, String jobGroup) {
+        JobKey jobKey = new JobKey(jobName, jobGroup);
+        TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
+        try {
+            return scheduler.checkExists(jobKey) && scheduler.checkExists(triggerKey);
+        } catch (SchedulerException e) {
+            return false;
+        }
+    }
+
+    public Object GetJobData(String jobName, String jobGroup) {
+        JobKey jobKey = new JobKey(jobName, jobGroup);
+        try {
+            return scheduler.getJobDetail(jobKey).getJobDataMap().get("params");
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public String GetJobState(String identify, String triggerGroup) {
@@ -73,7 +91,7 @@ public class JobFactory {
             JobKey jobKey = new JobKey(jobName, jobGroup);
             JobDetail jobDetail = scheduler.getJobDetail(jobKey);
             if (jobDetail == null) {
-                return "fail";
+                return "failed";
             } else {
                 scheduler.pauseJob(jobKey);
                 return "success";
@@ -113,9 +131,9 @@ public class JobFactory {
     }
 
     //删除某个任务
-    public String DeleteJob(JobConfig jobConfigBase) {
+    public String DeleteJob(String jobName, String jobGroup) {
         try {
-            JobKey jobKey = new JobKey(jobConfigBase.getJobName(), jobConfigBase.getJobGroup());
+            JobKey jobKey = new JobKey(jobName, jobGroup);
             JobDetail jobDetail = scheduler.getJobDetail(jobKey);
             if (jobDetail == null) {
                 return "jobDetail is null";
@@ -141,7 +159,6 @@ public class JobFactory {
                 GroupMatcher<JobKey> jobKeyGroupMatcher = GroupMatcher.jobGroupEquals(jobGroupName);
                 Set<JobKey> jobKeySet = scheduler.getJobKeys(jobKeyGroupMatcher);
                 for (JobKey jobKey : jobKeySet) {
-                    String jobName = jobKey.getName();
                     JobDetail jobDetail = scheduler.getJobDetail(jobKey);
                     if (jobDetail == null)
                         continue;
@@ -156,7 +173,7 @@ public class JobFactory {
     }
 
     //修改任务
-    public String ModifyJob(JobConfig jobConfig) {
+    public boolean ModifyJob(JobConfig jobConfig) {
         try {
             BaseTriggerConfig baseTriggerConfig = getTriggerConfig(jobConfig);
             TriggerKey triggerKey = TriggerKey.triggerKey(baseTriggerConfig.getIdentity(), baseTriggerConfig.getTriggerGroup());
@@ -165,13 +182,13 @@ public class JobFactory {
                 Trigger trigger = baseTriggerConfig.getTrigger();
                 trigger.getJobDataMap().put("params", jobConfig.getInvokeParam());
                 scheduler.rescheduleJob(triggerKey, trigger);
-                return "success";
+                return true;
             } else {
-                return "job or trigger not exists";
+                return false;
             }
         } catch (Exception e) {
             _log.error(e.getMessage());
-            return "failed";
+            return false;
         }
     }
 
