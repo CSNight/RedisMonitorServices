@@ -40,7 +40,6 @@ public class SpringContextEvent implements ApplicationListener<ApplicationEvent>
             MsgBus.getIns().removeAll();
             wss.shutdown();
             ReflectUtils.getBean(JobFactory.class).PauseAllJob();
-            ReflectUtils.getBean(JobFactory.class).DeleteAllJob();
             try {
                 ReflectUtils.getBean(SchedulerFactoryBean.class).getScheduler().shutdown(true);
             } catch (SchedulerException e) {
