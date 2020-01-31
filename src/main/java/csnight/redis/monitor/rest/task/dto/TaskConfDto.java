@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-@ApiModel(value = "任务模型")
+@ApiModel(value = "任务配置模型")
 public class TaskConfDto {
     @NotNull
     @NotEmpty
