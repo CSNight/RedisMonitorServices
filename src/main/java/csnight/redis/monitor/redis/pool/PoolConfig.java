@@ -22,7 +22,7 @@ public class PoolConfig {
     private String evictionPolicy = "org.apache.commons.pool2.impl.DefaultEvictionPolicy";
     private boolean jmx = true;
     private int totalCon = 100;
-    private int maxWait = 1000 * 10;
+    private int maxWait = 1000 * 3;
     private int timeOut = 2000;
     private boolean testOnBorrow = true;
     private String master = "";
