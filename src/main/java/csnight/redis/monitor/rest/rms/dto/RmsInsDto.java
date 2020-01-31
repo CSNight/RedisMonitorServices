@@ -47,7 +47,7 @@ public class RmsInsDto {
     @ApiModelProperty(notes = "连接最大数量", example = "100")
     private int totalCon = 100;
     @ApiModelProperty(notes = "连接最大等待", example = "10000")
-    private int maxWait = 1000 * 10;
+    private int maxWait = 1000 * 3;
     @ApiModelProperty(notes = "连接超时时长", example = "v")
     private int timeOut = 2000;
     @ApiModelProperty(notes = "启用连接借用测试", example = "true")
