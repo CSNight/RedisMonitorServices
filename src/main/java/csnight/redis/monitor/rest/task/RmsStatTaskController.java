@@ -36,6 +36,14 @@ public class RmsStatTaskController {
         return new RespTemplate(HttpStatus.OK, statTaskManager.GetUserJob());
     }
 
+    @LogAsync(module = "STTASK", auth = "STTASK_QUERY_ID")
+    @ApiOperation("根据ID获取统计任务")
+    @PreAuthorize("hasAuthority('STTASK_QUERY_ID')")
+    @RequestMapping(value = "/statById/{id}", method = RequestMethod.GET)
+    public RespTemplate GetStatJobById(@PathVariable String id) {
+        return new RespTemplate(HttpStatus.OK, statTaskManager.GetJobById(id));
+    }
+
     @LogAsync(module = "STTASK", auth = "STTASK_ADD")
     @ApiOperation("新增统计任务")
     @PreAuthorize("hasAuthority('STTASK_ADD')")

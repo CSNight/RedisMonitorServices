@@ -14,7 +14,6 @@ import csnight.redis.monitor.quartz.jobs.Job_ReportError;
 import csnight.redis.monitor.quartz.jobs.Job_StatisticCollect;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
-import csnight.redis.monitor.redis.statistic.StatisticCollector;
 import csnight.redis.monitor.rest.task.dto.TaskConfDto;
 import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.IdentifyUtils;
@@ -22,9 +21,7 @@ import org.quartz.Job;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class StatTaskManagerImpl {
@@ -71,6 +68,25 @@ public class StatTaskManagerImpl {
             res.add(joJob);
         }
         return res;
+    }
+
+    public JSONObject GetJobById(String jobId) {
+        Optional<RmsJobInfo> optJobInfo = jobRepository.findById(jobId);
+        if (optJobInfo.isPresent()) {
+            RmsJobInfo jobInfo = optJobInfo.get();
+            JSONObject joJob = JSONObject.parseObject(JSONObject.toJSONString(jobInfo));
+            boolean exists = jobFactory.ExistsJob(jobInfo.getJob_name(), jobInfo.getJob_group());
+            joJob.put("exists", exists);
+            if (exists) {
+                String state = jobFactory.GetJobState(jobInfo.getJob_name(), jobInfo.getJob_group());
+                if (state.equals("failed")) {
+                    joJob.put("state", "NotFound");
+                }
+                joJob.put("state", state);
+            }
+            return joJob;
+        }
+        return null;
     }
 
     public List<String> getJobGroup() {
@@ -166,9 +182,6 @@ public class StatTaskManagerImpl {
         RmsJobInfo jobInfo = jobRepository.findByJobGroupAndJobName(jobGroup, jobName);
         boolean exists = jobFactory.ExistsJob(jobName, jobGroup);
         if (jobInfo != null && exists) {
-            jobFactory.PauseJob(jobName, jobGroup);
-            StatisticCollector ps = (StatisticCollector) jobFactory.GetJobData(jobName, jobGroup);
-            ps.setPool(pool);
             return jobFactory.ResumeJob(jobName, jobGroup);
         }
         return "Job dose not found";
@@ -206,8 +219,14 @@ public class StatTaskManagerImpl {
         JobConfig jobConfig = JSONObject.parseObject(JSONObject.toJSONString(dto), JobConfig.class);
         jobConfig.setJobGroup(JobGroup.STATISTIC.name());
         jobConfig.setJobName(IdentifyUtils.string2MD5(instance.getId(), "Stat$"));
-        StatisticCollector statistic = new StatisticCollector(instance.getId());
-        statistic.setPool(pool);
+        JSONObject triggerConf = JSONObject.parseObject(jobConfig.getTriggerConfig());
+        triggerConf.put("identity", jobConfig.getJobName());
+        jobConfig.setTriggerConfig(JSONObject.toJSONString(triggerConf));
+        Map<String, String> statistic = new HashMap<>();
+        statistic.put("ins_id", instance.getId());
+        statistic.put("appId", "");
+        statistic.put("cid", "");
+        statistic.put("uid", dto.getUid());
         jobConfig.setInvokeParam(statistic);
         return jobConfig;
     }
