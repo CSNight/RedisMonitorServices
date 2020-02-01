@@ -111,17 +111,13 @@ public class StatTaskManagerImpl {
         if (instance == null) {
             throw new ValidateException("Redis instance not found!");
         }
-        RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(instance.getId());
-        if (!instance.isState() || pool == null) {
-            throw new ValidateException("Redis does not connect! please go to instance config page to connect first");
-        }
         job.setInstance(instance);
         job.setCreate_time(new Date());
         job.setCreate_user(BaseUtils.GetUserFromContext());
         job.setJob_group(JobGroup.STATISTIC.name());
         job.setTrigger_type(dto.getTriggerType());
         job.setJob_describe(dto.getDescription());
-        JobConfig jobConfig = InitializeMonitorJob(dto, instance, pool);
+        JobConfig jobConfig = InitializeMonitorJob(dto, instance);
         job.setJob_name(jobConfig.getJobName());
         dto.setJobName(jobConfig.getJobName());
         job.setJob_config(JSONObject.toJSONString(dto));
@@ -147,7 +143,7 @@ public class StatTaskManagerImpl {
         RmsJobInfo jobInfo = jobRepository.findByJobGroupAndJobName(jobGroup, jobName);
         boolean exists = jobFactory.ExistsJob(jobName, jobGroup);
         if (jobInfo != null && exists) {
-            JobConfig jobConfig = InitializeMonitorJob(dto, instance, pool);
+            JobConfig jobConfig = InitializeMonitorJob(dto, instance);
             boolean updateRes = jobFactory.ModifyJob(jobConfig);
             if (updateRes) {
                 jobInfo.setJob_config(JSONObject.toJSONString(dto));
@@ -215,7 +211,7 @@ public class StatTaskManagerImpl {
         return "Job not found";
     }
 
-    private JobConfig InitializeMonitorJob(TaskConfDto dto, RmsInstance instance, RedisPoolInstance pool) {
+    private JobConfig InitializeMonitorJob(TaskConfDto dto, RmsInstance instance) {
         JobConfig jobConfig = JSONObject.parseObject(JSONObject.toJSONString(dto), JobConfig.class);
         jobConfig.setJobGroup(JobGroup.STATISTIC.name());
         jobConfig.setJobName(IdentifyUtils.string2MD5(instance.getId(), "Stat$"));
