@@ -1,5 +1,6 @@
 package csnight.redis.monitor.quartz.config;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
@@ -72,9 +73,10 @@ public class CronTriggerConfig implements BaseTriggerConfig {
         this.strategy = strategy;
     }
 
+    @JSONField(serialize = false)
     @Override
     public Trigger getTrigger() {
-        TriggerBuilder t = TriggerBuilder.newTrigger()
+        TriggerBuilder<Trigger> t = TriggerBuilder.newTrigger()
                 .withDescription(description)
                 .withIdentity(identity, triggerGroup)
                 .startAt(startAt);

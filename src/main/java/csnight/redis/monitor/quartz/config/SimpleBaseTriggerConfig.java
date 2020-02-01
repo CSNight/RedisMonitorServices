@@ -1,5 +1,6 @@
 package csnight.redis.monitor.quartz.config;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import org.quartz.DateBuilder;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
@@ -92,8 +93,9 @@ public class SimpleBaseTriggerConfig implements BaseTriggerConfig {
     }
 
     @Override
+    @JSONField(serialize = false)
     public Trigger getTrigger() {
-        TriggerBuilder t = TriggerBuilder.newTrigger()
+        TriggerBuilder<Trigger> t = TriggerBuilder.newTrigger()
                 .withDescription(description)
                 .withIdentity(identity, triggerGroup)
                 .startAt(startAt);

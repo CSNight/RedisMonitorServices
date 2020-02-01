@@ -1,5 +1,6 @@
 package csnight.redis.monitor.quartz.config;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import org.quartz.DailyTimeIntervalScheduleBuilder;
 import org.quartz.DateBuilder;
 import org.quartz.Trigger;
@@ -82,9 +83,10 @@ public class DailyTimeIntervalBaseTriggerConfig implements BaseTriggerConfig {
         this.strategy = strategy;
     }
 
+    @JSONField(serialize = false)
     @Override
     public Trigger getTrigger() {
-        TriggerBuilder t = TriggerBuilder.newTrigger()
+        TriggerBuilder<Trigger> t = TriggerBuilder.newTrigger()
                 .withDescription(description)
                 .withIdentity(identity, triggerGroup)
                 .startAt(startAt);

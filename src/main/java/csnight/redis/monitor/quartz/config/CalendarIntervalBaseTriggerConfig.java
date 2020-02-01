@@ -1,5 +1,6 @@
 package csnight.redis.monitor.quartz.config;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import org.quartz.CalendarIntervalScheduleBuilder;
 import org.quartz.DateBuilder;
 import org.quartz.Trigger;
@@ -81,6 +82,7 @@ public class CalendarIntervalBaseTriggerConfig implements BaseTriggerConfig {
         this.strategy = strategy;
     }
 
+    @JSONField(serialize = false)
     @Override
     public Trigger getTrigger() {
         TriggerBuilder<Trigger> t = TriggerBuilder.newTrigger()
