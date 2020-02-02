@@ -91,7 +91,7 @@ public class StatTaskManagerImpl {
 
     public RmsJobInfo addRedisStatJob(TaskConfDto dto) {
         RmsJobInfo job = new RmsJobInfo();
-        String jobName = IdentifyUtils.string2MD5(dto.getIns_id(), "Stat$");
+        String jobName = IdentifyUtils.string2MD5(dto.getIns_id(), "Stat_");
         if (!checkStatJobConflict(jobName, JobGroup.STATISTIC.name())) {
             throw new ValidateException("Redis statistic job already exists!");
         }
@@ -108,7 +108,7 @@ public class StatTaskManagerImpl {
         JobConfig jobConfig = InitializeMonitorJob(dto, instance);
         job.setJob_name(jobConfig.getJobName());
         dto.setJobName(jobConfig.getJobName());
-        job.setJob_config(JSONObject.toJSONString(dto));
+        job.setJob_config(JSONObject.toJSONString(jobConfig));
         Class<? extends Job> jobClazz = getJobByGroup(dto.getJobGroup());
         job.setJob_class(jobClazz.getName());
         if (jobFactory.AddJob(jobConfig, jobClazz).equals("success")) {
@@ -126,7 +126,7 @@ public class StatTaskManagerImpl {
         if (!instance.isState() || pool == null) {
             throw new ValidateException("Redis does not connect! please go to instance config page to connect first");
         }
-        String jobName = IdentifyUtils.string2MD5(instance.getId(), "Stat$");
+        String jobName = IdentifyUtils.string2MD5(instance.getId(), "Stat_");
         String jobGroup = JobGroup.STATISTIC.name();
         RmsJobInfo jobInfo = jobRepository.findByJobGroupAndJobName(jobGroup, jobName);
         boolean exists = jobFactory.ExistsJob(jobName, jobGroup);
@@ -138,7 +138,7 @@ public class StatTaskManagerImpl {
                 if (state.equals("NORMAL")) {
                     jobFactory.ResumeJob(jobName, jobGroup);
                 }
-                jobInfo.setJob_config(JSONObject.toJSONString(dto));
+                jobInfo.setJob_config(JSONObject.toJSONString(jobConfig));
                 jobInfo.setTrigger_type(jobConfig.getTriggerType());
                 jobInfo.setJob_describe(jobConfig.getDescription());
                 return jobRepository.save(jobInfo);
@@ -156,6 +156,21 @@ public class StatTaskManagerImpl {
         }
     }
 
+    public String ModifyRedisJobData(String ins, String cid, String appId) {
+        String jobName = IdentifyUtils.string2MD5(ins, "Stat_");
+        String jobGroup = JobGroup.STATISTIC.name();
+        RmsJobInfo jobInfo = jobRepository.findByJobGroupAndJobName(jobGroup, jobName);
+        boolean exists = jobFactory.ExistsJob(jobName, jobGroup);
+        if (jobInfo != null && exists) {
+            JobConfig jobConfig = JSONObject.parseObject(jobInfo.getJob_config(), JobConfig.class);
+            Map<String, String> params = (Map<String, String>) jobConfig.getInvokeParam();
+            params.put("cid", cid);
+            params.put("appId", appId);
+            return jobFactory.SetJobData(jobName, jobGroup, params) ? "success" : "failed";
+        }
+        return "failed";
+    }
+
     public String RecoverRedisStatJob(String ins_id) {
         RmsInstance instance = insRepository.findOnly(ins_id);
         if (instance == null) {
@@ -165,7 +180,7 @@ public class StatTaskManagerImpl {
         if (!instance.isState() || pool == null) {
             throw new ValidateException("Redis does not connect! please go to instance config page to connect first");
         }
-        String jobName = IdentifyUtils.string2MD5(ins_id, "Stat$");
+        String jobName = IdentifyUtils.string2MD5(ins_id, "Stat_");
         String jobGroup = JobGroup.STATISTIC.name();
         RmsJobInfo jobInfo = jobRepository.findByJobGroupAndJobName(jobGroup, jobName);
         boolean exists = jobFactory.ExistsJob(jobName, jobGroup);
@@ -176,7 +191,7 @@ public class StatTaskManagerImpl {
     }
 
     public String StopRedisStatJob(String ins_id) {
-        String jobName = IdentifyUtils.string2MD5(ins_id, "Stat$");
+        String jobName = IdentifyUtils.string2MD5(ins_id, "Stat_");
         String jobGroup = JobGroup.STATISTIC.name();
         RmsJobInfo jobInfo = jobRepository.findByJobGroupAndJobName(jobGroup, jobName);
         boolean exists = jobFactory.ExistsJob(jobName, jobGroup);
@@ -187,7 +202,7 @@ public class StatTaskManagerImpl {
     }
 
     public String DeleteRedisStatJob(String ins_id) {
-        String jobName = IdentifyUtils.string2MD5(ins_id, "Stat$");
+        String jobName = IdentifyUtils.string2MD5(ins_id, "Stat_");
         String jobGroup = JobGroup.STATISTIC.name();
         RmsJobInfo jobInfo = jobRepository.findByJobGroupAndJobName(jobGroup, jobName);
         boolean exists = jobFactory.ExistsJob(jobName, jobGroup);
@@ -206,7 +221,7 @@ public class StatTaskManagerImpl {
     private JobConfig InitializeMonitorJob(TaskConfDto dto, RmsInstance instance) {
         JobConfig jobConfig = JSONObject.parseObject(JSONObject.toJSONString(dto), JobConfig.class);
         jobConfig.setJobGroup(JobGroup.STATISTIC.name());
-        jobConfig.setJobName(IdentifyUtils.string2MD5(instance.getId(), "Stat$"));
+        jobConfig.setJobName(IdentifyUtils.string2MD5(instance.getId(), "Stat_"));
         JSONObject triggerConf = JSONObject.parseObject(jobConfig.getTriggerConfig());
         triggerConf.put("identity", jobConfig.getJobName());
         jobConfig.setTriggerConfig(JSONObject.toJSONString(triggerConf));
