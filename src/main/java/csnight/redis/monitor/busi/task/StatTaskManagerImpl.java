@@ -34,7 +34,7 @@ public class StatTaskManagerImpl {
 
     public List<JSONObject> GetAllJob() {
         List<JSONObject> res = new ArrayList<>();
-        List<RmsJobInfo> jobs = jobRepository.findAll();
+        List<RmsJobInfo> jobs = jobRepository.findByJobGroupAndUser(JobGroup.STATISTIC.name(), "%");
         for (RmsJobInfo job : jobs) {
             JSONObject joJob = JSONObject.parseObject(JSONObject.toJSONString(job));
             boolean exists = jobFactory.ExistsJob(job.getJob_name(), job.getJob_group());
@@ -53,7 +53,7 @@ public class StatTaskManagerImpl {
 
     public List<JSONObject> GetUserJob() {
         List<JSONObject> res = new ArrayList<>();
-        List<RmsJobInfo> jobs = jobRepository.findAll();
+        List<RmsJobInfo> jobs = jobRepository.findByJobGroupAndUser(JobGroup.STATISTIC.name(), "%" + BaseUtils.GetUserFromContext() + "%");
         for (RmsJobInfo job : jobs) {
             JSONObject joJob = JSONObject.parseObject(JSONObject.toJSONString(job));
             boolean exists = jobFactory.ExistsJob(job.getJob_name(), job.getJob_group());
@@ -87,18 +87,6 @@ public class StatTaskManagerImpl {
             return joJob;
         }
         return null;
-    }
-
-    public List<String> getJobGroup() {
-        List<String> groupName = new ArrayList<>();
-        JobGroup[] groups = JobGroup.values();
-        for (JobGroup group : groups) {
-            if (group.name().equals("UNKNOWN")) {
-                continue;
-            }
-            groupName.add(group.name());
-        }
-        return groupName;
     }
 
     public RmsJobInfo addRedisStatJob(TaskConfDto dto) {
@@ -144,8 +132,12 @@ public class StatTaskManagerImpl {
         boolean exists = jobFactory.ExistsJob(jobName, jobGroup);
         if (jobInfo != null && exists) {
             JobConfig jobConfig = InitializeMonitorJob(dto, instance);
+            String state = jobFactory.GetJobState(jobName, jobGroup);
             boolean updateRes = jobFactory.ModifyJob(jobConfig);
             if (updateRes) {
+                if (state.equals("NORMAL")) {
+                    jobFactory.ResumeJob(jobName, jobGroup);
+                }
                 jobInfo.setJob_config(JSONObject.toJSONString(dto));
                 jobInfo.setTrigger_type(jobConfig.getTriggerType());
                 jobInfo.setJob_describe(jobConfig.getDescription());
