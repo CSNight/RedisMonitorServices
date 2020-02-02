@@ -77,6 +77,7 @@ public class JobFactory {
     //暂停所有任务
     public String PauseAllJob() {
         try {
+            scheduler.pauseTriggers(GroupMatcher.anyTriggerGroup());
             scheduler.pauseAll();
             return "success";
         } catch (Exception ex) {
@@ -89,10 +90,11 @@ public class JobFactory {
     public String PauseJob(String jobName, String jobGroup) {
         try {
             JobKey jobKey = new JobKey(jobName, jobGroup);
-            JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-            if (jobDetail == null) {
+            TriggerKey triggerKey = new TriggerKey(jobName, jobGroup);
+            if (!scheduler.checkExists(jobKey) || !scheduler.checkExists(triggerKey)) {
                 return "failed";
             } else {
+                scheduler.pauseTrigger(triggerKey);
                 scheduler.pauseJob(jobKey);
                 return "success";
             }
@@ -105,6 +107,7 @@ public class JobFactory {
     //恢复所有任务
     public String ResumeAllJob() {
         try {
+            scheduler.resumeTriggers(GroupMatcher.anyTriggerGroup());
             scheduler.resumeAll();
             return "success";
         } catch (Exception ex) {
@@ -117,11 +120,12 @@ public class JobFactory {
     public String ResumeJob(String jobName, String jobGroup) {
         try {
             JobKey jobKey = new JobKey(jobName, jobGroup);
-            JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-            if (jobDetail == null) {
+            TriggerKey triggerKey = new TriggerKey(jobName, jobGroup);
+            if (!scheduler.checkExists(jobKey) || !scheduler.checkExists(triggerKey)) {
                 return "fail";
             } else {
                 scheduler.resumeJob(jobKey);
+                scheduler.resumeTrigger(triggerKey);
                 return "success";
             }
         } catch (Exception ex) {
