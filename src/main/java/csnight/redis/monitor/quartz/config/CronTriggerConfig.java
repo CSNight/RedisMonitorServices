@@ -14,7 +14,7 @@ public class CronTriggerConfig implements BaseTriggerConfig {
     private Date startAt = new Date();
     private String triggerGroup = "";
     private String expression = "";
-    private String strategy = "";
+    private String strategy = "MisfireHandlingInstructionDoNothing";
 
     public TriggerType getTriggerType() {
         return triggerType;
@@ -86,13 +86,13 @@ public class CronTriggerConfig implements BaseTriggerConfig {
         }
         CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(expression);
         switch (strategy) {
-            default:
             case "MisfireHandlingInstructionIgnoreMisfires":
                 cronScheduleBuilder = cronScheduleBuilder.withMisfireHandlingInstructionIgnoreMisfires();
                 break;
             case "MisfireHandlingInstructionFireAndProceed":
                 cronScheduleBuilder = cronScheduleBuilder.withMisfireHandlingInstructionFireAndProceed();
                 break;
+            default:
             case "MisfireHandlingInstructionDoNothing":
                 cronScheduleBuilder = cronScheduleBuilder.withMisfireHandlingInstructionDoNothing();
                 break;

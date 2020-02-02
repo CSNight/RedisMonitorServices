@@ -92,10 +92,10 @@ public class DailyTimeIntervalBaseTriggerConfig implements BaseTriggerConfig {
                 .startAt(startAt);
         DailyTimeIntervalScheduleBuilder builder = DailyTimeIntervalScheduleBuilder.dailyTimeIntervalSchedule().withInterval(interval, unit);
         switch (strategy) {
-            default:
             case "MisfireHandlingInstructionFireAndProceed":
                 builder = builder.withMisfireHandlingInstructionFireAndProceed();
                 break;
+            default:
             case "MisfireHandlingInstructionDoNothing":
                 builder = builder.withMisfireHandlingInstructionDoNothing();
                 break;

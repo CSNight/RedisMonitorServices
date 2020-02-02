@@ -91,10 +91,10 @@ public class CalendarIntervalBaseTriggerConfig implements BaseTriggerConfig {
                 .startAt(startAt);
         CalendarIntervalScheduleBuilder builder = CalendarIntervalScheduleBuilder.calendarIntervalSchedule().withInterval(interval, unit);
         switch (strategy) {
-            default:
             case "MisfireHandlingInstructionFireAndProceed":
                 builder = builder.withMisfireHandlingInstructionFireAndProceed();
                 break;
+            default:
             case "MisfireHandlingInstructionDoNothing":
                 builder = builder.withMisfireHandlingInstructionDoNothing();
                 break;
