@@ -68,6 +68,14 @@ public class RmsStatTaskController {
         return new RespTemplate(HttpStatus.OK, statTaskManager.ModifyRedisStatJobState(ins_id, state));
     }
 
+    @LogAsync(module = "STTASK", auth = "STTASK_DATA_UPDATE")
+    @ApiOperation("更新统计任务数据")
+    //@PreAuthorize("hasAuthority('STTASK_DATA_UPDATE')")
+    @RequestMapping(value = "/statDataUpdate/{ins_id}", method = RequestMethod.PUT)
+    public RespTemplate UpdateRedisStatJobState(@PathVariable String ins_id) {
+        return new RespTemplate(HttpStatus.OK, statTaskManager.ModifyRedisJobData(ins_id, "ccccc", "ddddd"));
+    }
+
     @LogAsync(module = "STTASK", auth = "STTASK_DEL")
     @ApiOperation("删除统计任务")
     @PreAuthorize("hasAuthority('STTASK_DEL')")
