@@ -52,7 +52,9 @@ public class LogAsyncPool {
                 while (!queue.isEmpty()) {
                     ins.add(queue.poll());
                 }
-                opLogService.SaveAll(ins);
+                if (ins.size() != 0) {
+                    opLogService.SaveAll(ins);
+                }
                 ins.clear();
                 ins = null;
             }
