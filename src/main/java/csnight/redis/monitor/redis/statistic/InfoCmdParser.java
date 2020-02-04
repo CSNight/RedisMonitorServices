@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InfoCmdParser {
-    private static final String SECTIONS = String.join(",", new String[]{"Server", "Clients", "Memory", "Persistence", "Stats", "Replication", "CPU", "Cluster", "Keyspace","Sentinel"});
+    private static final String SECTIONS = String.join(",", new String[]{"Server", "Clients", "Memory", "Persistence", "Stats", "Replication", "CPU", "Cluster", "Keyspace", "Sentinel"});
 
     public static String GetInfoBySectionKey(RedisPoolInstance pool, String section, String key) {
         if (SECTIONS.contains(section)) {
