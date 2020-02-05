@@ -28,6 +28,8 @@ public class RmsRpsLog {
     private long mem_oh;
     @Column(name = "mem_fr")
     private double mem_fr;
+    @Column(name = "mem_frb")
+    private long mem_frb;
     @Column(name = "mem_peak")
     private long mem_peak;
     @Column(name = "cpu_uu")
@@ -105,6 +107,14 @@ public class RmsRpsLog {
 
     public void setMem_fr(double mem_fr) {
         this.mem_fr = mem_fr;
+    }
+
+    public long getMem_frb() {
+        return mem_frb;
+    }
+
+    public void setMem_frb(long mem_frb) {
+        this.mem_frb = mem_frb;
     }
 
     public long getMem_peak() {
