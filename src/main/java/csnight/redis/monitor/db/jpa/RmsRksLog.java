@@ -22,8 +22,12 @@ public class RmsRksLog {
     private long key_size;
     @Column(name = "exp_keys")
     private long exp_keys;
+    @Column(name = "exp_kps")
+    private double exp_kps;
     @Column(name = "evc_keys")
     private long evc_keys;
+    @Column(name = "evc_kps")
+    private double evc_kps;
     @Column(name = "ksp_hits")
     private long ksp_hits;
     @Column(name = "ksp_hits_ps")
@@ -79,6 +83,22 @@ public class RmsRksLog {
 
     public void setEvc_keys(long evc_keys) {
         this.evc_keys = evc_keys;
+    }
+
+    public double getExp_kps() {
+        return exp_kps;
+    }
+
+    public void setExp_kps(double exp_kps) {
+        this.exp_kps = exp_kps;
+    }
+
+    public double getEvc_kps() {
+        return evc_kps;
+    }
+
+    public void setEvc_kps(double evc_kps) {
+        this.evc_kps = evc_kps;
     }
 
     public long getKsp_hits() {
