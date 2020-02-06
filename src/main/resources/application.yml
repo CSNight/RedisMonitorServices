@@ -74,5 +74,7 @@ dumpdir:
   conf-dir: tools/configs
   record-dir: tools/backups
   exec-dir: tools/shakeBin
+rms-log:
+  executors: mysql,file,elastic
 #logging:
 #  config: classpath:log4j2-spring.xml
