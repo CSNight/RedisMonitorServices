@@ -36,6 +36,8 @@ public class RmsRpsLog {
     private double cpu_uu;
     @Column(name = "cpu_su")
     private double cpu_su;
+    @Column(name = "cpu_per")
+    private double cpu_per;
     @Column(name = "ioo")
     private long ioo;
     @Column(name = "ioi")
@@ -139,6 +141,14 @@ public class RmsRpsLog {
 
     public void setCpu_su(double cpu_su) {
         this.cpu_su = cpu_su;
+    }
+
+    public double getCpu_per() {
+        return cpu_per;
+    }
+
+    public void setCpu_per(double cpu_per) {
+        this.cpu_per = cpu_per;
     }
 
     public long getIoo() {
