@@ -3,6 +3,7 @@ package csnight.redis.monitor.quartz.jobs;
 import com.alibaba.fastjson.JSONObject;
 import com.csnight.jedisql.JediSQL;
 import csnight.redis.monitor.db.jpa.RmsRcsLog;
+import csnight.redis.monitor.db.jpa.RmsRksLog;
 import csnight.redis.monitor.db.jpa.RmsRosLog;
 import csnight.redis.monitor.db.jpa.RmsRpsLog;
 import csnight.redis.monitor.msg.MsgBus;
@@ -13,15 +14,16 @@ import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
 import csnight.redis.monitor.utils.IdentifyUtils;
 import csnight.redis.monitor.websocket.WebSocketServer;
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.quartz.*;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
+//持久化job上一次的data 计算每秒均值
+@PersistJobDataAfterExecution
 public class Job_StatisticCollect implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -59,10 +61,14 @@ public class Job_StatisticCollect implements Job {
         }
         pool.close(clientId);
         long tm = System.currentTimeMillis();
-        RmsRpsLog rpsLog = GetPhysicalStat(tm, params.get("ins_id"), parts);
+
+        RmsRpsLog rpsLog = GetPhysicalStat(tm, params.get("ins_id"), parts, params);
         RmsRosLog rosLog = GetCommandStat(tm, params.get("ins_id"), parts, cmd_stats);
         RmsRcsLog rcsLog = GetClientStat(tm, params.get("ins_id"), parts);
-        System.out.println(JSONObject.toJSONString(rosLog));
+        RmsRksLog rksLog = GetKeysStat(tm, params.get("ins_id"), parts, params);
+        params.put("tm", String.valueOf(tm));
+        jobDataMap.put("params", params);
+        System.out.println(JSONObject.toJSONString(rpsLog));
         ChannelEntity che = MsgBus.getIns().getChannels().get(params.get("cid"));
         if (che == null || params.get("appId").equals("")) {
             return;
@@ -72,7 +78,7 @@ public class Job_StatisticCollect implements Job {
         WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), che.getChannel());
     }
 
-    private RmsRpsLog GetPhysicalStat(long tm, String ins_id, Map<String, Map<String, String>> sections) {
+    private RmsRpsLog GetPhysicalStat(long tm, String ins_id, Map<String, Map<String, String>> sections, Map<String, String> params) {
         RmsRpsLog rpsLog = new RmsRpsLog();
         rpsLog.setTm(new Date(tm));
         rpsLog.setIns_id(ins_id);
@@ -88,6 +94,18 @@ public class Job_StatisticCollect implements Job {
         rpsLog.setMem_frb(memory.containsKey("mem_fragmentation_bytes") ? Long.parseLong(memory.get("mem_fragmentation_bytes")) : 0L);
         rpsLog.setCpu_su(Double.parseDouble(cpu.get("used_cpu_sys")));
         rpsLog.setCpu_uu(Double.parseDouble(cpu.get("used_cpu_user")));
+        if (params.keySet().containsAll(Arrays.asList("tm", "cpuSu", "cpuUu"))) {
+            long pre = Long.parseLong(params.get("tm"));
+            double preSu = Double.parseDouble(params.get("cpuSu"));
+            double preUu = Double.parseDouble(params.get("cpuUu"));
+            double totalNow = rpsLog.getCpu_su() + rpsLog.getCpu_uu();
+            double totalPre = preSu + preUu;
+            rpsLog.setCpu_per(Math.round((totalNow - totalPre) / ((tm - pre) / 1000.0) * 100) / 100.0);
+        } else {
+            rpsLog.setCpu_per(0);
+        }
+        params.put("cpuSu", String.valueOf(rpsLog.getCpu_su()));
+        params.put("cpuUu", String.valueOf(rpsLog.getCpu_uu()));
         rpsLog.setIoi(Long.parseLong(stats.get("total_net_input_bytes")));
         rpsLog.setIoo(Long.parseLong(stats.get("total_net_output_bytes")));
         rpsLog.setIo_iik(Double.parseDouble(stats.get("instantaneous_input_kbps")));
@@ -130,5 +148,44 @@ public class Job_StatisticCollect implements Job {
         rcsLog.setCli_con(Integer.parseInt(clients.get("connected_clients")));
         rcsLog.setReject_cons(Long.parseLong(stats.get("rejected_connections")));
         return rcsLog;
+    }
+
+    public RmsRksLog GetKeysStat(long tm, String ins_id, Map<String, Map<String, String>> sections, Map<String, String> params) {
+        RmsRksLog rksLog = new RmsRksLog();
+        rksLog.setTm(new Date(tm));
+        rksLog.setIns_id(ins_id);
+        Map<String, String> keyspace = sections.get("Keyspace");
+        Map<String, String> stats = sections.get("Stats");
+        AtomicLong kc = new AtomicLong();
+        keyspace.forEach((k, v) -> {
+            String[] dbs = v.split(",");
+            kc.addAndGet(Long.parseLong(dbs[0].split("=")[1]));
+        });
+        rksLog.setExp_keys(Long.parseLong(stats.get("expired_keys")));
+        rksLog.setEvc_keys(Long.parseLong(stats.get("evicted_keys")));
+        rksLog.setKsp_hits(Long.parseLong(stats.get("keyspace_hits")));
+        rksLog.setKsp_miss(Long.parseLong(stats.get("keyspace_misses")));
+        if (params.keySet().containsAll(Arrays.asList("tm", "expKs", "evcKs", "hitKs", "hitKs"))) {
+            long pre = Long.parseLong(params.get("tm"));
+            long preExp = Long.parseLong(params.get("expKs"));
+            long preEvc = Long.parseLong(params.get("evcKs"));
+            long preHit = Long.parseLong(params.get("hitKs"));
+            long preMiss = Long.parseLong(params.get("missKs"));
+            rksLog.setKsp_hits_ps(Math.round((rksLog.getKsp_hits() - preHit) / ((tm - pre) / 1000.0) * 100) / 100.0);
+            rksLog.setKsp_miss_ps(Math.round((rksLog.getKsp_miss() - preMiss) / ((tm - pre) / 1000.0) * 100) / 100.0);
+            rksLog.setExp_kps(Math.round((rksLog.getExp_keys() - preExp) / ((tm - pre) / 1000.0) * 100) / 100.0);
+            rksLog.setEvc_kps(Math.round((rksLog.getEvc_keys() - preEvc) / ((tm - pre) / 1000.0) * 100) / 100.0);
+        } else {
+            rksLog.setKsp_hits_ps(rksLog.getKsp_hits());
+            rksLog.setKsp_miss_ps(rksLog.getKsp_miss());
+            rksLog.setExp_kps(rksLog.getExp_keys());
+            rksLog.setEvc_kps(rksLog.getEvc_keys());
+        }
+        params.put("expKs", String.valueOf(rksLog.getExp_keys()));
+        params.put("evcKs", String.valueOf(rksLog.getEvc_keys()));
+        params.put("hitKs", String.valueOf(rksLog.getKsp_hits()));
+        params.put("missKs", String.valueOf(rksLog.getKsp_miss()));
+        rksLog.setKey_size(kc.get());
+        return rksLog;
     }
 }
