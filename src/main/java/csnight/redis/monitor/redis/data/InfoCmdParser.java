@@ -1,4 +1,4 @@
-package csnight.redis.monitor.redis.statistic;
+package csnight.redis.monitor.redis.data;
 
 import com.csnight.jedisql.JediSQL;
 import csnight.redis.monitor.msg.series.RedisCmdType;

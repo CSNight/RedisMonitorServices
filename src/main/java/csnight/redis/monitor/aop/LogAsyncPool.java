@@ -73,6 +73,4 @@ public class LogAsyncPool {
         }
         _log.info("LogAsyncPool Stopped!");
     }
-
-
 }

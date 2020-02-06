@@ -15,7 +15,7 @@ import csnight.redis.monitor.msg.MsgBus;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.PoolConfig;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
-import csnight.redis.monitor.redis.statistic.InfoCmdParser;
+import csnight.redis.monitor.redis.data.InfoCmdParser;
 import csnight.redis.monitor.rest.rms.dto.RmsInsDto;
 import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.IdentifyUtils;

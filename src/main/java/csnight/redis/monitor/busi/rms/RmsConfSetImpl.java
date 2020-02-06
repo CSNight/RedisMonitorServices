@@ -8,7 +8,7 @@ import csnight.redis.monitor.redis.data.ConfOperator;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.PoolConfig;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
-import csnight.redis.monitor.redis.statistic.InfoCmdParser;
+import csnight.redis.monitor.redis.data.InfoCmdParser;
 import csnight.redis.monitor.rest.rms.dto.InsConfigDto;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
