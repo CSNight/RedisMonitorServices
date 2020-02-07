@@ -12,7 +12,9 @@ import csnight.redis.monitor.msg.entity.WssResponseEntity;
 import csnight.redis.monitor.msg.series.ResponseMsgType;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
+import csnight.redis.monitor.redis.statistic.RmsLogAsyncPool;
 import csnight.redis.monitor.utils.IdentifyUtils;
+import csnight.redis.monitor.utils.ReflectUtils;
 import csnight.redis.monitor.websocket.WebSocketServer;
 import org.quartz.*;
 
@@ -66,9 +68,13 @@ public class Job_StatisticCollect implements Job {
         RmsRosLog rosLog = GetCommandStat(tm, params.get("ins_id"), parts, cmd_stats);
         RmsRcsLog rcsLog = GetClientStat(tm, params.get("ins_id"), parts);
         RmsRksLog rksLog = GetKeysStat(tm, params.get("ins_id"), parts, params);
+        RmsLogAsyncPool rmsLogAsyncPool = ReflectUtils.getBean(RmsLogAsyncPool.class);
+        rmsLogAsyncPool.offer(rpsLog);
+        rmsLogAsyncPool.offer(rosLog);
+        rmsLogAsyncPool.offer(rcsLog);
+        rmsLogAsyncPool.offer(rksLog);
         params.put("tm", String.valueOf(tm));
         jobDataMap.put("params", params);
-        System.out.println(JSONObject.toJSONString(rpsLog));
         ChannelEntity che = MsgBus.getIns().getChannels().get(params.get("cid"));
         if (che == null || params.get("appId").equals("")) {
             return;
@@ -82,6 +88,7 @@ public class Job_StatisticCollect implements Job {
         RmsRpsLog rpsLog = new RmsRpsLog();
         rpsLog.setTm(new Date(tm));
         rpsLog.setIns_id(ins_id);
+        rpsLog.setSector("Physical");
         Map<String, String> memory = sections.get("Memory");
         Map<String, String> cpu = sections.get("CPU");
         Map<String, String> stats = sections.get("Stats");
@@ -117,6 +124,7 @@ public class Job_StatisticCollect implements Job {
         RmsRosLog rosLog = new RmsRosLog();
         rosLog.setTm(new Date(tm));
         rosLog.setIns_id(ins_id);
+        rosLog.setSector("Commands");
         Map<String, String> stats = sections.get("Stats");
         rosLog.setTcs(Long.parseLong(stats.get("total_commands_processed")));
         rosLog.setOps(Long.parseLong(stats.get("instantaneous_ops_per_sec")));
@@ -141,6 +149,7 @@ public class Job_StatisticCollect implements Job {
         RmsRcsLog rcsLog = new RmsRcsLog();
         rcsLog.setTm(new Date(tm));
         rcsLog.setIns_id(ins_id);
+        rcsLog.setSector("Clients");
         Map<String, String> stats = sections.get("Stats");
         Map<String, String> clients = sections.get("Clients");
         rcsLog.setTotal_cons_rec(Long.parseLong(stats.get("total_connections_received")));
@@ -154,6 +163,7 @@ public class Job_StatisticCollect implements Job {
         RmsRksLog rksLog = new RmsRksLog();
         rksLog.setTm(new Date(tm));
         rksLog.setIns_id(ins_id);
+        rksLog.setSector("Keyspace");
         Map<String, String> keyspace = sections.get("Keyspace");
         Map<String, String> stats = sections.get("Stats");
         AtomicLong kc = new AtomicLong();
