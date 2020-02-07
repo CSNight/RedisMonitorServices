@@ -10,11 +10,10 @@ public class RmsLogPoolConfig {
     @Value("${rms-log.executors}")
     public String executorConf;
 
-    @Bean
+    @Bean(initMethod="initialize",destroyMethod = "destroy")
     public RmsLogAsyncPool initializePool() {
         RmsLogAsyncPool rmsLogAsyncPool = new RmsLogAsyncPool();
         rmsLogAsyncPool.setExecutorConf(executorConf);
-        rmsLogAsyncPool.initializeExecutors();
         return rmsLogAsyncPool;
     }
 }
