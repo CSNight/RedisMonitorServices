@@ -1,5 +1,6 @@
 package csnight.redis.monitor.db.jpa;
 
+import csnight.redis.monitor.redis.statistic.RmsLog;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -7,7 +8,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "rms_log_rcs")
-public class RmsRcsLog {
+public class RmsRcsLog implements RmsLog {
     @Id
     @GenericGenerator(name = "jpa-uuid", strategy = "org.hibernate.id.UUIDGenerator")
     @GeneratedValue(generator = "jpa-uuid")
@@ -18,6 +19,8 @@ public class RmsRcsLog {
     @Column(name = "tm")
     @Temporal(TemporalType.TIMESTAMP)
     private Date tm;
+    @Column(name = "sector")
+    private String sector;
     @Column(name = "cli_con")
     private int cli_con;
     @Column(name = "cli_blo")
@@ -49,6 +52,15 @@ public class RmsRcsLog {
 
     public void setTm(Date tm) {
         this.tm = tm;
+    }
+
+    @Override
+    public String getSector() {
+        return sector;
+    }
+
+    public void setSector(String sector) {
+        this.sector = sector;
     }
 
     public int getCli_con() {
