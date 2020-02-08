@@ -106,7 +106,6 @@ public class JobFactory {
     //暂停所有任务
     public String PauseAllJob() {
         try {
-            scheduler.pauseTriggers(GroupMatcher.anyTriggerGroup());
             scheduler.pauseAll();
             return "success";
         } catch (Exception ex) {
