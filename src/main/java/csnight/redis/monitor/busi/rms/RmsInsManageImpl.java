@@ -2,7 +2,6 @@ package csnight.redis.monitor.busi.rms;
 
 import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.busi.rms.exp.InsQueryExp;
-import csnight.redis.monitor.busi.sys.exp.UserQueryExp;
 import csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import csnight.redis.monitor.db.jpa.RmsInstance;
 import csnight.redis.monitor.db.jpa.SysRole;
@@ -12,10 +11,10 @@ import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.exception.ConfigException;
 import csnight.redis.monitor.exception.ConflictsException;
 import csnight.redis.monitor.msg.MsgBus;
+import csnight.redis.monitor.redis.data.InfoCmdParser;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.PoolConfig;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
-import csnight.redis.monitor.redis.data.InfoCmdParser;
 import csnight.redis.monitor.rest.rms.dto.RmsInsDto;
 import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.IdentifyUtils;
@@ -53,10 +52,7 @@ public class RmsInsManageImpl {
         for (RmsInstance ins : instances) {
             ids.add(ins.getUser_id());
         }
-        UserQueryExp exp = new UserQueryExp();
-        exp.setIds(ids);
-        List<SysUser> users = userRepository.findAll((root, criteriaQuery, criteriaBuilder) ->
-                QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder));
+        List<SysUser> users = userRepository.findAllById(ids);
         for (RmsInstance ins : instances) {
             JSONObject jo = JSONObject.parseObject(JSONObject.toJSONString(ins));
             String username = "";
@@ -118,10 +114,7 @@ public class RmsInsManageImpl {
             for (RmsInstance ins : instances) {
                 ids.add(ins.getUser_id());
             }
-            UserQueryExp userQueryExp = new UserQueryExp();
-            exp.setIds(ids);
-            List<SysUser> users = userRepository.findAll((root, criteriaQuery, criteriaBuilder) ->
-                    QueryAnnotationProcess.getPredicate(root, userQueryExp, criteriaBuilder));
+            List<SysUser> users = userRepository.findAllById(ids);
             for (RmsInstance ins : instances) {
                 JSONObject jo = JSONObject.parseObject(JSONObject.toJSONString(ins));
                 String username = "";
