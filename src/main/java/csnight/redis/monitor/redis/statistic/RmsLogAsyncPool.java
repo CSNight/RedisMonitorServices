@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 public class RmsLogAsyncPool {
     private static Logger _log = LoggerFactory.getLogger(RmsLogAsyncPool.class);
     public String executorConf = "mysql,file";
+    public String es_addressed;
     private List<RmsLogsExecutor> executors = new ArrayList<>();
     private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(4);
     private ScheduledExecutorService accessCheckPool = Executors.newScheduledThreadPool(1);
@@ -20,6 +21,10 @@ public class RmsLogAsyncPool {
 
     public void setExecutorConf(String executorConf) {
         this.executorConf = executorConf;
+    }
+
+    public void setEs_addressed(String es_addressed) {
+        this.es_addressed = es_addressed;
     }
 
     public void initialize() {
@@ -32,9 +37,10 @@ public class RmsLogAsyncPool {
                 executors.add(new FileRmsLogExecutorImpl());
             }
             if (exec.equals("elastic")) {
-                executors.add(new ElasticRmsLogExecutorImpl());
+                executors.add(new ElasticRmsLogExecutorImpl(es_addressed));
             }
         }
+
         StartLogPool();
     }
 
@@ -80,11 +86,12 @@ public class RmsLogAsyncPool {
         try {
             execute();
             scheduledThreadPool.shutdown();
+            executors.forEach(RmsLogsExecutor::destroy);
+            _log.info("RmsLogs Pool Stopped!");
         } catch (Exception ex) {
-            _log.error("RmsLogs Pool stop failure cause by" + ex.getMessage() + ", Retry Force Shutdown");
+            _log.error("RmsLogs Pool stop failure cause by " + ex.getMessage() + ", Retry Force Shutdown");
             scheduledThreadPool.shutdownNow();
             _log.info("RmsLogs Pool Stopped!");
         }
-        _log.info("RmsLogs Pool Stopped!");
     }
 }
