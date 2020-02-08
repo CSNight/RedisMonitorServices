@@ -1,9 +1,6 @@
 package csnight.redis.monitor.redis.statistic;
 
-import csnight.redis.monitor.db.jpa.RmsRcsLog;
-import csnight.redis.monitor.db.jpa.RmsRksLog;
-import csnight.redis.monitor.db.jpa.RmsRosLog;
-import csnight.redis.monitor.db.jpa.RmsRpsLog;
+import csnight.redis.monitor.db.jpa.*;
 import csnight.redis.monitor.db.repos.RmsRcsRepository;
 import csnight.redis.monitor.db.repos.RmsRksRepository;
 import csnight.redis.monitor.db.repos.RmsRosRepository;
@@ -12,7 +9,6 @@ import csnight.redis.monitor.utils.ReflectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,13 +69,9 @@ public class MysqlRmsLogExecutorImpl implements RmsLogsExecutor {
         }
         return true;
     }
+
     @Override
     public void checkAccess() {
-        try {
-            isAccessible = !ReflectUtils.getBean(DataSource.class).getConnection().isClosed();
-        } catch (Exception ex) {
-            isAccessible = false;
-        }
     }
 
     @Override
