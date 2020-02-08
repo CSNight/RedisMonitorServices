@@ -27,19 +27,40 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class ElasticRestAPI {
     private static Logger _log = LoggerFactory.getLogger(ElasticRestAPI.class);
+    private ScheduledExecutorService connectCheckPool = Executors.newScheduledThreadPool(1);
     private RestHighLevelClient client;
-    private static JSONObject es_conf;
+    private JSONObject es_conf;
+    private String addresses;
     private BulkProcessor bulkProcessor;
 
-
-    public ElasticRestAPI() {
+    public ElasticRestAPI(String addresses, JSONObject es_conf) {
+        this.addresses = addresses;
+        this.es_conf = es_conf;
         ConnectToES();
+        connectCheckPool.scheduleAtFixedRate(() -> {
+            if (!isConnected()) {
+                _log.warn("Elasticsearch server try reconnect every five seconds");
+                ConnectToES();
+            }
+        }, 1, 5, TimeUnit.SECONDS);
+    }
+
+    public boolean isConnected() {
+        try {
+            return client.ping(RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     public BulkProcessor getBulk() {
@@ -47,18 +68,34 @@ public class ElasticRestAPI {
     }
 
     public void ConnectToES() {
-        client = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
+        String[] addressList = addresses.split(";");
+        List<HttpHost> hosts = new ArrayList<>();
+        for (String address : addressList) {
+            String[] parts = address.replace("//", "").split(":");
+            String server = parts[1];
+            String protocol = parts[0];
+            String port = parts[2];
+            hosts.add(new HttpHost(server, Integer.parseInt(port), protocol));
+        }
+        client = new RestHighLevelClient(RestClient.builder(hosts.toArray(new HttpHost[]{})));
     }
 
-    public void CloseES() {
+    public boolean CloseES() {
         if (client != null) {
             try {
+                if (!connectCheckPool.isShutdown()) {
+                    connectCheckPool.shutdownNow();
+                }
+                CloseBulkProcessor();
                 client.close();
+                client = null;
+                return true;
             } catch (IOException e) {
-                e.printStackTrace();
+                client = null;
+                return false;
             }
-            client = null;
         }
+        return true;
     }
 
     public boolean SetIndices(String indices_name) {
@@ -133,7 +170,7 @@ public class ElasticRestAPI {
         JSONObject jo_index = es_conf.getJSONObject("");
         XContentBuilder builder = null;
         try {
-            builder = XContentFactory.jsonBuilder().startObject().startObject(es_conf.getString("doc_type")).startObject("properties");
+            builder = XContentFactory.jsonBuilder().startObject().startObject("properties");
             for (Object k : jo_index.keySet()) {
                 try {
                     builder = builder.startObject(k.toString()).field("type", jo_index.getString(k.toString())).endObject();
@@ -141,7 +178,7 @@ public class ElasticRestAPI {
                     e.printStackTrace();
                 }
             }
-            builder.endObject().endObject().endObject();
+            builder.endObject().endObject();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -178,7 +215,7 @@ public class ElasticRestAPI {
                         SimpleDateFormat toFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
                         SimpleDateFormat fromFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         toFormat.setTimeZone((TimeZone.getDefault()));
-                        builder.field(v, toFormat.format(fromFormat.parse(bean.getString("time_ms"))));
+                        builder.field(v, toFormat.format(fromFormat.parse(bean.getString("tm"))));
                         break;
                     case "geo_point":
                         double x = bean.getDouble("x");
@@ -239,7 +276,11 @@ public class ElasticRestAPI {
 
     public boolean CloseBulkProcessor() {
         try {
-            return bulkProcessor.awaitClose(2, TimeUnit.SECONDS);
+            if (bulkProcessor != null) {
+                bulkProcessor.flush();
+                return bulkProcessor.awaitClose(2, TimeUnit.SECONDS);
+            }
+            return false;
         } catch (InterruptedException e) {
             bulkProcessor.close();
             return false;
