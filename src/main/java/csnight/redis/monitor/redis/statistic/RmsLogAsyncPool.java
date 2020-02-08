@@ -81,7 +81,7 @@ public class RmsLogAsyncPool {
             execute();
             scheduledThreadPool.shutdown();
         } catch (Exception ex) {
-            _log.error("RmsLogs Pool stop failure cause by" + ex.getMessage() + ",Retry Force Shutdown");
+            _log.error("RmsLogs Pool stop failure cause by" + ex.getMessage() + ", Retry Force Shutdown");
             scheduledThreadPool.shutdownNow();
             _log.info("RmsLogs Pool Stopped!");
         }
