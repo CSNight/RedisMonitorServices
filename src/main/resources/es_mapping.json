@@ -1,0 +1,28 @@
+{
+  "rps_log": {
+    "ident": "keyword",
+    "frame_id": "keyword",
+    "timestamp": "long",
+    "car_id": "text",
+    "car_class": "text",
+    "x": "double",
+    "y": "double",
+    "z": "double",
+    "speed": "double",
+    "acceleration": "double",
+    "distance": "double",
+    "mileage": "double",
+    "direction": "integer",
+    "lane": "integer",
+    "segment_id": "integer",
+    "is_running": "boolean",
+    "time-ms": "date",
+    "location": "geo_point"
+  },
+  "rcs_log": {
+  },
+  "ros_log": {
+  },
+  "rks_log": {
+  }
+}
