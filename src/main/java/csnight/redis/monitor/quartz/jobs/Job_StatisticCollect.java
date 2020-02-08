@@ -36,7 +36,15 @@ public class Job_StatisticCollect implements Job {
             return;
         }
         String clientId = IdentifyUtils.getUUID();
-        JediSQL jediSQL = pool.getJedis(clientId);
+        JediSQL jediSQL;
+        try {
+            jediSQL = pool.getJedis(clientId);
+        } catch (Exception ex) {
+            return;
+        }
+        if (jediSQL == null) {
+            return;
+        }
         String infos = jediSQL.info();
         String cmdInfos = jediSQL.info("commandstats");
         String[] sections = infos.replaceAll(" ", "").split("#");
@@ -63,7 +71,6 @@ public class Job_StatisticCollect implements Job {
         }
         pool.close(clientId);
         long tm = System.currentTimeMillis();
-
         RmsRpsLog rpsLog = GetPhysicalStat(tm, params.get("ins_id"), parts, params);
         RmsRosLog rosLog = GetCommandStat(tm, params.get("ins_id"), parts, cmd_stats);
         RmsRcsLog rcsLog = GetClientStat(tm, params.get("ins_id"), parts);
