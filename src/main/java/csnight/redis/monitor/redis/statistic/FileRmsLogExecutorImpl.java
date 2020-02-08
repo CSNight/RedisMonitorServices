@@ -1,6 +1,7 @@
 package csnight.redis.monitor.redis.statistic;
 
 import com.alibaba.fastjson.JSONObject;
+import csnight.redis.monitor.db.jpa.RmsLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,8 +27,8 @@ public class FileRmsLogExecutorImpl implements RmsLogsExecutor {
 
     @Override
     public boolean execute(List<RmsLog> logs) {
-        logs.forEach(log -> System.out.println("File--" + JSONObject.toJSON(log)));
-        return false;
+        logs.forEach(log -> System.out.println("File--" + JSONObject.toJSONString(log)));
+        return true;
     }
 
     @Override

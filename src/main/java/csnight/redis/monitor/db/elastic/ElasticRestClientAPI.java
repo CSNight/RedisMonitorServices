@@ -1,4 +1,4 @@
-package csnight.redis.monitor.redis.statistic;
+package csnight.redis.monitor.db.elastic;
 
 import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpHost;
@@ -35,15 +35,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class ElasticRestAPI {
-    private static Logger _log = LoggerFactory.getLogger(ElasticRestAPI.class);
+public class ElasticRestClientAPI {
+    private static Logger _log = LoggerFactory.getLogger(ElasticRestClientAPI.class);
     private ScheduledExecutorService connectCheckPool = Executors.newScheduledThreadPool(1);
     private RestHighLevelClient client;
     private JSONObject es_conf;
     private String addresses;
     private BulkProcessor bulkProcessor;
 
-    public ElasticRestAPI(String addresses, JSONObject es_conf) {
+    public ElasticRestClientAPI(String addresses, JSONObject es_conf) {
         this.addresses = addresses;
         this.es_conf = es_conf;
         ConnectToES();

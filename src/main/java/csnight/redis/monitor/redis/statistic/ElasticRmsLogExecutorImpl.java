@@ -2,6 +2,8 @@ package csnight.redis.monitor.redis.statistic;
 
 import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.auth.config.RmsLogPoolConfig;
+import csnight.redis.monitor.db.elastic.ElasticRestClientAPI;
+import csnight.redis.monitor.db.jpa.RmsLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +18,12 @@ import java.util.Objects;
 public class ElasticRmsLogExecutorImpl implements RmsLogsExecutor {
     private Logger _log = LoggerFactory.getLogger(ElasticRmsLogExecutorImpl.class);
     private boolean isAccessible = true;
-    private ElasticRestAPI restAPI;
+    private ElasticRestClientAPI restAPI;
 
     public ElasticRmsLogExecutorImpl(String es_addresses) {
         JSONObject es_mapping = GetEsConfig();
         if (es_addresses != null && es_mapping != null) {
-            restAPI = new ElasticRestAPI(es_addresses, es_mapping);
+            restAPI = new ElasticRestClientAPI(es_addresses, es_mapping);
         } else {
             isAccessible = false;
             _log.error("Elasticsearch redis statistic log executors initialize failed because config lost");

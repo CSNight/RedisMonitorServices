@@ -1,6 +1,5 @@
 package csnight.redis.monitor.db.jpa;
 
-import csnight.redis.monitor.redis.statistic.RmsLog;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;

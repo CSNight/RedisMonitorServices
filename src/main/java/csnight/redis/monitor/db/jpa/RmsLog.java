@@ -1,4 +1,4 @@
-package csnight.redis.monitor.redis.statistic;
+package csnight.redis.monitor.db.jpa;
 
 public interface RmsLog {
     String getSector();

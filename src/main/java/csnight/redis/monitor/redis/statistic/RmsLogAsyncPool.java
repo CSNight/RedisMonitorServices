@@ -1,5 +1,6 @@
 package csnight.redis.monitor.redis.statistic;
 
+import csnight.redis.monitor.db.jpa.RmsLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
