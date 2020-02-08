@@ -8,4 +8,6 @@ public interface RmsLogsExecutor {
     boolean isAccessible();
 
     void checkAccess();
+
+    boolean destroy();
 }

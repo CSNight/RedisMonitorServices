@@ -73,12 +73,17 @@ public class MysqlRmsLogExecutorImpl implements RmsLogsExecutor {
         }
         return true;
     }
-
+    @Override
     public void checkAccess() {
         try {
             isAccessible = !ReflectUtils.getBean(DataSource.class).getConnection().isClosed();
         } catch (Exception ex) {
             isAccessible = false;
         }
+    }
+
+    @Override
+    public boolean destroy() {
+        return true;
     }
 }

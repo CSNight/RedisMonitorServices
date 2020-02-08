@@ -29,4 +29,9 @@ public class FileRmsLogExecutorImpl implements RmsLogsExecutor {
         logs.forEach(log -> System.out.println("File--" + JSONObject.toJSON(log)));
         return false;
     }
+
+    @Override
+    public boolean destroy() {
+        return true;
+    }
 }
