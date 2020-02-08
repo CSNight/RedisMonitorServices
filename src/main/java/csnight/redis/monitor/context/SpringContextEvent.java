@@ -2,7 +2,6 @@ package csnight.redis.monitor.context;
 
 import csnight.redis.monitor.aop.LogAsyncPool;
 import csnight.redis.monitor.msg.MsgBus;
-import csnight.redis.monitor.quartz.JobFactory;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.utils.ReflectUtils;
 import csnight.redis.monitor.websocket.WebSocketServer;
@@ -39,7 +38,6 @@ public class SpringContextEvent implements ApplicationListener<ApplicationEvent>
             logAsyncPool.StopLogPool();
             MsgBus.getIns().removeAll();
             wss.shutdown();
-            ReflectUtils.getBean(JobFactory.class).PauseAllJob();
             try {
                 ReflectUtils.getBean(SchedulerFactoryBean.class).getScheduler().shutdown(true);
             } catch (SchedulerException e) {
