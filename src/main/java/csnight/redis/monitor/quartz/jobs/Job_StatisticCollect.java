@@ -79,7 +79,6 @@ public class Job_StatisticCollect implements Job {
         rmsLogAsyncPool.offer(rksLog);
         params.put("tm", String.valueOf(tm));
         jobDataMap.put("params", params);
-        System.out.println(params.get("cid"));
         ChannelEntity che = MsgBus.getIns().getChannels().get(params.get("cid"));
         if (che == null || params.get("appId").equals("")) {
             params.put("cid", "");
