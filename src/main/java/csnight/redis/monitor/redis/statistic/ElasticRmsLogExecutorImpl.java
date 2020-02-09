@@ -1,19 +1,16 @@
 package csnight.redis.monitor.redis.statistic;
 
 import com.alibaba.fastjson.JSONObject;
-import csnight.redis.monitor.auth.config.RmsLogPoolConfig;
 import csnight.redis.monitor.db.elastic.ElasticRestClientAPI;
 import csnight.redis.monitor.db.jpa.RmsLog;
+import csnight.redis.monitor.utils.BaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Objects;
 
 public class ElasticRmsLogExecutorImpl implements RmsLogsExecutor {
     private Logger _log = LoggerFactory.getLogger(ElasticRmsLogExecutorImpl.class);
@@ -34,29 +31,35 @@ public class ElasticRmsLogExecutorImpl implements RmsLogsExecutor {
             _log.error("Elasticsearch redis statistic log executors initialize failed because connection failed");
             return;
         }
-        _log.info("Elasticsearch redis statistic log executors initialize");
+        _log.info("Elasticsearch redis statistic log executors initialize success");
     }
 
     public static JSONObject GetEsConfig() {
-        String Path = Objects.requireNonNull(RmsLogPoolConfig.class.getClassLoader().getResource("")).getPath() + "es_mapping.json";
         try {
-            return JSONObject.parseObject(ReadFile(Path));
+            return JSONObject.parseObject(ReadFile());
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private static String ReadFile(String Path) {
+    private static String ReadFile() {
         BufferedReader reader = null;
-        StringBuilder laststr = new StringBuilder();
+        StringBuilder content = new StringBuilder();
         try {
-            FileInputStream fileInputStream = new FileInputStream(Path);
+            InputStream fileInputStream;
+            ClassPathResource resource = new ClassPathResource("classpath:es_mapping.json");
+            if (!resource.exists()) {
+                fileInputStream = new FileInputStream(BaseUtils.getResourceDir() + "es_mapping.json");
+            } else {
+                fileInputStream = resource.getInputStream();
+            }
+
             InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);
             reader = new BufferedReader(inputStreamReader);
             String tempString;
             while ((tempString = reader.readLine()) != null) {
-                laststr.append(tempString);
+                content.append(tempString);
             }
             reader.close();
         } catch (IOException e) {
@@ -70,7 +73,7 @@ public class ElasticRmsLogExecutorImpl implements RmsLogsExecutor {
                 }
             }
         }
-        return laststr.toString();
+        return content.toString();
     }
 
     @Override
