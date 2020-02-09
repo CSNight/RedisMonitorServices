@@ -5,8 +5,8 @@ import com.csnight.jedisql.util.SafeEncoder;
 import java.util.Arrays;
 
 public enum StatMsgType {
-    PHYSICAL_START(100),
-    PHYSICAL_STOP(101),
+    STAT_START(100),
+    STAT_STOP(101),
     UNKNOWN(-1);
     private int ct;
     private final byte[] raw = SafeEncoder.encode(this.name());
