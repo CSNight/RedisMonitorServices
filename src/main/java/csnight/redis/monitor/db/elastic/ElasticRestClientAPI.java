@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class ElasticRestClientAPI {
@@ -42,23 +43,31 @@ public class ElasticRestClientAPI {
     private JSONObject es_conf;
     private String addresses;
     private BulkProcessor bulkProcessor;
+    private ScheduledFuture<?> future = null;
 
     public ElasticRestClientAPI(String addresses, JSONObject es_conf) {
         this.addresses = addresses;
         this.es_conf = es_conf;
         ConnectToES();
-        connectCheckPool.scheduleAtFixedRate(() -> {
-            if (!isConnected()) {
-                _log.warn("Elasticsearch server try reconnect every five seconds");
-                ConnectToES();
-            }
-        }, 1, 5, TimeUnit.SECONDS);
+        isConnected();
     }
 
     public boolean isConnected() {
         try {
             return client.ping(RequestOptions.DEFAULT);
         } catch (IOException e) {
+            if (future != null && !future.isCancelled()) {
+                return false;
+            }
+            future = connectCheckPool.scheduleAtFixedRate(() -> {
+                if (!isConnected()) {
+                    _log.warn("Elasticsearch server try reconnect every five seconds");
+                    ConnectToES();
+                } else {
+                    future.cancel(true);
+                    future = null;
+                }
+            }, 1, 5, TimeUnit.SECONDS);
             return false;
         }
     }
