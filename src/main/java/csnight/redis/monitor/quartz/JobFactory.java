@@ -75,10 +75,8 @@ public class JobFactory {
                 JobDetail detail = scheduler.getJobDetail(jobKey);
                 detail.getJobDataMap().put("params", data);
                 String state = GetJobState(jobName, jobGroup);
-                if (state.equals("NORMAL")) {
-                    scheduler.pauseJob(jobKey);
-                    scheduler.pauseTrigger(triggerKey);
-                }
+                scheduler.pauseJob(jobKey);
+                scheduler.pauseTrigger(triggerKey);
                 scheduler.unscheduleJob(triggerKey);
                 scheduler.scheduleJob(detail, trigger);
                 if (state.equals("NORMAL")) {

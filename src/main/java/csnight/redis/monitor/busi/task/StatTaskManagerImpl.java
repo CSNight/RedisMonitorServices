@@ -162,8 +162,7 @@ public class StatTaskManagerImpl {
         RmsJobInfo jobInfo = jobRepository.findByJobGroupAndJobName(jobGroup, jobName);
         boolean exists = jobFactory.ExistsJob(jobName, jobGroup);
         if (jobInfo != null && exists) {
-            JobConfig jobConfig = JSONObject.parseObject(jobInfo.getJob_config(), JobConfig.class);
-            Map<String, String> params = (Map<String, String>) jobConfig.getInvokeParam();
+            Map<String, String> params = (Map<String, String>) jobFactory.GetJobData(jobName, jobGroup);
             params.put("cid", cid);
             params.put("appId", appId);
             return jobFactory.SetJobData(jobName, jobGroup, params) ? "success" : "failed";
