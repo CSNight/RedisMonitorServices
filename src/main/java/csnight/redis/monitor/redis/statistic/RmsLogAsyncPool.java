@@ -41,7 +41,6 @@ public class RmsLogAsyncPool {
                 executors.add(new ElasticRmsLogExecutorImpl(es_addressed));
             }
         }
-
         StartLogPool();
     }
 
