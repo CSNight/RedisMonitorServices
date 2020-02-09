@@ -12,7 +12,7 @@ public class FileRmsLogExecutorImpl implements RmsLogsExecutor {
     private boolean isAccessible = true;
 
     public FileRmsLogExecutorImpl() {
-        _log.info("File redis statistic log executors initialize");
+        _log.info("File redis statistic log executors initialize success");
     }
 
     @Override

@@ -21,7 +21,7 @@ public class MysqlRmsLogExecutorImpl implements RmsLogsExecutor {
     private boolean isAccessible = true;
 
     public MysqlRmsLogExecutorImpl() {
-        _log.info("Mysql redis statistic log executors initialize");
+        _log.info("Mysql redis statistic log executors initialize success");
     }
 
     @Override
