@@ -2,10 +2,7 @@ package csnight.redis.monitor.quartz.jobs;
 
 import com.alibaba.fastjson.JSONObject;
 import com.csnight.jedisql.JediSQL;
-import csnight.redis.monitor.db.jpa.RmsRcsLog;
-import csnight.redis.monitor.db.jpa.RmsRksLog;
-import csnight.redis.monitor.db.jpa.RmsRosLog;
-import csnight.redis.monitor.db.jpa.RmsRpsLog;
+import csnight.redis.monitor.db.jpa.*;
 import csnight.redis.monitor.msg.MsgBus;
 import csnight.redis.monitor.msg.entity.ChannelEntity;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
@@ -82,11 +79,19 @@ public class Job_StatisticCollect implements Job {
         rmsLogAsyncPool.offer(rksLog);
         params.put("tm", String.valueOf(tm));
         jobDataMap.put("params", params);
+        System.out.println(params.get("cid"));
         ChannelEntity che = MsgBus.getIns().getChannels().get(params.get("cid"));
         if (che == null || params.get("appId").equals("")) {
+            params.put("cid", "");
+            params.put("appId", "");
             return;
         }
-        WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.RMS_STAT, infos);
+        Map<String, RmsLog> LOGS = new HashMap<>();
+        LOGS.put("Physical", rpsLog);
+        LOGS.put("Clients", rcsLog);
+        LOGS.put("Commands", rosLog);
+        LOGS.put("Keyspace", rksLog);
+        WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.RMS_STAT, LOGS);
         wre.setAppId(params.get("appId"));
         WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), che.getChannel());
     }
