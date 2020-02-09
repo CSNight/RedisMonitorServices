@@ -25,12 +25,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -49,7 +45,6 @@ public class ElasticRestClientAPI {
         this.addresses = addresses;
         this.es_conf = es_conf;
         ConnectToES();
-        isConnected();
     }
 
     public boolean isConnected() {
@@ -61,6 +56,10 @@ public class ElasticRestClientAPI {
             }
             future = connectCheckPool.scheduleAtFixedRate(() -> {
                 if (!isConnected()) {
+                    if (bulkProcessor != null) {
+                        bulkProcessor.close();
+                        bulkProcessor = null;
+                    }
                     _log.warn("Elasticsearch server try reconnect every five seconds");
                     ConnectToES();
                 } else {
@@ -87,6 +86,16 @@ public class ElasticRestClientAPI {
             hosts.add(new HttpHost(server, Integer.parseInt(port), protocol));
         }
         client = new RestHighLevelClient(RestClient.builder(hosts.toArray(new HttpHost[]{})));
+        if (isConnected()) {
+            ParallelBulkInitialize();
+        }
+    }
+
+    public boolean SetIndices() {
+        if (isConnected()) {
+            return es_conf.keySet().stream().map(this::createIndex).allMatch(r -> r.equals(true));
+        }
+        return false;
     }
 
     public boolean CloseES() {
@@ -105,16 +114,6 @@ public class ElasticRestClientAPI {
             }
         }
         return true;
-    }
-
-    public boolean SetIndices(String indices_name) {
-        try {
-            boolean index_status = createIndex(indices_name);
-            boolean mapping_status = createMapping(indices_name, GenerateMappingByJson());
-            return index_status && mapping_status;
-        } catch (Exception ex) {
-            return false;
-        }
     }
 
     public boolean indexExists(String indexName) {
@@ -138,11 +137,12 @@ public class ElasticRestClientAPI {
             if (!indexExists(indexName)) {
                 CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
                 createIndexRequest.settings(Settings.builder().put("index.number_of_shards", 5).build());
-                client.indices().create(createIndexRequest, RequestOptions.DEFAULT);
-                return true;
+                boolean index_status = client.indices().create(createIndexRequest, RequestOptions.DEFAULT).isAcknowledged();
+                boolean mapping_status = createMapping(indexName, GenerateMappingByJson(indexName));
+                return index_status && mapping_status;
             } else {
                 System.out.println(String.format("index:%s already exists", indexName));
-                return false;
+                return true;
             }
         } catch (Exception ex) {
             return false;
@@ -175,8 +175,8 @@ public class ElasticRestClientAPI {
         }
     }
 
-    private XContentBuilder GenerateMappingByJson() {
-        JSONObject jo_index = es_conf.getJSONObject("");
+    private XContentBuilder GenerateMappingByJson(String indexName) {
+        JSONObject jo_index = es_conf.getJSONObject(indexName);
         XContentBuilder builder = null;
         try {
             builder = XContentFactory.jsonBuilder().startObject().startObject("properties");
@@ -222,9 +222,8 @@ public class ElasticRestClientAPI {
                         break;
                     case "date":
                         SimpleDateFormat toFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-                        SimpleDateFormat fromFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         toFormat.setTimeZone((TimeZone.getDefault()));
-                        builder.field(v, toFormat.format(fromFormat.parse(bean.getString("tm"))));
+                        builder.field(v, toFormat.format(new Date(Long.parseLong(bean.getString("tm")))));
                         break;
                     case "geo_point":
                         double x = bean.getDouble("x");
@@ -241,10 +240,10 @@ public class ElasticRestClientAPI {
             }
             builder.endObject();
             bean = null;
-        } catch (IOException | ParseException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        //system.out.println(Strings.toString(Objects.requireNonNull(builder)));
+       // System.out.println(Strings.toString(Objects.requireNonNull(builder)));
         return builder;
     }
 
@@ -278,7 +277,7 @@ public class ElasticRestClientAPI {
                 client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener);
         builder.setBulkActions(500);
         builder.setConcurrentRequests(10);
-        builder.setFlushInterval(TimeValue.timeValueSeconds(10L));
+        builder.setFlushInterval(TimeValue.timeValueSeconds(120L));
         builder.setBackoffPolicy(BackoffPolicy.constantBackoff(TimeValue.timeValueSeconds(2L), 3));
         bulkProcessor = builder.build();
     }
