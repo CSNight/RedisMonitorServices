@@ -7,6 +7,7 @@ import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
@@ -139,7 +140,7 @@ public class ElasticRestClientAPI {
             request.includeDefaults(true);
             if (!indexExists(indexName)) {
                 CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
-                createIndexRequest.settings(Settings.builder().put("index.number_of_shards", 5).build());
+                createIndexRequest.settings(Settings.builder().put("index.number_of_shards", 1).build());
                 boolean index_status = client.indices().create(createIndexRequest, RequestOptions.DEFAULT).isAcknowledged();
                 boolean mapping_status = createMapping(indexName, GenerateMappingByJson(indexName));
                 return index_status && mapping_status;
@@ -259,6 +260,7 @@ public class ElasticRestClientAPI {
             @Override
             public void beforeBulk(long executionId, BulkRequest request) {
                 int numberOfActions = request.numberOfActions();
+                request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
                 _log.info("Executing bulk [{}] with {} requests", executionId, numberOfActions);
             }
 
@@ -267,7 +269,7 @@ public class ElasticRestClientAPI {
                 if (response.hasFailures()) {
                     _log.warn("Bulk [{}] executed with failures", executionId);
                 } else {
-                    _log.info("Bulk [{}] completed in {} milliseconds", executionId, response.getTook().getMillis());
+                    _log.info("Bulk [{}] completed in {} milliseconds requests {}", executionId, response.getTook().getMillis(), request.numberOfActions());
                 }
             }
 
