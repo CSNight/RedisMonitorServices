@@ -51,7 +51,7 @@ public class ElasticRestClientAPI {
         try {
             return client.ping(RequestOptions.DEFAULT);
         } catch (IOException e) {
-            if (future != null && !future.isCancelled()) {
+            if (future != null) {
                 return false;
             }
             future = connectCheckPool.scheduleAtFixedRate(() -> {
@@ -63,8 +63,11 @@ public class ElasticRestClientAPI {
                     _log.warn("Elasticsearch server try reconnect every five seconds");
                     ConnectToES();
                 } else {
-                    future.cancel(true);
+                    future.cancel(false);
                     future = null;
+                    if (SetIndices()) {
+                        ParallelBulkInitialize();
+                    }
                 }
             }, 1, 5, TimeUnit.SECONDS);
             return false;
@@ -205,7 +208,7 @@ public class ElasticRestClientAPI {
                 switch (mapping.getString(v)) {
                     case "keyword":
                     case "text":
-                        builder.field(v, bean.getString(v).equals("null") ? "" : bean.getString(v));
+                        builder.field(v, bean.getString(v) == null ? "" : bean.getString(v));
                         break;
                     case "double":
                         BigDecimal big = BigDecimal.valueOf(bean.getDouble(v)).setScale(13, RoundingMode.UP);
@@ -243,7 +246,7 @@ public class ElasticRestClientAPI {
         } catch (IOException e) {
             e.printStackTrace();
         }
-       // System.out.println(Strings.toString(Objects.requireNonNull(builder)));
+        // System.out.println(Strings.toString(Objects.requireNonNull(builder)));
         return builder;
     }
 
@@ -277,7 +280,7 @@ public class ElasticRestClientAPI {
                 client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener);
         builder.setBulkActions(500);
         builder.setConcurrentRequests(10);
-        builder.setFlushInterval(TimeValue.timeValueSeconds(120L));
+        builder.setFlushInterval(TimeValue.timeValueHours(1L));
         builder.setBackoffPolicy(BackoffPolicy.constantBackoff(TimeValue.timeValueSeconds(2L), 3));
         bulkProcessor = builder.build();
     }
