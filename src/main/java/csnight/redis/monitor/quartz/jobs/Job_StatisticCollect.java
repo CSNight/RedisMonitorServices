@@ -15,10 +15,7 @@ import csnight.redis.monitor.utils.ReflectUtils;
 import csnight.redis.monitor.websocket.WebSocketServer;
 import org.quartz.*;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 //持久化job上一次的data 计算每秒均值
@@ -97,6 +94,7 @@ public class Job_StatisticCollect implements Job {
 
     private RmsRpsLog GetPhysicalStat(long tm, String ins_id, Map<String, Map<String, String>> sections, Map<String, String> params) {
         RmsRpsLog rpsLog = new RmsRpsLog();
+        rpsLog.setId(autoId());
         rpsLog.setTm(new Date(tm));
         rpsLog.setIns_id(ins_id);
         rpsLog.setSector("Physical");
@@ -133,6 +131,7 @@ public class Job_StatisticCollect implements Job {
 
     private RmsRosLog GetCommandStat(long tm, String ins_id, Map<String, Map<String, String>> sections, String[] cmd_stat) {
         RmsRosLog rosLog = new RmsRosLog();
+        rosLog.setId(autoId());
         rosLog.setTm(new Date(tm));
         rosLog.setIns_id(ins_id);
         rosLog.setSector("Commands");
@@ -158,6 +157,7 @@ public class Job_StatisticCollect implements Job {
 
     private RmsRcsLog GetClientStat(long tm, String ins_id, Map<String, Map<String, String>> sections) {
         RmsRcsLog rcsLog = new RmsRcsLog();
+        rcsLog.setId(autoId());
         rcsLog.setTm(new Date(tm));
         rcsLog.setIns_id(ins_id);
         rcsLog.setSector("Clients");
@@ -172,6 +172,7 @@ public class Job_StatisticCollect implements Job {
 
     public RmsRksLog GetKeysStat(long tm, String ins_id, Map<String, Map<String, String>> sections, Map<String, String> params) {
         RmsRksLog rksLog = new RmsRksLog();
+        rksLog.setId(autoId());
         rksLog.setTm(new Date(tm));
         rksLog.setIns_id(ins_id);
         rksLog.setSector("Keyspace");
@@ -208,5 +209,9 @@ public class Job_StatisticCollect implements Job {
         params.put("missKs", String.valueOf(rksLog.getKsp_miss()));
         rksLog.setKey_size(kc.get());
         return rksLog;
+    }
+
+    private String autoId() {
+        return UUID.randomUUID().toString();
     }
 }
