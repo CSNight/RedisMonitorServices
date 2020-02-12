@@ -2,7 +2,7 @@ package csnight.redis.monitor.redis.statistic;
 
 import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.db.elastic.ElasticRestClientAPI;
-import csnight.redis.monitor.db.jpa.*;
+import csnight.redis.monitor.db.jpa.RmsLog;
 import csnight.redis.monitor.utils.BaseUtils;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.index.IndexRequest;
@@ -105,22 +105,22 @@ public class ElasticRmsLogExecutorImpl implements RmsLogsExecutor {
                 switch (log.getSector()) {
                     case "Physical":
                         IndexRequest pRequest = new IndexRequest("rps_log");
-                        pRequest.source(restAPI.GenerateDocByPojo(JSONObject.toJSONString((RmsRpsLog)log), "rps_log"));
+                        pRequest.source(restAPI.GenerateDocByPojo(JSONObject.toJSONString(log), "rps_log"));
                         bulkProcessor.add(pRequest);
                         break;
                     case "Commands":
                         IndexRequest oRequest = new IndexRequest("ros_log");
-                        oRequest.source(restAPI.GenerateDocByPojo(JSONObject.toJSONString((RmsRosLog)log), "ros_log"));
+                        oRequest.source(restAPI.GenerateDocByPojo(JSONObject.toJSONString(log), "ros_log"));
                         bulkProcessor.add(oRequest);
                         break;
                     case "Clients":
                         IndexRequest cRequest = new IndexRequest("rcs_log");
-                        cRequest.source(restAPI.GenerateDocByPojo(JSONObject.toJSONString((RmsRcsLog)log), "rcs_log"));
+                        cRequest.source(restAPI.GenerateDocByPojo(JSONObject.toJSONString(log), "rcs_log"));
                         bulkProcessor.add(cRequest);
                         break;
                     case "Keyspace":
                         IndexRequest kRequest = new IndexRequest("rks_log");
-                        kRequest.source(restAPI.GenerateDocByPojo(JSONObject.toJSONString((RmsRksLog)log), "rks_log"));
+                        kRequest.source(restAPI.GenerateDocByPojo(JSONObject.toJSONString(log), "rks_log"));
                         bulkProcessor.add(kRequest);
                         break;
                 }
