@@ -1,6 +1,6 @@
 package csnight.redis.monitor.db.jpa;
 
-import org.hibernate.annotations.GenericGenerator;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -9,24 +9,30 @@ import java.util.Date;
 @Table(name = "rms_log_rcs")
 public class RmsRcsLog implements RmsLog {
     @Id
-    @GenericGenerator(name = "jpa-uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    @GeneratedValue(generator = "jpa-uuid")
     @Column(name = "id", length = 50)
+    @JSONField(ordinal = 1)
     private String id;
     @Column(name = "ins_id", length = 50)
+    @JSONField(ordinal = 2)
     private String ins_id;
     @Column(name = "tm")
     @Temporal(TemporalType.TIMESTAMP)
+    @JSONField(ordinal = 3)
     private Date tm;
     @Column(name = "sector")
+    @JSONField(ordinal = 4)
     private String sector;
     @Column(name = "cli_con")
+    @JSONField(ordinal = 5)
     private int cli_con;
     @Column(name = "cli_blo")
+    @JSONField(ordinal = 6)
     private int cli_blo;
     @Column(name = "reject_cons")
+    @JSONField(ordinal = 7)
     private long reject_cons;
     @Column(name = "total_cons_rec")
+    @JSONField(ordinal = 8)
     private long total_cons_rec;
 
     public String getId() {

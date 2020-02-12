@@ -1,6 +1,6 @@
 package csnight.redis.monitor.db.jpa;
 
-import org.hibernate.annotations.GenericGenerator;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -9,34 +9,45 @@ import java.util.Date;
 @Table(name = "rms_log_rks")
 public class RmsRksLog implements RmsLog {
     @Id
-    @GenericGenerator(name = "jpa-uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    @GeneratedValue(generator = "jpa-uuid")
     @Column(name = "id", length = 50)
+    @JSONField(ordinal = 1)
     private String id;
     @Column(name = "ins_id", length = 50)
+    @JSONField(ordinal = 2)
     private String ins_id;
     @Column(name = "tm")
     @Temporal(TemporalType.TIMESTAMP)
+    @JSONField(ordinal = 3)
     private Date tm;
     @Column(name = "sector")
+    @JSONField(ordinal = 4)
     private String sector;
     @Column(name = "key_size")
+    @JSONField(ordinal = 5)
     private long key_size;
     @Column(name = "exp_keys")
+    @JSONField(ordinal = 6)
     private long exp_keys;
     @Column(name = "exp_kps")
+    @JSONField(ordinal = 7)
     private double exp_kps;
     @Column(name = "evc_keys")
+    @JSONField(ordinal = 8)
     private long evc_keys;
     @Column(name = "evc_kps")
+    @JSONField(ordinal = 9)
     private double evc_kps;
     @Column(name = "ksp_hits")
+    @JSONField(ordinal = 10)
     private long ksp_hits;
     @Column(name = "ksp_hits_ps")
+    @JSONField(ordinal = 11)
     private double ksp_hits_ps;
     @Column(name = "ksp_miss")
+    @JSONField(ordinal = 12)
     private long ksp_miss;
     @Column(name = "ksp_miss_ps")
+    @JSONField(ordinal = 13)
     private double ksp_miss_ps;
 
     public String getId() {

@@ -1,6 +1,6 @@
 package csnight.redis.monitor.db.jpa;
 
-import org.hibernate.annotations.GenericGenerator;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -9,44 +9,60 @@ import java.util.Date;
 @Table(name = "rms_log_rps")
 public class RmsRpsLog implements RmsLog {
     @Id
-    @GenericGenerator(name = "jpa-uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    @GeneratedValue(generator = "jpa-uuid")
     @Column(name = "id", length = 50)
+    @JSONField(ordinal = 1)
     private String id;
     @Column(name = "ins_id", length = 50)
+    @JSONField(ordinal = 2)
     private String ins_id;
     @Column(name = "tm")
     @Temporal(TemporalType.TIMESTAMP)
+    @JSONField(ordinal = 3)
     private Date tm;
     @Column(name = "sector")
+    @JSONField(ordinal = 4)
     private String sector;
     @Column(name = "mem_us")
+    @JSONField(ordinal = 5)
     private long mem_us;
     @Column(name = "mem_rs")
+    @JSONField(ordinal = 6)
     private long mem_rs;
     @Column(name = "mem_ds")
+    @JSONField(ordinal = 7)
     private long mem_ds;
     @Column(name = "mem_oh")
+    @JSONField(ordinal = 8)
     private long mem_oh;
     @Column(name = "mem_fr")
+    @JSONField(ordinal = 9)
     private double mem_fr;
     @Column(name = "mem_frb")
+    @JSONField(ordinal = 10)
     private long mem_frb;
     @Column(name = "mem_peak")
+    @JSONField(ordinal = 11)
     private long mem_peak;
     @Column(name = "cpu_uu")
+    @JSONField(ordinal = 12)
     private double cpu_uu;
     @Column(name = "cpu_su")
+    @JSONField(ordinal = 13)
     private double cpu_su;
     @Column(name = "cpu_per")
+    @JSONField(ordinal = 14)
     private double cpu_per;
     @Column(name = "ioo")
+    @JSONField(ordinal = 15)
     private long ioo;
     @Column(name = "ioi")
+    @JSONField(ordinal = 16)
     private long ioi;
     @Column(name = "io_iik")
+    @JSONField(ordinal = 17)
     private double io_iik;
     @Column(name = "io_iok")
+    @JSONField(ordinal = 18)
     private double io_iok;
 
     public String getId() {
