@@ -54,9 +54,9 @@ spring:
             misfireThreshold: 5000
           threadPool:
             class: org.quartz.simpl.SimpleThreadPool
-            threadCount: 100
+            threadCount: 10
             threadPriority: 5
-            threadsInheritContextClassLoaderOfInitializingThread: true
+            threadsInheritContextClassLoaderOfInitializingThread: false
     job-store-type: jdbc
     jdbc:
       initialize-schema: never
@@ -75,7 +75,7 @@ dumpdir:
   record-dir: tools/backups
   exec-dir: tools/shakeBin
 rms-log:
-  executors: mysql,file,elastic
+  executors: mysql #mysql,file,elastic
   elastic:
     addresses: http://127.0.0.1:9200
 #logging:
