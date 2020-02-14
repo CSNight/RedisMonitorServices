@@ -250,9 +250,9 @@ public class MenuServiceImpl {
             if (sysMenu.getChildren().size() > 0) {
                 Set<SysMenu> ids = new HashSet<>();
                 getMenuChildIds(sysMenu, ids);
-                ids.forEach(menu -> {
+                for (SysMenu menu : ids) {
                     sysMenuRepository.untiedMenu(menu.getId());
-                });
+                }
                 sysMenuRepository.deleteInBatch(ids);
             }
             sysMenuRepository.untiedMenu(Long.parseLong(id));

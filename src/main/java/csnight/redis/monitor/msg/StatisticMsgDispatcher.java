@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.msg.entity.ChannelEntity;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
 import csnight.redis.monitor.msg.handler.StatMsgHandler;
+import csnight.redis.monitor.msg.handler.WsChannelHandler;
 import csnight.redis.monitor.msg.series.ChannelType;
 import csnight.redis.monitor.msg.series.ResponseMsgType;
 import csnight.redis.monitor.msg.series.StatMsgType;
@@ -53,13 +54,15 @@ public class StatisticMsgDispatcher {
                 MsgBus.getIns().setChannelType(ChannelType.MONITOR, ch.id().asShortText());
                 break;
             case STAT_STOP:
-                channels.get(ch.id().asShortText()).getHandlers().forEach((id, handler) -> {
-                    if (id.equals(appId)) {
-                        handler.destroy();
+                Map<String, WsChannelHandler> handlers = channels.get(ch.id().asShortText()).getHandlers();
+                for (Map.Entry<String, WsChannelHandler> entry : handlers.entrySet()) {
+                    if (entry.getKey().equals(appId)) {
+                        entry.getValue().destroy();
+                        entry.setValue(null);
                     }
-                });
+                }
                 MsgBus.getIns().setChannelType(ChannelType.COMMON, ch.id().asShortText());
-                channels.get(ch.id().asShortText()).getHandlers().remove(appId);
+                handlers.remove(appId);
                 break;
         }
     }

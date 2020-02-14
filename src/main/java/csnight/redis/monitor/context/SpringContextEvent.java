@@ -35,6 +35,7 @@ public class SpringContextEvent implements ApplicationListener<ApplicationEvent>
             logAsyncPool.initBean();
             logAsyncPool.StartLogPool();
             _log.info("RMS Server Start Complete!");
+            System.gc();
         } else if (applicationEvent instanceof ContextClosedEvent) {
             logAsyncPool.StopLogPool();
             MsgBus.getIns().removeAll();

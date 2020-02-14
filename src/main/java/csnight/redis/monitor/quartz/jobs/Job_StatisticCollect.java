@@ -74,7 +74,9 @@ public class Job_StatisticCollect implements Job {
         rmsLogAsyncPool.offer(rcsLog);
         rmsLogAsyncPool.offer(rksLog);
         parts.clear();
+        parts = null;
         infos = null;
+        sections = null;
         params.put("tm", String.valueOf(tm));
         jobDataMap.put("params", params);
         ChannelEntity che = MsgBus.getIns().getChannels().get(params.get("cid"));

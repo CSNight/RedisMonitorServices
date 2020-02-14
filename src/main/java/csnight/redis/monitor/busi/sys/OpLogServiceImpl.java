@@ -3,6 +3,7 @@ package csnight.redis.monitor.busi.sys;
 import csnight.redis.monitor.busi.sys.exp.OpLogQueryExp;
 import csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import csnight.redis.monitor.db.jpa.SysOpLog;
+import csnight.redis.monitor.db.jpa.SysRole;
 import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.db.repos.SysLogRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
@@ -14,8 +15,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OpLogServiceImpl {
@@ -65,8 +66,7 @@ public class OpLogServiceImpl {
         if (user == null) {
             String username = BaseUtils.GetUserFromContext();
             SysUser cur_user = userRepository.findByUsername(username);
-            List<String> roles = new ArrayList<>();
-            cur_user.getRoles().forEach(role -> roles.add(role.getCode()));
+            List<String> roles = cur_user.getRoles().stream().map(SysRole::getCode).collect(Collectors.toList());
             if (!roles.contains("ROLE_DEV") && !roles.contains("ROLE_SUPER")) {
                 return null;
             }

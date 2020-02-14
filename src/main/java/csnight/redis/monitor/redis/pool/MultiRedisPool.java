@@ -78,6 +78,7 @@ public class MultiRedisPool {
                     UserPools.remove(user_id);
                 }
                 ConnPools.remove(id);
+                pool = null;
                 System.gc();
                 return true;
             } else {
@@ -100,6 +101,7 @@ public class MultiRedisPool {
                 if (pool != null) {
                     pool.shutdown();
                     md5s.remove(pool.getUin());
+                    pool = null;
                     ConnPools.remove(ins_id);
                 }
             }

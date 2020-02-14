@@ -11,6 +11,8 @@ import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.exception.ConfigException;
 import csnight.redis.monitor.exception.ConflictsException;
 import csnight.redis.monitor.msg.MsgBus;
+import csnight.redis.monitor.msg.entity.ChannelEntity;
+import csnight.redis.monitor.msg.handler.WsChannelHandler;
 import csnight.redis.monitor.redis.data.InfoCmdParser;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.PoolConfig;
@@ -460,12 +462,14 @@ public class RmsInsManageImpl {
     }
 
     private void closeRelateChannelHandler(String ins) {
-        MsgBus.getIns().getChannels().forEach((cid, chEnt) -> {
-            chEnt.getHandlers().forEach((hid, handler) -> {
-                if (handler.getIns().equals(ins)) {
-                    handler.destroy();
+        Map<String, ChannelEntity> channels = MsgBus.getIns().getChannels();
+        for (Map.Entry<String, ChannelEntity> entry : channels.entrySet()) {
+            Map<String, WsChannelHandler> handlers = entry.getValue().getHandlers();
+            for (Map.Entry<String, WsChannelHandler> handlerEntry : handlers.entrySet()) {
+                if (handlerEntry.getValue().getIns().equals(ins)) {
+                    handlerEntry.getValue().destroy();
                 }
-            });
-        });
+            }
+        }
     }
 }

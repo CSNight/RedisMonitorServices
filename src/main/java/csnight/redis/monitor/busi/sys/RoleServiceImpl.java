@@ -6,6 +6,7 @@ import csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import csnight.redis.monitor.db.jpa.SysCommands;
 import csnight.redis.monitor.db.jpa.SysMenu;
 import csnight.redis.monitor.db.jpa.SysRole;
+import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.db.repos.SysCommandRepository;
 import csnight.redis.monitor.db.repos.SysRoleRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
@@ -116,10 +117,10 @@ public class RoleServiceImpl {
     public String DeleteRoleById(String id) {
         SysRole role = sysRoleRepository.findOnly(id);
         if (role != null) {
-            role.getUsers().forEach(user -> {
+            for (SysUser user : role.getUsers()) {
                 user.setRoles(new HashSet<>());
                 userRepository.save(user);
-            });
+            }
             sysRoleRepository.deleteById(id);
             if (role.getCommands() != null) {
                 commandRepository.delete(role.getCommands());

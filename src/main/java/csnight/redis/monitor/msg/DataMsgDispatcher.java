@@ -6,6 +6,7 @@ import csnight.redis.monitor.msg.entity.ChannelEntity;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
 import csnight.redis.monitor.msg.handler.DtMoveHandler;
 import csnight.redis.monitor.msg.handler.KeyWatchHandler;
+import csnight.redis.monitor.msg.handler.WsChannelHandler;
 import csnight.redis.monitor.msg.series.ChannelType;
 import csnight.redis.monitor.msg.series.DataMsgType;
 import csnight.redis.monitor.msg.series.ResponseMsgType;
@@ -78,13 +79,15 @@ public class DataMsgDispatcher {
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
                 break;
             case SHAKEEND:
-                channels.get(ch.id().asShortText()).getHandlers().forEach((id, handler) -> {
-                    if (id.equals(appId)) {
-                        handler.destroy();
+                Map<String, WsChannelHandler> handlers = channels.get(ch.id().asShortText()).getHandlers();
+                for (Map.Entry<String, WsChannelHandler> entry : handlers.entrySet()) {
+                    if (entry.getKey().equals(appId)) {
+                        entry.getValue().destroy();
+                        entry.setValue(null);
                     }
-                });
+                }
                 MsgBus.getIns().setChannelType(ChannelType.COMMON, ch.id().asShortText());
-                channels.get(ch.id().asShortText()).getHandlers().remove(appId);
+                handlers.remove(appId);
                 wre = new WssResponseEntity(ResponseMsgType.SHAKEFINISH, "Data operation finished");
                 wre.setAppId(appId);
                 WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);

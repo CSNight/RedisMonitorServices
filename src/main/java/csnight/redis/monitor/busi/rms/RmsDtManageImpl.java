@@ -43,6 +43,7 @@ public class RmsDtManageImpl {
             res.add(JoIns);
         }
         instances.clear();
+        instances = null;
         return res;
     }
 
@@ -60,6 +61,7 @@ public class RmsDtManageImpl {
             res.add(JoIns);
         }
         instances.clear();
+        instances = null;
         return res;
     }
 
@@ -77,6 +79,7 @@ public class RmsDtManageImpl {
             JoIns.put("reachable", dbs.size() != 0);
             return JoIns;
         }
+        instance = null;
         return null;
     }
 

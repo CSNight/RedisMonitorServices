@@ -7,6 +7,7 @@ import csnight.redis.monitor.msg.entity.WssResponseEntity;
 import csnight.redis.monitor.msg.handler.CmdRespHandler;
 import csnight.redis.monitor.msg.handler.MonitorHandler;
 import csnight.redis.monitor.msg.handler.SubscribeHandler;
+import csnight.redis.monitor.msg.handler.WsChannelHandler;
 import csnight.redis.monitor.msg.series.ChannelType;
 import csnight.redis.monitor.msg.series.CmdMsgType;
 import csnight.redis.monitor.msg.series.ResponseMsgType;
@@ -74,13 +75,15 @@ public class ConsoleMsgDispatcher {
                     break;
                 case DESUB:
                 case DEPSUB:
-                    channels.get(ch.id().asShortText()).getHandlers().forEach((id, handler) -> {
-                        if (id.equals(appId)) {
-                            handler.destroy();
+                    Map<String, WsChannelHandler> handlers = channels.get(ch.id().asShortText()).getHandlers();
+                    for (Map.Entry<String, WsChannelHandler> entry : handlers.entrySet()) {
+                        if (entry.getKey().equals(appId)) {
+                            entry.getValue().destroy();
+                            entry.setValue(null);
                         }
-                    });
+                    }
                     MsgBus.getIns().setChannelType(ChannelType.COMMON, ch.id().asShortText());
-                    channels.get(ch.id().asShortText()).getHandlers().remove(appId);
+                    handlers.remove(appId);
                     wre = new WssResponseEntity(ResponseMsgType.DESUB, "Unsubscribe success");
                     wre.setAppId(appId);
                     WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
@@ -96,13 +99,15 @@ public class ConsoleMsgDispatcher {
                     WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);
                     break;
                 case DEMONITOR:
-                    channels.get(ch.id().asShortText()).getHandlers().forEach((id, handler) -> {
-                        if (id.equals(appId)) {
-                            handler.destroy();
+                    Map<String, WsChannelHandler> mHandlers = channels.get(ch.id().asShortText()).getHandlers();
+                    for (Map.Entry<String, WsChannelHandler> entry : mHandlers.entrySet()) {
+                        if (entry.getKey().equals(appId)) {
+                            entry.getValue().destroy();
+                            entry.setValue(null);
                         }
-                    });
+                    }
                     MsgBus.getIns().setChannelType(ChannelType.COMMON, ch.id().asShortText());
-                    channels.get(ch.id().asShortText()).getHandlers().remove(appId);
+                    mHandlers.remove(appId);
                     wre = new WssResponseEntity(ResponseMsgType.DEMONITOR, "Unmonitor success");
                     wre.setAppId(appId);
                     WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), ch);

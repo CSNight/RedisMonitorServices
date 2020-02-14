@@ -3,6 +3,7 @@ package csnight.redis.monitor.msg;
 import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.msg.entity.ChannelEntity;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
+import csnight.redis.monitor.msg.handler.WsChannelHandler;
 import csnight.redis.monitor.msg.series.ChannelType;
 import csnight.redis.monitor.msg.series.ResponseMsgType;
 import csnight.redis.monitor.utils.BaseUtils;
@@ -102,13 +103,17 @@ public class MsgBus {
         if (che != null) {
             //销毁管道处理器实例
             if (che.getCt().equals(ChannelType.PUBSUB) || che.getCt().equals(ChannelType.MONITOR)) {
-                che.getHandlers().forEach((ent, handler) -> {
-                    handler.destroy();
-                });
+                Map<String, WsChannelHandler> handlers = che.getHandlers();
+                for (Map.Entry<String, WsChannelHandler> entry : handlers.entrySet()) {
+                    entry.getValue().destroy();
+                    entry.setValue(null);
+                }
                 che.getHandlers().clear();
             }
             che.getChannel().close();
             channelGroup.remove(che.getChannel());
+            che.setChannel(null);
+            che = null;
             channels.remove(cid);
             UserChannels.remove(cid);
         }
@@ -136,9 +141,11 @@ public class MsgBus {
     public void removeAll() {
         channels.values().forEach(che -> {
             che.getChannel().close();
-            che.getHandlers().forEach((ent, handler) -> {
-                handler.destroy();
-            });
+            Map<String, WsChannelHandler> handlers = che.getHandlers();
+            for (Map.Entry<String, WsChannelHandler> entry : handlers.entrySet()) {
+                entry.getValue().destroy();
+                entry.setValue(null);
+            }
             che.getHandlers().clear();
             channelGroup.remove(che.getChannel());
         });
