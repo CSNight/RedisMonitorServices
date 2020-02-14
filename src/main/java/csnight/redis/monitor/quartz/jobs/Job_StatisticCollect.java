@@ -16,7 +16,6 @@ import csnight.redis.monitor.websocket.WebSocketServer;
 import org.quartz.*;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 //持久化job上一次的data 计算每秒均值
 @PersistJobDataAfterExecution
@@ -74,6 +73,8 @@ public class Job_StatisticCollect implements Job {
         rmsLogAsyncPool.offer(rosLog);
         rmsLogAsyncPool.offer(rcsLog);
         rmsLogAsyncPool.offer(rksLog);
+        parts.clear();
+        infos = null;
         params.put("tm", String.valueOf(tm));
         jobDataMap.put("params", params);
         ChannelEntity che = MsgBus.getIns().getChannels().get(params.get("cid"));
@@ -178,11 +179,11 @@ public class Job_StatisticCollect implements Job {
         rksLog.setSector("Keyspace");
         Map<String, String> keyspace = sections.get("Keyspace");
         Map<String, String> stats = sections.get("Stats");
-        AtomicLong kc = new AtomicLong();
-        keyspace.forEach((k, v) -> {
-            String[] dbs = v.split(",");
-            kc.addAndGet(Long.parseLong(dbs[0].split("=")[1]));
-        });
+        long kc = 0;
+        for (Map.Entry<String, String> entry : keyspace.entrySet()) {
+            String[] dbs = entry.getValue().split(",");
+            kc += Long.parseLong(dbs[0].split("=")[1]);
+        }
         rksLog.setExp_keys(Long.parseLong(stats.get("expired_keys")));
         rksLog.setEvc_keys(Long.parseLong(stats.get("evicted_keys")));
         rksLog.setKsp_hits(Long.parseLong(stats.get("keyspace_hits")));
@@ -207,7 +208,7 @@ public class Job_StatisticCollect implements Job {
         params.put("evcKs", String.valueOf(rksLog.getEvc_keys()));
         params.put("hitKs", String.valueOf(rksLog.getKsp_hits()));
         params.put("missKs", String.valueOf(rksLog.getKsp_miss()));
-        rksLog.setKey_size(kc.get());
+        rksLog.setKey_size(kc);
         return rksLog;
     }
 

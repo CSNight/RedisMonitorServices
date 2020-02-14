@@ -228,6 +228,7 @@ public class ElasticRestClientAPI {
                         SimpleDateFormat toFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
                         toFormat.setTimeZone((TimeZone.getDefault()));
                         builder.field(v, toFormat.format(new Date(Long.parseLong(bean.getString("tm")))));
+                        toFormat = null;
                         break;
                     case "geo_point":
                         double x = bean.getDouble("x");
@@ -244,6 +245,7 @@ public class ElasticRestClientAPI {
             }
             builder.endObject();
             bean = null;
+            frame = null;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -281,7 +283,7 @@ public class ElasticRestClientAPI {
         BulkProcessor.Builder builder = BulkProcessor.builder((request, bulkListener) ->
                 client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener);
         builder.setBulkActions(500);
-        builder.setConcurrentRequests(10);
+        builder.setConcurrentRequests(4);
         builder.setFlushInterval(TimeValue.timeValueHours(1L));
         builder.setBackoffPolicy(BackoffPolicy.constantBackoff(TimeValue.timeValueSeconds(2L), 3));
         bulkProcessor = builder.build();

@@ -16,7 +16,7 @@ public class RmsLogAsyncPool {
     public String executorConf = "mysql,file";
     public String es_addressed;
     private List<RmsLogsExecutor> executors = new ArrayList<>();
-    private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(4);
+    private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
     private ScheduledExecutorService accessCheckPool = Executors.newScheduledThreadPool(1);
     private ConcurrentLinkedQueue<RmsLog> queue = new ConcurrentLinkedQueue<>();
 
@@ -78,7 +78,9 @@ public class RmsLogAsyncPool {
     }
 
     private void checkExecutorsAccess() {
-        executors.forEach(RmsLogsExecutor::checkAccess);
+        for (RmsLogsExecutor executor : executors) {
+            executor.checkAccess();
+        }
     }
 
     public void destroy() {

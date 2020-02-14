@@ -35,7 +35,7 @@ public class MysqlRmsLogExecutorImpl implements RmsLogsExecutor {
         List<RmsRosLog> oLogs = new ArrayList<>();
         List<RmsRcsLog> cLogs = new ArrayList<>();
         List<RmsRksLog> kLogs = new ArrayList<>();
-        logs.forEach(log -> {
+        for (RmsLog log : logs) {
             switch (log.getSector()) {
                 case "Physical":
                     pLogs.add((RmsRpsLog) log);
@@ -50,7 +50,7 @@ public class MysqlRmsLogExecutorImpl implements RmsLogsExecutor {
                     kLogs.add((RmsRksLog) log);
                     break;
             }
-        });
+        }
         try {
             if (pLogs.size() > 0) {
                 rpsRepository.saveAll(pLogs);
@@ -67,6 +67,14 @@ public class MysqlRmsLogExecutorImpl implements RmsLogsExecutor {
         } catch (Exception ex) {
             isAccessible = false;
         }
+        pLogs.clear();
+        oLogs.clear();
+        cLogs.clear();
+        kLogs.clear();
+        pLogs = null;
+        oLogs = null;
+        cLogs = null;
+        kLogs = null;
         return true;
     }
 
