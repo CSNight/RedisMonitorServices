@@ -75,7 +75,7 @@ dumpdir:
   record-dir: tools/backups
   exec-dir: tools/shakeBin
 rms-log:
-  executors: mysql,file,elastic
+  executors: mysql #,file,elastic
   elastic:
     addresses: http://127.0.0.1:9200
 #logging:

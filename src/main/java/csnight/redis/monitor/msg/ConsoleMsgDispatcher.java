@@ -103,7 +103,6 @@ public class ConsoleMsgDispatcher {
                     for (Map.Entry<String, WsChannelHandler> entry : mHandlers.entrySet()) {
                         if (entry.getKey().equals(appId)) {
                             entry.getValue().destroy();
-                            entry.setValue(null);
                         }
                     }
                     MsgBus.getIns().setChannelType(ChannelType.COMMON, ch.id().asShortText());

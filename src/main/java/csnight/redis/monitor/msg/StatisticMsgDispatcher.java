@@ -61,8 +61,8 @@ public class StatisticMsgDispatcher {
                         entry.setValue(null);
                     }
                 }
-                MsgBus.getIns().setChannelType(ChannelType.COMMON, ch.id().asShortText());
                 handlers.remove(appId);
+                MsgBus.getIns().setChannelType(ChannelType.COMMON, ch.id().asShortText());
                 break;
         }
     }

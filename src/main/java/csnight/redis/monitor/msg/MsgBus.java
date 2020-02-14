@@ -106,7 +106,6 @@ public class MsgBus {
                 Map<String, WsChannelHandler> handlers = che.getHandlers();
                 for (Map.Entry<String, WsChannelHandler> entry : handlers.entrySet()) {
                     entry.getValue().destroy();
-                    entry.setValue(null);
                 }
                 che.getHandlers().clear();
             }
@@ -139,16 +138,16 @@ public class MsgBus {
      * @since 2019/12/27 8:52
      */
     public void removeAll() {
-        channels.values().forEach(che -> {
+        for (Map.Entry<String, ChannelEntity> entry : channels.entrySet()) {
+            ChannelEntity che = entry.getValue();
             che.getChannel().close();
             Map<String, WsChannelHandler> handlers = che.getHandlers();
-            for (Map.Entry<String, WsChannelHandler> entry : handlers.entrySet()) {
-                entry.getValue().destroy();
-                entry.setValue(null);
+            for (Map.Entry<String, WsChannelHandler> handlerEntry : handlers.entrySet()) {
+                handlerEntry.getValue().destroy();
             }
             che.getHandlers().clear();
             channelGroup.remove(che.getChannel());
-        });
+        }
         channels.clear();
         UserChannels.clear();
     }

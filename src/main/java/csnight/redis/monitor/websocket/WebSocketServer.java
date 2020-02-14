@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class WebSocketServer {
     private static WebSocketServer ourInstance;
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServer.class);
-    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private final EventLoopGroup workerGroup = new NioEventLoopGroup(4);
     private final ChannelGroup channelGroup = MsgBus.getIns().getChannelGroup();
     private String host;
     private int port;
@@ -58,8 +58,7 @@ public class WebSocketServer {
     public void run() {
         try {
             final ServerBootstrap b = new ServerBootstrap();
-            b.group(workerGroup).channel(NioServerSocketChannel.class)
-                    .childHandler(new WebSocketInitializer(channelGroup));
+            b.group(workerGroup).channel(NioServerSocketChannel.class).childHandler(new WebSocketInitializer(channelGroup));
             b.bind(host, port).sync();
             logger.info("WebSocketServer has started");
         } catch (Exception ex) {
