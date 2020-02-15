@@ -83,7 +83,6 @@ public class DataMsgDispatcher {
                 for (Map.Entry<String, WsChannelHandler> entry : handlers.entrySet()) {
                     if (entry.getKey().equals(appId)) {
                         entry.getValue().destroy();
-                        entry.setValue(null);
                     }
                 }
                 MsgBus.getIns().setChannelType(ChannelType.COMMON, ch.id().asShortText());

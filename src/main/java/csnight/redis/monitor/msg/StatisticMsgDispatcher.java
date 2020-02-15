@@ -58,7 +58,6 @@ public class StatisticMsgDispatcher {
                 for (Map.Entry<String, WsChannelHandler> entry : handlers.entrySet()) {
                     if (entry.getKey().equals(appId)) {
                         entry.getValue().destroy();
-                        entry.setValue(null);
                     }
                 }
                 handlers.remove(appId);
