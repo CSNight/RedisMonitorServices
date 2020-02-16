@@ -34,6 +34,9 @@ public class RmsRcsLog implements RmsLog {
     @Column(name = "total_cons_rec")
     @JSONField(ordinal = 8)
     private long total_cons_rec;
+    @Column(name = "cli_info")
+    @JSONField(ordinal = 9)
+    private String cli_info;
 
     public String getId() {
         return id;
@@ -98,5 +101,13 @@ public class RmsRcsLog implements RmsLog {
 
     public void setTotal_cons_rec(long total_cons_rec) {
         this.total_cons_rec = total_cons_rec;
+    }
+
+    public String getCli_info() {
+        return cli_info;
+    }
+
+    public void setCli_info(String cli_info) {
+        this.cli_info = cli_info;
     }
 }
