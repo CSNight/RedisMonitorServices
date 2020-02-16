@@ -49,6 +49,9 @@ public class RmsRksLog implements RmsLog {
     @Column(name = "ksp_miss_ps")
     @JSONField(ordinal = 13)
     private double ksp_miss_ps;
+    @Column(name = "db_info")
+    @JSONField(ordinal = 14)
+    private String db_info;
 
     public String getId() {
         return id;
@@ -153,5 +156,13 @@ public class RmsRksLog implements RmsLog {
 
     public void setKsp_miss_ps(double ksp_miss_ps) {
         this.ksp_miss_ps = ksp_miss_ps;
+    }
+
+    public String getDb_info() {
+        return db_info;
+    }
+
+    public void setDb_info(String db_info) {
+        this.db_info = db_info;
     }
 }
