@@ -1,5 +1,6 @@
 package csnight.redis.monitor.quartz.jobs;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.csnight.jedisql.JediSQL;
 import csnight.redis.monitor.db.jpa.*;
@@ -42,6 +43,7 @@ public class Job_StatisticCollect implements Job {
         String cmdInfos = jediSQL.info("commandstats");
         String[] sections = infos.replaceAll(" ", "").split("#");
         String[] cmd_stats = cmdInfos.replace("# Commandstats\r\n", "").split("\r\n");
+        String[] clients = jediSQL.clientList().split("\n");
         Map<String, Map<String, String>> parts = new HashMap<>();
         for (String section : sections) {
             if (section.equals("")) {
@@ -66,7 +68,7 @@ public class Job_StatisticCollect implements Job {
         long tm = System.currentTimeMillis();
         RmsRpsLog rpsLog = GetPhysicalStat(tm, params.get("ins_id"), parts, params);
         RmsRosLog rosLog = GetCommandStat(tm, params.get("ins_id"), parts, cmd_stats);
-        RmsRcsLog rcsLog = GetClientStat(tm, params.get("ins_id"), parts);
+        RmsRcsLog rcsLog = GetClientStat(tm, params.get("ins_id"), parts, clients);
         RmsRksLog rksLog = GetKeysStat(tm, params.get("ins_id"), parts, params);
         RmsLogAsyncPool rmsLogAsyncPool = ReflectUtils.getBean(RmsLogAsyncPool.class);
         rmsLogAsyncPool.offer(rpsLog);
@@ -77,6 +79,7 @@ public class Job_StatisticCollect implements Job {
         parts = null;
         infos = null;
         sections = null;
+        clients = null;
         params.put("tm", String.valueOf(tm));
         jobDataMap.put("params", params);
         ChannelEntity che = MsgBus.getIns().getChannels().get(params.get("cid"));
@@ -158,7 +161,7 @@ public class Job_StatisticCollect implements Job {
         return rosLog;
     }
 
-    private RmsRcsLog GetClientStat(long tm, String ins_id, Map<String, Map<String, String>> sections) {
+    private RmsRcsLog GetClientStat(long tm, String ins_id, Map<String, Map<String, String>> sections, String[] client_inf) {
         RmsRcsLog rcsLog = new RmsRcsLog();
         rcsLog.setId(autoId());
         rcsLog.setTm(new Date(tm));
@@ -170,6 +173,24 @@ public class Job_StatisticCollect implements Job {
         rcsLog.setCli_blo(Integer.parseInt(clients.get("blocked_clients")));
         rcsLog.setCli_con(Integer.parseInt(clients.get("connected_clients")));
         rcsLog.setReject_cons(Long.parseLong(stats.get("rejected_connections")));
+        JSONArray joCliArr = new JSONArray();
+        for (String inf : client_inf) {
+            JSONObject joCli = new JSONObject();
+            String[] pat = inf.split(" ");
+            for (String kv : pat) {
+                String[] kvs = kv.split("=");
+                if (kvs.length < 2) {
+                    joCli.put(kvs[0], "");
+                } else {
+                    joCli.put(kvs[0], kvs[1]);
+                }
+
+            }
+            joCliArr.add(joCli);
+        }
+        rcsLog.setCli_info(joCliArr.toJSONString());
+        joCliArr.clear();
+        joCliArr = null;
         return rcsLog;
     }
 
@@ -182,8 +203,15 @@ public class Job_StatisticCollect implements Job {
         Map<String, String> keyspace = sections.get("Keyspace");
         Map<String, String> stats = sections.get("Stats");
         long kc = 0;
+        JSONArray joDbs = new JSONArray();
         for (Map.Entry<String, String> entry : keyspace.entrySet()) {
             String[] dbs = entry.getValue().split(",");
+            JSONObject joDb = new JSONObject();
+            for (String kv : dbs) {
+                String[] kvs = kv.split("=");
+                joDb.put(kvs[0], kvs[1]);
+            }
+            joDbs.add(joDb);
             kc += Long.parseLong(dbs[0].split("=")[1]);
         }
         rksLog.setExp_keys(Long.parseLong(stats.get("expired_keys")));
@@ -211,6 +239,9 @@ public class Job_StatisticCollect implements Job {
         params.put("hitKs", String.valueOf(rksLog.getKsp_hits()));
         params.put("missKs", String.valueOf(rksLog.getKsp_miss()));
         rksLog.setKey_size(kc);
+        rksLog.setDb_info(joDbs.toJSONString());
+        joDbs.clear();
+        joDbs = null;
         return rksLog;
     }
 

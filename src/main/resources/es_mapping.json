@@ -27,6 +27,7 @@
     "cli_blo": "integer",
     "reject_cons": "long",
     "total_cons_rec": "long",
+    "clients": "text",
     "time-ms": "date"
   },
   "ros_log": {
@@ -53,6 +54,7 @@
     "ksp_hits_ps": "double",
     "ksp_miss": "long",
     "ksp_miss_ps": "double",
+    "db_info": "text",
     "time-ms": "date"
   }
 }
