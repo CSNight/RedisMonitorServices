@@ -40,6 +40,8 @@ public class UserServiceImpl {
     private SessionRegistry registry;
     @Resource
     private JdbcTokenRepositoryExt tokenRepositoryExt;
+    @Resource
+    private MailSendService mailService;
 
     /**
      * 功能描述: 查询所有用户
@@ -359,6 +361,10 @@ public class UserServiceImpl {
             return "Delete cause exception";
         }
         return "failed";
+    }
+
+    private void ClearUserResource() {
+        mailService.DeleteMailConfig();
     }
 
     /**
