@@ -5,13 +5,18 @@ import csnight.redis.monitor.db.jpa.SysMailConfig;
 import csnight.redis.monitor.db.repos.SysMailConfRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.rest.sys.dto.MailConfDto;
+import csnight.redis.monitor.rest.sys.dto.MailSendDto;
 import csnight.redis.monitor.utils.BaseUtils;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.mail.Authenticator;
+import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Properties;
@@ -28,12 +33,12 @@ public class MailSendService {
     }
 
     public SysMailConfig GetUserMailConfig() {
-        String uid = userRepository.findUsernameById(BaseUtils.GetUserFromContext());
+        String uid = userRepository.findIdByUsername(BaseUtils.GetUserFromContext());
         return mailConfRepository.findByUid(uid);
     }
 
     public SysMailConfig UpdateMailConfig(MailConfDto dto) {
-        String uid = userRepository.findUsernameById(BaseUtils.GetUserFromContext());
+        String uid = userRepository.findIdByUsername(BaseUtils.GetUserFromContext());
         SysMailConfig mailConfig = mailConfRepository.findByUid(uid);
         if (mailConfig == null) {
             mailConfig = new SysMailConfig();
@@ -50,13 +55,37 @@ public class MailSendService {
     }
 
     public String DeleteMailConfig() {
-        String uid = userRepository.findUsernameById(BaseUtils.GetUserFromContext());
+        String uid = userRepository.findIdByUsername(BaseUtils.GetUserFromContext());
         SysMailConfig mailConfig = mailConfRepository.findByUid(uid);
         if (mailConfig != null) {
             mailConfRepository.deleteById(mailConfig.getId());
             return "success";
         }
         return "failed";
+    }
+
+    public String SendMail(MailSendDto dto) {
+        String uid = userRepository.findIdByUsername(BaseUtils.GetUserFromContext());
+        SysMailConfig mailConfig = mailConfRepository.findByUid(uid);
+        if (mailConfig != null) {
+            try {
+                Session session = initProperties(mailConfig);
+                JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+                mailSender.setSession(session);
+                MimeMessage mailMessage = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(mailMessage, true,mailConfig.getEncode());
+                helper.setValidateAddresses(true);
+                helper.setFrom(mailConfig.getEmail());
+                helper.setTo(dto.getToList().toArray(new String[]{}));
+                helper.setSubject(dto.getSubject());
+                helper.setText("", dto.getContent());
+                mailSender.send(mailMessage);
+                return "success";
+            } catch (MessagingException e) {
+                return e.getMessage();
+            }
+        }
+        return "config not found";
     }
 
     private Session initProperties(SysMailConfig conf) {
@@ -88,7 +117,7 @@ public class MailSendService {
         });
         // 使用SSL,企业邮箱必需 end
         // TODO 显示debug信息 正式环境注释掉
-        session.setDebug(true);
+        session.setDebug(false);
         return session;
     }
 }

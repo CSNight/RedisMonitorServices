@@ -3,6 +3,7 @@ package csnight.redis.monitor.rest.sys;
 import csnight.redis.monitor.aop.LogAsync;
 import csnight.redis.monitor.busi.sys.MailSendService;
 import csnight.redis.monitor.rest.sys.dto.MailConfDto;
+import csnight.redis.monitor.rest.sys.dto.MailSendDto;
 import csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -49,9 +50,17 @@ public class MailController {
 
     @LogAsync(module = "MAIL", auth = "MAIL_CONF_DEL")
     @PreAuthorize("hasAuthority('MAIL_CONF_DEL')")
-    @ApiOperation(value = "用户邮件配置")
+    @ApiOperation(value = "邮件配置删除")
     @RequestMapping(value = "/deleteConf", method = RequestMethod.DELETE)
     public RespTemplate DeleteMailConf() {
         return new RespTemplate(HttpStatus.OK, mailService.DeleteMailConfig());
+    }
+
+    @LogAsync(module = "MAIL", auth = "MAIL_SEND")
+    @PreAuthorize("hasAuthority('MAIL_SEND')")
+    @ApiOperation(value = "发送邮件")
+    @RequestMapping(value = "/sendMail", method = RequestMethod.POST)
+    public RespTemplate SendMail(@Valid @RequestBody MailSendDto dto) {
+        return new RespTemplate(HttpStatus.OK, mailService.SendMail(dto));
     }
 }
