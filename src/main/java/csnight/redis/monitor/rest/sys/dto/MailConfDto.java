@@ -1,28 +1,34 @@
 package csnight.redis.monitor.rest.sys.dto;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+
 @ApiModel(value = "邮件配置模型")
 public class MailConfDto {
+    @ApiModelProperty(notes = "SMTP地址", example = "smtp.*.com")
     @NotEmpty
     @NotNull
     private String host;
+    @ApiModelProperty(notes = "SMTP地址", example = "0")
     @Max(65535)
     @Min(1)
     private int port = 465;
     @NotEmpty
     @NotNull
+    @ApiModelProperty(notes = "邮箱账号", example = "abc@qq.com")
     private String email;
     @NotEmpty
     @NotNull
+    @ApiModelProperty(notes = "密码/授权码", example = "123456")
     private String pwd;
-    @NotEmpty
-    @NotNull
+    @ApiModelProperty(notes = "用户名", example = "abc")
     private String username;
+    @ApiModelProperty(notes = "字符集", example = "UTF-8")
     private String encode = "UTF-8";
 
     public String getHost() {
