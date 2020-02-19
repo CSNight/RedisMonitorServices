@@ -27,6 +27,11 @@ public class Job_StatisticCollect implements Job {
         Map<String, String> params = (Map<String, String>) jobDataMap.get("params");
         RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(params.get("ins_id"));
         if (pool == null) {
+            try {
+                context.getScheduler().pauseJob(context.getJobDetail().getKey());
+            } catch (SchedulerException e) {
+                e.printStackTrace();
+            }
             return;
         }
         String clientId = IdentifyUtils.getUUID();
