@@ -28,6 +28,8 @@ public class SysMailConfig {
     private String username;
     @Column(name = "encode")
     private String encode;
+    @Column(name = "contact")
+    private String contact;
 
     public String getId() {
         return id;
@@ -99,5 +101,13 @@ public class SysMailConfig {
 
     public void setEncode(String encode) {
         this.encode = encode;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
     }
 }

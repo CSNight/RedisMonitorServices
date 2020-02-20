@@ -3,10 +3,9 @@ package csnight.redis.monitor.rest.sys.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @ApiModel(value = "邮件配置模型")
 public class MailConfDto {
@@ -20,6 +19,7 @@ public class MailConfDto {
     private int port = 465;
     @NotEmpty
     @NotNull
+    @Email
     @ApiModelProperty(notes = "邮箱账号", example = "abc@qq.com")
     private String email;
     @NotEmpty
@@ -30,6 +30,8 @@ public class MailConfDto {
     private String username;
     @ApiModelProperty(notes = "字符集", example = "UTF-8")
     private String encode = "UTF-8";
+    @ApiModelProperty(notes = "常用收件人")
+    private Set<String> receivers = new HashSet<>();
 
     public String getHost() {
         return host;
@@ -77,5 +79,13 @@ public class MailConfDto {
 
     public void setEncode(String encode) {
         this.encode = encode;
+    }
+
+    public Set<String> getReceivers() {
+        return receivers;
+    }
+
+    public void setReceivers(Set<String> receivers) {
+        this.receivers = receivers;
     }
 }
