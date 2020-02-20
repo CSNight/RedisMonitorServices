@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.Set;
 
 @ApiModel(value = "邮件发送模型")
@@ -14,7 +15,9 @@ public class MailSendDto {
     @NotNull
     private String subject;
     @ApiModelProperty(notes = "收件人")
-    private Set<String> toList;
+    private Set<String> toList = new HashSet<>();
+    @ApiModelProperty(notes = "抄送人")
+    private Set<String> ccList = new HashSet<>();
     @ApiModelProperty(notes = "邮件内容")
     @NotNull
     private String content;
@@ -33,6 +36,14 @@ public class MailSendDto {
 
     public void setToList(Set<String> toList) {
         this.toList = toList;
+    }
+
+    public Set<String> getCcList() {
+        return ccList;
+    }
+
+    public void setCcList(Set<String> ccList) {
+        this.ccList = ccList;
     }
 
     public String getContent() {
