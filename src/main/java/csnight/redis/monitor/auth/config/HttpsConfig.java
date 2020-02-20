@@ -1,5 +1,6 @@
 package csnight.redis.monitor.auth.config;
 
+import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.YamlUtils;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
@@ -9,9 +10,14 @@ import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+import javax.net.ssl.KeyManagerFactory;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.security.KeyStore;
 import java.util.Properties;
 
 @Configuration
@@ -44,7 +50,7 @@ public class HttpsConfig {
         return connector;
     }
 
-    @Bean
+    @Bean(value = "yaml")
     public YamlUtils ymlConfigurerUtil() {
         //1:加载配置文件
         Resource app = new ClassPathResource("application.yml");
@@ -55,5 +61,27 @@ public class HttpsConfig {
         Properties properties = yamlPropertiesFactoryBean.getObject();
         // 4: 将Properties 通过构造方法交给我们写的工具类
         return new YamlUtils(properties);
+    }
+
+    @Bean
+    @DependsOn(value = "yaml")
+    public KeyManagerFactory initKeyManager() {
+        KeyManagerFactory kmf = null;
+        try {
+            KeyStore keyStore = KeyStore.getInstance("PKCS12");
+            InputStream stream;
+            ClassPathResource resource = new ClassPathResource(YamlUtils.getStrYmlVal("server.ssl.key-store"));
+            if (resource.exists()) {
+                stream = resource.getInputStream();
+            } else {
+                stream = new FileInputStream(BaseUtils.getResourceDir() + "www.csnight.xyz.pfx");
+            }
+            keyStore.load(stream, YamlUtils.getStrYmlVal("server.ssl.key-store-password").toCharArray());
+            kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(keyStore, YamlUtils.getStrYmlVal("server.ssl.key-store-password").toCharArray());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return kmf;
     }
 }
