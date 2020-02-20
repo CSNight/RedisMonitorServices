@@ -1,7 +1,6 @@
 package csnight.redis.monitor.websocket;
 
-import csnight.redis.monitor.utils.BaseUtils;
-import csnight.redis.monitor.utils.YamlUtils;
+import csnight.redis.monitor.utils.ReflectUtils;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.group.ChannelGroup;
@@ -11,14 +10,10 @@ import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.ssl.SslHandler;
-import org.springframework.core.io.ClassPathResource;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.security.KeyStore;
 
 public class WebSocketInitializer extends ChannelInitializer<SocketChannel> {
     private ChannelGroup channels;
@@ -42,17 +37,7 @@ public class WebSocketInitializer extends ChannelInitializer<SocketChannel> {
     }
 
     private SSLContext CreateContext() throws Exception {
-        KeyStore keyStore = KeyStore.getInstance("PKCS12");
-        InputStream stream;
-        ClassPathResource resource = new ClassPathResource(YamlUtils.getStrYmlVal("server.ssl.key-store"));
-        if (resource.exists()) {
-            stream = resource.getInputStream();
-        } else {
-            stream = new FileInputStream(BaseUtils.getResourceDir() + "www.csnight.xyz.pfx");
-        }
-        keyStore.load(stream, YamlUtils.getStrYmlVal("server.ssl.key-store-password").toCharArray());
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        kmf.init(keyStore, YamlUtils.getStrYmlVal("server.ssl.key-store-password").toCharArray());
+        KeyManagerFactory kmf = ReflectUtils.getBean(KeyManagerFactory.class);
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(kmf.getKeyManagers(), null, null);
         return sslContext;
