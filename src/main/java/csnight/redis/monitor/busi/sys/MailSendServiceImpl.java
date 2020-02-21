@@ -1,15 +1,21 @@
 package csnight.redis.monitor.busi.sys;
 
 import com.sun.mail.util.MailSSLSocketFactory;
+import csnight.redis.monitor.busi.sys.exp.MailRecQueryExp;
+import csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
 import csnight.redis.monitor.db.jpa.SysMailConfig;
 import csnight.redis.monitor.db.jpa.SysMailRecord;
+import csnight.redis.monitor.db.jpa.SysRole;
+import csnight.redis.monitor.db.jpa.SysUser;
 import csnight.redis.monitor.db.repos.SysMailConfRepository;
 import csnight.redis.monitor.db.repos.SysMailRecRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.rest.sys.dto.MailConfDto;
+import csnight.redis.monitor.rest.sys.dto.MailDelDto;
 import csnight.redis.monitor.rest.sys.dto.MailSendDto;
 import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.IdentifyUtils;
+import org.springframework.data.domain.Sort;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -23,14 +29,13 @@ import javax.mail.internet.MimeMessage;
 import javax.net.ssl.KeyManagerFactory;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 
-public class MailSendService {
+public class MailSendServiceImpl {
     @Resource
     private SysUserRepository userRepository;
     @Resource
@@ -44,9 +49,59 @@ public class MailSendService {
         return mailConfRepository.findAll();
     }
 
+    public List<SysMailRecord> GetAllMailRecords() {
+        return mailRecRepository.findAll(Sort.by(Sort.Direction.DESC, "ct"));
+    }
+
     public SysMailConfig GetUserMailConfig() {
         String uid = userRepository.findIdByUsername(BaseUtils.GetUserFromContext());
         return mailConfRepository.findByUid(uid);
+    }
+
+    public List<SysMailRecord> GetUserMailRecord() {
+        return mailRecRepository.findAllByUser(BaseUtils.GetUserFromContext());
+    }
+
+    public SysMailRecord GetUserMailRecordById(String id) {
+        Optional<SysMailRecord> record = mailRecRepository.findById(id);
+        return record.orElse(null);
+    }
+
+    public String DeleteRecordById(String id) {
+        if (mailRecRepository.existsById(id)) {
+            mailRecRepository.deleteById(id);
+            return "success";
+        }
+        return "failed";
+    }
+
+    public List<SysMailRecord> QueryMailRecord(MailRecQueryExp exp) {
+        List<SysMailRecord> records = mailRecRepository.findAll((root, criteriaQuery, criteriaBuilder) ->
+                QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder));
+        String username = BaseUtils.GetUserFromContext();
+        SysUser user = userRepository.findByUsername(username);
+        if (user != null) {
+            Set<String> roles = user.getRoles().stream().map(SysRole::getCode).collect(Collectors.toSet());
+            if (roles.contains("ROLE_DEV") || roles.contains("ROLE_SUPER")) {
+                return records;
+            } else {
+                return records.stream().filter(rec -> rec.getCreate_user().equals(username)).collect(Collectors.toList());
+            }
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public String DeleteRecordMulti(MailDelDto dto) {
+        MailRecQueryExp exp = new MailRecQueryExp();
+        exp.setIds(dto.getIds());
+        List<SysMailRecord> records = mailRecRepository.findAll((root, criteriaQuery, criteriaBuilder) ->
+                QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder));
+        if (records.size() > 0) {
+            mailRecRepository.deleteInBatch(records);
+            return "success";
+        }
+        return "failed";
     }
 
     public SysMailConfig UpdateMailConfig(MailConfDto dto) {
@@ -81,6 +136,16 @@ public class MailSendService {
         return "failed";
     }
 
+    public void DeleteUserMailResource(String username) {
+        String uid = userRepository.findIdByUsername(username);
+        SysMailConfig mailConfig = mailConfRepository.findByUid(uid);
+        if (mailConfig != null) {
+            mailConfRepository.deleteById(mailConfig.getId());
+        }
+        List<SysMailRecord> records = mailRecRepository.findAllByUser(username);
+        mailRecRepository.deleteInBatch(records);
+    }
+
     public String SendMail(MailSendDto dto) {
         String uid = userRepository.findIdByUsername(BaseUtils.GetUserFromContext());
         SysMailConfig mailConfig = mailConfRepository.findByUid(uid);
@@ -89,8 +154,9 @@ public class MailSendService {
             record.setEmail(mailConfig.getEmail());
             record.setFlag(IdentifyUtils.string2MD5(dto.getContent(), ""));
             record.setTheme(dto.getSubject());
+            record.setMt("CUSTOM");
             record.setTos(String.join(";", dto.getToList().toArray(new String[]{})));
-            record.setCreate_time(new Date());
+            record.setCt(new Date());
             record.setCreate_user(BaseUtils.GetUserFromContext());
             record.setStatus("sending");
             SysMailRecord sendRec = mailRecRepository.save(record);
@@ -166,7 +232,7 @@ public class MailSendService {
         properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         properties.put("mail.smtp.socketFactory.fallback", "false");
         properties.put("mail.smtp.socketFactory.port", String.valueOf(conf.getPort()));
-        Session session = Session.getDefaultInstance(properties, new Authenticator() {
+        Session session = Session.getInstance(properties, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(conf.getEmail(), conf.getPwd());
