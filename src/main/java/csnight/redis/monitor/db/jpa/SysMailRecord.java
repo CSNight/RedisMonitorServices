@@ -17,6 +17,8 @@ public class SysMailRecord {
     private String flag;
     @Column(name = "theme")
     private String theme;
+    @Column(name = "mt")
+    private String mt;
     @Column(name = "email")
     private String email;
     @Column(name = "tos")
@@ -27,9 +29,9 @@ public class SysMailRecord {
     private String reason;
     @Column(name = "create_user")
     private String create_user;
-    @Column(name = "create_time")
+    @Column(name = "ct")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date create_time;
+    private Date ct;
 
     public String getId() {
         return id;
@@ -53,6 +55,14 @@ public class SysMailRecord {
 
     public void setTheme(String theme) {
         this.theme = theme;
+    }
+
+    public String getMt() {
+        return mt;
+    }
+
+    public void setMt(String mt) {
+        this.mt = mt;
     }
 
     public String getEmail() {
@@ -95,11 +105,11 @@ public class SysMailRecord {
         this.create_user = create_user;
     }
 
-    public Date getCreate_time() {
-        return create_time;
+    public Date getCt() {
+        return ct;
     }
 
-    public void setCreate_time(Date create_time) {
-        this.create_time = create_time;
+    public void setCt(Date ct) {
+        this.ct = ct;
     }
 }
