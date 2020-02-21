@@ -41,7 +41,7 @@ public class UserServiceImpl {
     @Resource
     private JdbcTokenRepositoryExt tokenRepositoryExt;
     @Resource
-    private MailSendService mailService;
+    private MailSendServiceImpl mailService;
 
     /**
      * 功能描述: 查询所有用户
@@ -363,8 +363,8 @@ public class UserServiceImpl {
         return "failed";
     }
 
-    private void ClearUserResource() {
-        mailService.DeleteMailConfig();
+    private void ClearUserResource(String user) {
+        mailService.DeleteUserMailResource(user);
     }
 
     /**
