@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,11 +63,12 @@ public class OpLogServiceImpl {
      * @since 2019/12/26 10:35
      */
     public Page<SysOpLog> QueryLogsByCond(OpLogQueryExp exp) {
+        //不指定用户的情况下，除非有超级管理员以上的权限，才能继续执行查询操作，否则返回
         SysUser user = userRepository.findByUsername(exp.getUn());
         if (user == null) {
             String username = BaseUtils.GetUserFromContext();
             SysUser cur_user = userRepository.findByUsername(username);
-            List<String> roles = cur_user.getRoles().stream().map(SysRole::getCode).collect(Collectors.toList());
+            Set<String> roles = cur_user.getRoles().stream().map(SysRole::getCode).collect(Collectors.toSet());
             if (!roles.contains("ROLE_DEV") && !roles.contains("ROLE_SUPER")) {
                 return null;
             }
@@ -88,7 +90,6 @@ public class OpLogServiceImpl {
         Pageable pageable = PageRequest.of(cur, size, sort);
         return sysLogRepository.findAll((root, criteriaQuery, criteriaBuilder) ->
                 QueryAnnotationProcess.getPredicate(root, exp, criteriaBuilder), pageable);
-
     }
 
     /**
