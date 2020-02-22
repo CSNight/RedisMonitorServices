@@ -33,27 +33,18 @@ public class StatTaskManagerImpl {
     private JobFactory jobFactory;
 
     public List<JSONObject> GetAllJob() {
-        List<JSONObject> res = new ArrayList<>();
         List<RmsJobInfo> jobs = jobRepository.findByJobGroupAndUser(JobGroup.STATISTIC.name(), "%");
-        for (RmsJobInfo job : jobs) {
-            JSONObject joJob = JSONObject.parseObject(JSONObject.toJSONString(job));
-            boolean exists = jobFactory.ExistsJob(job.getJob_name(), job.getJob_group());
-            joJob.put("exists", exists);
-            if (exists) {
-                String state = jobFactory.GetJobState(job.getJob_name(), job.getJob_group());
-                if (state.equals("failed")) {
-                    joJob.put("state", "NotFound");
-                }
-                joJob.put("state", state);
-            }
-            res.add(joJob);
-        }
-        return res;
+        return GetJobState(jobs);
     }
 
+
     public List<JSONObject> GetUserJob() {
-        List<JSONObject> res = new ArrayList<>();
         List<RmsJobInfo> jobs = jobRepository.findByJobGroupAndUser(JobGroup.STATISTIC.name(), "%" + BaseUtils.GetUserFromContext() + "%");
+        return GetJobState(jobs);
+    }
+
+    private List<JSONObject> GetJobState(List<RmsJobInfo> jobs) {
+        List<JSONObject> res = new ArrayList<>();
         for (RmsJobInfo job : jobs) {
             JSONObject joJob = JSONObject.parseObject(JSONObject.toJSONString(job));
             boolean exists = jobFactory.ExistsJob(job.getJob_name(), job.getJob_group());
@@ -67,6 +58,7 @@ public class StatTaskManagerImpl {
             }
             res.add(joJob);
         }
+        jobs.clear();
         return res;
     }
 
