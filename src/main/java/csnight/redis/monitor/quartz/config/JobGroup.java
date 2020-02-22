@@ -8,6 +8,7 @@ public enum JobGroup {
     UNKNOWN(-1),
     STATISTIC(1),
     EXECUTION(2),
+    REPORTER(3),
     ERROR(400);
     private final byte[] raw = SafeEncoder.encode(this.name());
     private int ct;
