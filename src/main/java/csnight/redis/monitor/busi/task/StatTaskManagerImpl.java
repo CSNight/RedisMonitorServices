@@ -97,11 +97,10 @@ public class StatTaskManagerImpl {
         job.setJob_group(JobGroup.STATISTIC.name());
         job.setTrigger_type(dto.getTriggerType());
         job.setJob_describe(dto.getDescription());
-        JobConfig jobConfig = InitializeMonitorJob(dto, instance);
+        JobConfig jobConfig = InitializeMonitorJob(dto, instance.getId());
         job.setJob_name(jobConfig.getJobName());
-        dto.setJobName(jobConfig.getJobName());
         job.setJob_config(JSONObject.toJSONString(jobConfig));
-        Class<? extends Job> jobClazz = getJobByGroup(dto.getJobGroup());
+        Class<? extends Job> jobClazz = getJobByGroup(job.getJob_group());
         job.setJob_class(jobClazz.getName());
         if (jobFactory.AddJob(jobConfig, jobClazz).equals("success")) {
             return jobRepository.save(job);
@@ -123,7 +122,7 @@ public class StatTaskManagerImpl {
         RmsJobInfo jobInfo = jobRepository.findByJobGroupAndJobName(jobGroup, jobName);
         boolean exists = jobFactory.ExistsJob(jobName, jobGroup);
         if (jobInfo != null && exists) {
-            JobConfig jobConfig = InitializeMonitorJob(dto, instance);
+            JobConfig jobConfig = InitializeMonitorJob(dto, instance.getId());
             String state = jobFactory.GetJobState(jobName, jobGroup);
             boolean updateRes = jobFactory.ModifyJob(jobConfig);
             if (updateRes) {
@@ -209,15 +208,15 @@ public class StatTaskManagerImpl {
         return "Job not found";
     }
 
-    private JobConfig InitializeMonitorJob(TaskConfDto dto, RmsInstance instance) {
+    private JobConfig InitializeMonitorJob(TaskConfDto dto, String instance) {
         JobConfig jobConfig = JSONObject.parseObject(JSONObject.toJSONString(dto), JobConfig.class);
         jobConfig.setJobGroup(JobGroup.STATISTIC.name());
-        jobConfig.setJobName(IdentifyUtils.string2MD5(instance.getId(), "Stat_"));
+        jobConfig.setJobName(IdentifyUtils.string2MD5(instance, "Stat_"));
         JSONObject triggerConf = JSONObject.parseObject(jobConfig.getTriggerConfig());
         triggerConf.put("identity", jobConfig.getJobName());
         jobConfig.setTriggerConfig(JSONObject.toJSONString(triggerConf));
         Map<String, String> statistic = new HashMap<>();
-        statistic.put("ins_id", instance.getId());
+        statistic.put("ins_id", instance);
         statistic.put("appId", "");
         statistic.put("cid", "");
         statistic.put("uid", dto.getUid());
