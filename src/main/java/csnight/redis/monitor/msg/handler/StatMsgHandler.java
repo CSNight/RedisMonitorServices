@@ -27,7 +27,7 @@ public class StatMsgHandler implements WsChannelHandler {
 
     @Override
     public void initialize(JSONObject msg) {
-        String result = statTaskManager.ModifyRedisJobData(ins, channel.id().asShortText(), appId);
+        String result = statTaskManager.ModifyRedisStatJobData(ins, channel.id().asShortText(), appId);
         WssResponseEntity wre = new WssResponseEntity(result.equals("success") ? ResponseMsgType.STAT_STARTED : ResponseMsgType.ERROR, result);
         wre.setAppId(appId);
         WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), channel);
@@ -35,7 +35,7 @@ public class StatMsgHandler implements WsChannelHandler {
 
     @Override
     public void destroy() {
-        String st = statTaskManager.ModifyRedisJobData(ins, "", "");
+        String st = statTaskManager.ModifyRedisStatJobData(ins, "", "");
         WssResponseEntity wre = new WssResponseEntity(st.equals("success") ? ResponseMsgType.STAT_STOPPED : ResponseMsgType.ERROR, st);
         wre.setAppId(appId);
         WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), channel);

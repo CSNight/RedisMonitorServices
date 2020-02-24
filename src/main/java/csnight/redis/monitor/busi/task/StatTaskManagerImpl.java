@@ -147,7 +147,7 @@ public class StatTaskManagerImpl {
         }
     }
 
-    public String ModifyRedisJobData(String ins, String cid, String appId) {
+    public String ModifyRedisStatJobData(String ins, String cid, String appId) {
         String jobName = IdentifyUtils.string2MD5(ins, "Stat_");
         String jobGroup = JobGroup.STATISTIC.name();
         RmsJobInfo jobInfo = jobRepository.findByJobGroupAndJobName(jobGroup, jobName);
@@ -164,11 +164,11 @@ public class StatTaskManagerImpl {
     public String RecoverRedisStatJob(String ins_id) {
         RmsInstance instance = insRepository.findOnly(ins_id);
         if (instance == null) {
-            throw new ValidateException("Redis instance not found!");
+            return "Redis instance not found!";
         }
         RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(instance.getId());
         if (!instance.isState() || pool == null) {
-            throw new ValidateException("Redis does not connect! please go to instance config page to connect first");
+            return "Redis does not connect! please go to instance config page to connect first";
         }
         String jobName = IdentifyUtils.string2MD5(ins_id, "Stat_");
         String jobGroup = JobGroup.STATISTIC.name();
