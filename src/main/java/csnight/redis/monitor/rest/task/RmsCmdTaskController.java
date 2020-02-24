@@ -51,4 +51,28 @@ public class RmsCmdTaskController {
     public RespTemplate AddNewRedisCeJob(@Valid @RequestBody TaskConfDto dto) {
         return new RespTemplate(HttpStatus.OK, ceTaskManager.addCmdExeJob(dto));
     }
+
+    @LogAsync(module = "CETASK", auth = "CETASK_CONF_UPDATE")
+    @ApiOperation("更新命令任务设置")
+    @PreAuthorize("hasAuthority('CETASK_CONF_UPDATE')")
+    @RequestMapping(value = "/cetConfUpdate", method = RequestMethod.PUT)
+    public RespTemplate UpdateRedisCeJobConf(@Valid @RequestBody TaskConfDto dto) {
+        return new RespTemplate(HttpStatus.OK, ceTaskManager.ModifyRedisCeJobConf(dto));
+    }
+
+    @LogAsync(module = "CETASK", auth = "CETASK_STATE_UPDATE")
+    @ApiOperation("更新命令任务状态")
+    @PreAuthorize("hasAuthority('CETASK_STATE_UPDATE')")
+    @RequestMapping(value = "/cetStateUpdate/{jobId}/{state}", method = RequestMethod.PUT)
+    public RespTemplate UpdateRedisCeJobState(@PathVariable String jobId, @PathVariable boolean state) {
+        return new RespTemplate(HttpStatus.OK, ceTaskManager.ModifyRedisCeJobState(jobId, state));
+    }
+
+    @LogAsync(module = "CETASK", auth = "CETASK_DEL")
+    @ApiOperation("删除命令任务")
+    @PreAuthorize("hasAuthority('CETASK_DEL')")
+    @RequestMapping(value = "/cetDelete/{jobId}", method = RequestMethod.DELETE)
+    public RespTemplate DeleteRedisCeJob(@PathVariable String jobId) {
+        return new RespTemplate(HttpStatus.OK, ceTaskManager.DeleteRedisCeJob(jobId));
+    }
 }
