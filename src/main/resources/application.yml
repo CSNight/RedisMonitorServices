@@ -1,5 +1,7 @@
 server:
   port: 443
+  http2:
+    enabled: true
   servlet:
     context-path: /
   ssl:
@@ -36,7 +38,7 @@ spring:
         profile-enable: true
       stat-view-servlet:
         enabled: true
-        reset-enable: false
+        reset-enable: true
   quartz:
     properties:
       org:
@@ -75,7 +77,7 @@ dumpdir:
   record-dir: tools/backups
   exec-dir: tools/shakeBin
 rms-log:
-  executors: elastic
+  executors: mysql
   elastic:
     addresses: http://127.0.0.1:9200
 #logging:
