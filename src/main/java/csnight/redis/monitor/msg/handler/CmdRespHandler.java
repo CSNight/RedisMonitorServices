@@ -6,13 +6,11 @@ import csnight.redis.monitor.exception.CmdMsgException;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
 import csnight.redis.monitor.msg.series.RedisCmdType;
 import csnight.redis.monitor.msg.series.ResponseMsgType;
+import csnight.redis.monitor.redis.data.ResultParser;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
-import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.IdentifyUtils;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -87,57 +85,13 @@ public class CmdRespHandler implements WsChannelHandler {
             long start = System.currentTimeMillis();
             Object res = jedis.sendCommand(command, args);
             long end = System.currentTimeMillis() - start;
-            Object response = MsgParser(res);
+            Object response = ResultParser.MsgParser(res);
             return new WssResponseEntity(ResponseMsgType.RESP, response, end);
         } catch (Exception ex) {
             return new WssResponseEntity(ResponseMsgType.ERROR, ex.getMessage() == null ? "Null response exception" : ex.getMessage());
         } finally {
             rpi.close(jid);
         }
-    }
-
-    private Object MsgParser(Object res) {
-        Object response;
-        if (res instanceof byte[]) {
-            String charset = BaseUtils.getEncoding((byte[]) res);
-            if (!charset.toLowerCase().contains("gb")) {
-                charset = "utf-8";
-            }
-            response = new String((byte[]) res, Charset.forName(charset));
-        } else if (res instanceof ArrayList) {
-            response = ArrayMsgParser(res);
-        } else {
-            response = res.toString();
-        }
-        return response;
-    }
-
-    /**
-     * 功能描述: 消息递归解析
-     *
-     * @param res 消息体
-     * @return : java.util.List<java.lang.Object>
-     * @author csnight
-     * @since 2019/12/27 8:53
-     */
-    private List<Object> ArrayMsgParser(Object res) {
-        ArrayList<Object> resp = (ArrayList) res;
-        List<Object> tmp = new ArrayList<>();
-        for (Object item : resp) {
-            if (item instanceof byte[]) {
-                String charset = BaseUtils.getEncoding((byte[]) item);
-                if (!charset.toLowerCase().contains("gb")) {
-                    charset = "utf-8";
-                }
-                tmp.add(new String((byte[]) item, Charset.forName(charset)));
-            } else if (item instanceof ArrayList) {
-                List<Object> recursive = ArrayMsgParser(item);
-                tmp.add(recursive);
-            } else {
-                tmp.add(item);
-            }
-        }
-        return tmp;
     }
 
     @Override
