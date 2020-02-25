@@ -87,8 +87,14 @@ public class Job_StatisticCollect implements Job {
         clients = null;
         params.put("tm", String.valueOf(tm));
         jobDataMap.put("params", params);
+        //存在ID为空的 直接返回
+        if (params.get("cid").equals("") || params.get("appId").equals("")) {
+            return;
+        }
+        //channelId不为空 则查询通道实体
         ChannelEntity che = MsgBus.getIns().getChannels().get(params.get("cid"));
-        if (che == null || params.get("appId").equals("")) {
+        if (che == null) {
+            //通道实体为空时,清空无效的channelId及appId
             params.put("cid", "");
             params.put("appId", "");
             return;
