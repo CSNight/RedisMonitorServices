@@ -2,7 +2,7 @@ package csnight.redis.monitor.rest.task;
 
 import csnight.redis.monitor.aop.LogAsync;
 import csnight.redis.monitor.busi.task.StatTaskManagerImpl;
-import csnight.redis.monitor.rest.task.dto.TaskConfDto;
+import csnight.redis.monitor.rest.task.dto.StatTaskConfDto;
 import csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,7 +48,7 @@ public class RmsStatTaskController {
     @ApiOperation("新增统计任务")
     @PreAuthorize("hasAuthority('STTASK_ADD')")
     @RequestMapping(value = "/statAdd", method = RequestMethod.POST)
-    public RespTemplate AddNewRedisStatJob(@Valid @RequestBody TaskConfDto dto) {
+    public RespTemplate AddNewRedisStatJob(@Valid @RequestBody StatTaskConfDto dto) {
         return new RespTemplate(HttpStatus.OK, statTaskManager.addRedisStatJob(dto));
     }
 
@@ -56,7 +56,7 @@ public class RmsStatTaskController {
     @ApiOperation("更新统计任务设置")
     @PreAuthorize("hasAuthority('STTASK_CONF_UPDATE')")
     @RequestMapping(value = "/statConfUpdate", method = RequestMethod.PUT)
-    public RespTemplate UpdateRedisStatJobConf(@Valid @RequestBody TaskConfDto dto) {
+    public RespTemplate UpdateRedisStatJobConf(@Valid @RequestBody StatTaskConfDto dto) {
         return new RespTemplate(HttpStatus.OK, statTaskManager.ModifyRedisStatJobConf(dto));
     }
 

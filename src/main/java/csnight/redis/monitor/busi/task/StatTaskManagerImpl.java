@@ -14,7 +14,7 @@ import csnight.redis.monitor.quartz.jobs.Job_ReportError;
 import csnight.redis.monitor.quartz.jobs.Job_StatisticCollect;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
-import csnight.redis.monitor.rest.task.dto.TaskConfDto;
+import csnight.redis.monitor.rest.task.dto.StatTaskConfDto;
 import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.IdentifyUtils;
 import org.quartz.Job;
@@ -81,7 +81,7 @@ public class StatTaskManagerImpl {
         return null;
     }
 
-    public RmsJobInfo addRedisStatJob(TaskConfDto dto) {
+    public RmsJobInfo addRedisStatJob(StatTaskConfDto dto) {
         RmsJobInfo job = new RmsJobInfo();
         String jobName = IdentifyUtils.string2MD5(dto.getIns_id(), "Stat_");
         if (!checkStatJobConflict(jobName, JobGroup.STATISTIC.name())) {
@@ -108,7 +108,7 @@ public class StatTaskManagerImpl {
         return null;
     }
 
-    public RmsJobInfo ModifyRedisStatJobConf(TaskConfDto dto) {
+    public RmsJobInfo ModifyRedisStatJobConf(StatTaskConfDto dto) {
         RmsInstance instance = insRepository.findOnly(dto.getIns_id());
         if (instance == null) {
             throw new ValidateException("Redis instance not found!");
@@ -208,7 +208,7 @@ public class StatTaskManagerImpl {
         return "Job not found";
     }
 
-    private JobConfig InitializeMonitorJob(TaskConfDto dto, String instance) {
+    private JobConfig InitializeMonitorJob(StatTaskConfDto dto, String instance) {
         JobConfig jobConfig = JSONObject.parseObject(JSONObject.toJSONString(dto), JobConfig.class);
         jobConfig.setJobGroup(JobGroup.STATISTIC.name());
         jobConfig.setJobName(IdentifyUtils.string2MD5(instance, "Stat_"));
