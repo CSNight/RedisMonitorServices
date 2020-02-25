@@ -6,8 +6,8 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-@ApiModel(value = "任务配置模型")
-public class TaskConfDto {
+@ApiModel(value = "命令任务配置模型")
+public class ExecTaskConfDto {
     @NotNull
     @NotEmpty
     @ApiModelProperty(notes = "实例ID", hidden = true)
@@ -24,8 +24,10 @@ public class TaskConfDto {
     @NotEmpty
     @ApiModelProperty(notes = "工作组")
     private String jobGroup;
-    @ApiModelProperty(notes = "工作参数")
+    @ApiModelProperty(notes = "命令")
     private Object invokeParam;
+    @ApiModelProperty(notes = "逻辑DB")
+    private int db;
     @ApiModelProperty(notes = "任务描述")
     private String description;
     @NotNull
@@ -97,5 +99,13 @@ public class TaskConfDto {
 
     public void setTriggerType(int triggerType) {
         this.triggerType = triggerType;
+    }
+
+    public int getDb() {
+        return db;
+    }
+
+    public void setDb(int db) {
+        this.db = db;
     }
 }

@@ -2,7 +2,7 @@ package csnight.redis.monitor.rest.task;
 
 import csnight.redis.monitor.aop.LogAsync;
 import csnight.redis.monitor.busi.task.CETaskManagerImpl;
-import csnight.redis.monitor.rest.task.dto.TaskConfDto;
+import csnight.redis.monitor.rest.task.dto.ExecTaskConfDto;
 import csnight.redis.monitor.utils.RespTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,7 +48,7 @@ public class RmsCmdTaskController {
     @ApiOperation("新增命令任务")
     @PreAuthorize("hasAuthority('CETASK_ADD')")
     @RequestMapping(value = "/cetAdd", method = RequestMethod.POST)
-    public RespTemplate AddNewRedisCeJob(@Valid @RequestBody TaskConfDto dto) {
+    public RespTemplate AddNewRedisCeJob(@Valid @RequestBody ExecTaskConfDto dto) {
         return new RespTemplate(HttpStatus.OK, ceTaskManager.addCmdExeJob(dto));
     }
 
@@ -56,7 +56,7 @@ public class RmsCmdTaskController {
     @ApiOperation("更新命令任务设置")
     @PreAuthorize("hasAuthority('CETASK_CONF_UPDATE')")
     @RequestMapping(value = "/cetConfUpdate", method = RequestMethod.PUT)
-    public RespTemplate UpdateRedisCeJobConf(@Valid @RequestBody TaskConfDto dto) {
+    public RespTemplate UpdateRedisCeJobConf(@Valid @RequestBody ExecTaskConfDto dto) {
         return new RespTemplate(HttpStatus.OK, ceTaskManager.ModifyRedisCeJobConf(dto));
     }
 

@@ -15,7 +15,7 @@ import csnight.redis.monitor.quartz.jobs.Job_ReportError;
 import csnight.redis.monitor.quartz.jobs.Job_StatisticCollect;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
-import csnight.redis.monitor.rest.task.dto.TaskConfDto;
+import csnight.redis.monitor.rest.task.dto.ExecTaskConfDto;
 import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.IdentifyUtils;
 import org.quartz.Job;
@@ -68,7 +68,7 @@ public class CETaskManagerImpl {
     }
 
 
-    public RmsJobInfo addCmdExeJob(TaskConfDto dto) {
+    public RmsJobInfo addCmdExeJob(ExecTaskConfDto dto) {
         RmsJobInfo job = new RmsJobInfo();
         RmsInstance instance = insRepository.findOnly(dto.getIns_id());
         if (instance == null) {
@@ -93,7 +93,7 @@ public class CETaskManagerImpl {
         return null;
     }
 
-    public RmsJobInfo ModifyRedisCeJobConf(TaskConfDto dto) {
+    public RmsJobInfo ModifyRedisCeJobConf(ExecTaskConfDto dto) {
         RmsInstance instance = insRepository.findOnly(dto.getIns_id());
         if (instance == null) {
             throw new ValidateException("Redis instance not found!");
@@ -201,7 +201,7 @@ public class CETaskManagerImpl {
         return "Job not found";
     }
 
-    private JobConfig InitializeExecuteJob(TaskConfDto dto, String instance) {
+    private JobConfig InitializeExecuteJob(ExecTaskConfDto dto, String instance) {
         JobConfig jobConfig = JSONObject.parseObject(JSONObject.toJSONString(dto), JobConfig.class);
         jobConfig.setJobGroup(JobGroup.EXECUTION.name());
         jobConfig.setJobName(dto.getJobName());
@@ -212,6 +212,8 @@ public class CETaskManagerImpl {
         execution.put("ins_id", instance);
         execution.put("appId", "");
         execution.put("cid", "");
+        execution.put("db", String.valueOf(dto.getDb()));
+        execution.put("times", "0");
         execution.put("uid", dto.getUid());
         if (!checkCmd(dto.getInvokeParam().toString())) {
             throw new ValidateException("Command check error");
@@ -268,8 +270,40 @@ public class CETaskManagerImpl {
             ps.clear();
             ps = null;
             RedisCmdType command = RedisCmdType.getEnumType(parts[0].toUpperCase());
-            return !command.name().equals("UNKNOWN");
+            return checkCommandDisabled(command);
         }
         return false;
+    }
+
+    private boolean checkCommandDisabled(RedisCmdType cmdType) {
+        if (cmdType.equals(RedisCmdType.UNKNOWN)) {
+            return false;
+        } else if (cmdType.equals(RedisCmdType.SUBSCRIBE)) {
+            return false;
+        } else if (cmdType.equals(RedisCmdType.PSUBSCRIBE)) {
+            return false;
+        } else if (cmdType.equals(RedisCmdType.MONITOR)) {
+            return false;
+        } else if (cmdType.equals(RedisCmdType.KEYS)) {
+            return false;
+        } else if (cmdType.equals(RedisCmdType.DEBUG)) {
+            return false;
+        } else if (cmdType.equals(RedisCmdType.DUMP)) {
+            return false;
+        } else if (cmdType.equals(RedisCmdType.SYNC)) {
+            return false;
+        } else if (cmdType.equals(RedisCmdType.PSYNC)) {
+            return false;
+        } else if (cmdType.equals(RedisCmdType.CLIENT)) {
+            return false;
+        } else if (cmdType.equals(RedisCmdType.FLUSHALL)) {
+            return false;
+        } else if (cmdType.equals(RedisCmdType.FLUSHDB)) {
+            return false;
+        } else if (cmdType.equals(RedisCmdType.MULTI)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }
