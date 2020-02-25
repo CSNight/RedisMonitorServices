@@ -113,7 +113,7 @@ public class SimpleBaseTriggerConfig implements BaseTriggerConfig {
                 if (repeatCount == -1) {
                     simpleScheduleBuilder = SimpleScheduleBuilder.repeatMinutelyForever(interval).repeatForever();
                 } else {
-                    simpleScheduleBuilder = SimpleScheduleBuilder.repeatHourlyForTotalCount(repeatCount, interval);
+                    simpleScheduleBuilder = SimpleScheduleBuilder.repeatMinutelyForTotalCount(repeatCount, interval);
                 }
                 break;
             case HOUR:
