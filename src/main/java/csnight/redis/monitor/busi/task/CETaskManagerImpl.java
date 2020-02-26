@@ -98,10 +98,6 @@ public class CETaskManagerImpl {
         if (instance == null) {
             throw new ValidateException("Redis instance not found!");
         }
-        RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(instance.getId());
-        if (!instance.isState() || pool == null) {
-            throw new ValidateException("Redis does not connect! please go to instance config page to connect first");
-        }
         String jobName = dto.getJobName();
         String jobGroup = JobGroup.EXECUTION.name();
         RmsJobInfo jobInfo = jobRepository.findByJobGroupAndJobName(jobGroup, jobName);
@@ -114,12 +110,23 @@ public class CETaskManagerImpl {
                 if (state.equals("NORMAL")) {
                     jobFactory.ResumeJob(jobName, jobGroup);
                 }
+                jobInfo.setInstance(instance);
                 jobInfo.setJob_config(JSONObject.toJSONString(jobConfig));
                 jobInfo.setTrigger_type(jobConfig.getTriggerType());
                 jobInfo.setJob_describe(jobConfig.getDescription());
                 return jobRepository.save(jobInfo);
             }
             throw new ValidateException("Redis statistic job update failed!");
+        } else if (jobInfo != null && checkNeedRebuild(jobInfo)) {
+            JobConfig config = InitializeExecuteJob(dto, instance.getId());
+            Class<? extends Job> jobClazz = getJobByGroup(jobInfo.getJob_group());
+            if (jobFactory.AddJob(config, jobClazz).equals("success")) {
+                jobInfo.setJob_config(JSONObject.toJSONString(config));
+                jobInfo.setTrigger_type(dto.getTriggerType());
+                jobInfo.setJob_describe(dto.getDescription());
+                jobInfo.setInstance(instance);
+                return jobRepository.save(jobInfo);
+            }
         }
         return null;
     }
@@ -164,7 +171,12 @@ public class CETaskManagerImpl {
         }
         boolean exists = jobFactory.ExistsJob(jobInfo.getJob_name(), jobInfo.getJob_group());
         if (exists) {
+            if (jobFactory.GetJobState(jobInfo.getJob_name(), jobInfo.getJob_group()).equals("NORMAL")) {
+                return "success";
+            }
             return jobFactory.ResumeJob(jobInfo.getJob_name(), jobInfo.getJob_group());
+        } else if (checkNeedRebuild(jobInfo)) {
+            return "Job has been destroy for completed! if you want redo it please click edit button to reconfig";
         }
         return "Job dose not found";
     }
@@ -177,7 +189,12 @@ public class CETaskManagerImpl {
         RmsJobInfo jobInfo = optJobInfo.get();
         boolean exists = jobFactory.ExistsJob(jobInfo.getJob_name(), jobInfo.getJob_group());
         if (exists) {
+            if (!jobFactory.GetJobState(jobInfo.getJob_name(), jobInfo.getJob_group()).equals("NORMAL")) {
+                return "success";
+            }
             return jobFactory.PauseJob(jobInfo.getJob_name(), jobInfo.getJob_group());
+        } else if (checkNeedRebuild(jobInfo)) {
+            return "Job has been destroy for completed! if you want redo it please click edit button to reconfig";
         }
         return "failed";
     }
@@ -197,8 +214,20 @@ public class CETaskManagerImpl {
                 return "success";
             }
             return "Job instance stop and delete failure";
+        } else if (checkNeedRebuild(jobInfo)) {
+            jobRepository.delete(jobInfo);
+            return "success";
         }
         return "Job not found";
+    }
+
+    private boolean checkNeedRebuild(RmsJobInfo jobInfo) {
+        JobConfig config = JSONObject.parseObject(jobInfo.getJob_config(), JobConfig.class);
+        JSONObject triggerConf = JSONObject.parseObject(config.getTriggerConfig());
+        if (jobInfo.getTrigger_type() == 0 && triggerConf.getIntValue("repeatCount") != -1) {
+            return true;
+        }
+        return false;
     }
 
     private JobConfig InitializeExecuteJob(ExecTaskConfDto dto, String instance) {
