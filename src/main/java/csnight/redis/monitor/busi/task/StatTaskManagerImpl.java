@@ -113,10 +113,6 @@ public class StatTaskManagerImpl {
         if (instance == null) {
             throw new ValidateException("Redis instance not found!");
         }
-        RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(instance.getId());
-        if (!instance.isState() || pool == null) {
-            throw new ValidateException("Redis does not connect! please go to instance config page to connect first");
-        }
         String jobName = IdentifyUtils.string2MD5(instance.getId(), "Stat_");
         String jobGroup = JobGroup.STATISTIC.name();
         RmsJobInfo jobInfo = jobRepository.findByJobGroupAndJobName(jobGroup, jobName);
