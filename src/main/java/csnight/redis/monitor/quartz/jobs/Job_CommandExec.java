@@ -61,13 +61,20 @@ public class Job_CommandExec implements Job {
             pool.close(clientId);
         }
         long end = System.currentTimeMillis();
+        long times = Long.parseLong(params.get("times"));
+        if (context.getTrigger() instanceof SimpleTrigger) {
+            times = ((SimpleTrigger) context.getTrigger()).getTimesTriggered();
+        } else {
+            times = times + 1;
+        }
+        params.put("times", String.valueOf(times));
+        jobDataMap.put("params", params);
+        System.out.println(times);
         //存在ID为空的 直接返回
         if (params.get("cid").equals("") || params.get("appId").equals("")) {
             response = null;
             return;
         }
-        long times = Long.parseLong(params.get("times")) + 1L;
-        params.put("times", String.valueOf(times));
         //channelId不为空 则查询通道实体
         ChannelEntity che = MsgBus.getIns().getChannels().get(params.get("cid"));
         if (che == null) {
