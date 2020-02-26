@@ -128,7 +128,6 @@ public class SimpleBaseTriggerConfig implements BaseTriggerConfig {
             case "MisfireHandlingInstructionFireNow":
                 simpleScheduleBuilder = simpleScheduleBuilder.withMisfireHandlingInstructionFireNow();
                 break;
-            default:
             case "MisfireHandlingInstructionIgnoreMisfires":
                 simpleScheduleBuilder = simpleScheduleBuilder.withMisfireHandlingInstructionIgnoreMisfires();
                 break;
@@ -143,6 +142,8 @@ public class SimpleBaseTriggerConfig implements BaseTriggerConfig {
                 break;
             case "MisfireHandlingInstructionNowWithRemainingCount":
                 simpleScheduleBuilder = simpleScheduleBuilder.withMisfireHandlingInstructionNowWithRemainingCount();
+                break;
+            default:
                 break;
         }
         return t.withSchedule(simpleScheduleBuilder).build();
