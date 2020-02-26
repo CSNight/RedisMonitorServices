@@ -45,6 +45,8 @@ public class MsgBus {
         dt.setChannels(channels);
         StatisticMsgDispatcher st = StatisticMsgDispatcher.getIns();
         st.setChannels(channels);
+        CmdExecMsgDispatcher ex = CmdExecMsgDispatcher.getIns();
+        ex.setChannels(channels);
     }
 
     public Map<String, String> getUserChannels() {
@@ -171,6 +173,9 @@ public class MsgBus {
                     break;
                 case "statistic":
                     StatisticMsgDispatcher.getIns().dispatchMsg(msg, ch);
+                    break;
+                case "execution":
+                    CmdExecMsgDispatcher.getIns().dispatchMsg(msg, ch);
                     break;
                 default:
                     break;
