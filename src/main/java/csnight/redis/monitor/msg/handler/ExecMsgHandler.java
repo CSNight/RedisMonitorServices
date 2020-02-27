@@ -8,11 +8,15 @@ import csnight.redis.monitor.utils.ReflectUtils;
 import csnight.redis.monitor.websocket.WebSocketServer;
 import io.netty.channel.Channel;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class ExecMsgHandler implements WsChannelHandler {
     private String appId;
     private Channel channel;
-    private String ins;
     private CETaskManagerImpl ceTaskManager = ReflectUtils.getBean(CETaskManagerImpl.class);
+    private Set<String> jobIds = new HashSet<>();
+    private String ins;
 
     public ExecMsgHandler(String appId, Channel ch, String ins) {
         this.appId = appId;
@@ -25,18 +29,49 @@ public class ExecMsgHandler implements WsChannelHandler {
         return ins;
     }
 
+    public boolean checkJobPipeExist(String jobId) {
+        return jobIds.contains(jobId);
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public String getChannelId() {
+        return channel.id().asShortText();
+    }
+
     @Override
     public void initialize(JSONObject msg) {
-        String result = ceTaskManager.ModifyRedisCeJobData(ins, channel.id().asShortText(), appId);
-        WssResponseEntity wre = new WssResponseEntity(result.equals("success") ? ResponseMsgType.EXEC_STARTED : ResponseMsgType.ERROR, result);
+        WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.EXEC_STARTED, "start");
+        wre.setAppId(appId);
+        WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), channel);
+    }
+
+    public void addJobPipeline(JSONObject msg) {
+        String jobId = msg.getString("ins");
+        jobIds.add(jobId);
+        String result = ceTaskManager.ModifyRedisCeJobData(jobId, channel.id().asShortText(), appId);
+        WssResponseEntity wre = new WssResponseEntity(result.equals("success") ? ResponseMsgType.EXEC_ADDED : ResponseMsgType.ERROR, result);
+        wre.setAppId(appId);
+        WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), channel);
+    }
+
+    public void removeJobPipeline(JSONObject msg) {
+        String jobId = msg.getString("ins");
+        String st = ceTaskManager.ModifyRedisCeJobData(jobId, "", "");
+        WssResponseEntity wre = new WssResponseEntity(st.equals("success") ? ResponseMsgType.EXEC_REMOVED : ResponseMsgType.ERROR, st);
         wre.setAppId(appId);
         WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), channel);
     }
 
     @Override
     public void destroy() {
-        String st = ceTaskManager.ModifyRedisCeJobData(ins, "", "");
-        WssResponseEntity wre = new WssResponseEntity(st.equals("success") ? ResponseMsgType.EXEC_STOPPED : ResponseMsgType.ERROR, st);
+        for (String jobId : jobIds) {
+            ceTaskManager.ModifyRedisCeJobData(jobId, "", "");
+        }
+        jobIds.clear();
+        WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.EXEC_STOPPED, "all pipeline shutdown");
         wre.setAppId(appId);
         WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), channel);
     }
