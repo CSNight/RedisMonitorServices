@@ -7,6 +7,8 @@ import java.util.Arrays;
 public enum ExecMsgType {
     EXEC_START(100),
     EXEC_STOP(101),
+    EXEC_ADD(102),
+    EXEC_REMOVE(103),
     UNKNOWN(-1);
     private int ct;
     private final byte[] raw = SafeEncoder.encode(this.name());

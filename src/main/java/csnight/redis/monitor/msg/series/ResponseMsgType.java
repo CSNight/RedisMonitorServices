@@ -26,9 +26,13 @@ public enum ResponseMsgType {
     STAT_STARTED(1000),
     STAT_STOPPED(1001),
     RMS_STAT(1002),
+
     EXEC_STARTED(1003),
     EXEC_STOPPED(1004),
-    RMS_EXEC(1005),
+    EXEC_ADDED(1005),
+    EXEC_REMOVED(1006),
+    RMS_EXEC(1007),
+
     ERROR(400);
 
     private int code;
