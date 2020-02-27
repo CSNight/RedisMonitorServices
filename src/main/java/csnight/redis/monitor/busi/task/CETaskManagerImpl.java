@@ -6,6 +6,8 @@ import csnight.redis.monitor.db.jpa.RmsJobInfo;
 import csnight.redis.monitor.db.repos.RmsInsRepository;
 import csnight.redis.monitor.db.repos.RmsJobRepository;
 import csnight.redis.monitor.exception.ValidateException;
+import csnight.redis.monitor.msg.CmdExecMsgDispatcher;
+import csnight.redis.monitor.msg.handler.ExecMsgHandler;
 import csnight.redis.monitor.msg.series.RedisCmdType;
 import csnight.redis.monitor.quartz.JobFactory;
 import csnight.redis.monitor.quartz.config.JobConfig;
@@ -116,9 +118,15 @@ public class CETaskManagerImpl {
                 jobInfo.setJob_describe(jobConfig.getDescription());
                 return jobRepository.save(jobInfo);
             }
-            throw new ValidateException("Redis statistic job update failed!");
+            throw new ValidateException("Redis command exec job update failed!");
         } else if (jobInfo != null && checkNeedRebuild(jobInfo)) {
             JobConfig config = InitializeExecuteJob(dto, instance.getId());
+            ExecMsgHandler handler = CmdExecMsgDispatcher.getIns().getHandlerByJobId(jobInfo.getId());
+            if (handler != null) {
+                Map<String, String> params = (Map<String, String>) config.getInvokeParam();
+                params.put("appId", handler.getAppId());
+                params.put("cid", handler.getChannelId());
+            }
             Class<? extends Job> jobClazz = getJobByGroup(jobInfo.getJob_group());
             if (jobFactory.AddJob(config, jobClazz).equals("success")) {
                 jobInfo.setJob_config(JSONObject.toJSONString(config));
