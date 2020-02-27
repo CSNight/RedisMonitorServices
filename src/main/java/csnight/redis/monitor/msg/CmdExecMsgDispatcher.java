@@ -31,6 +31,17 @@ public class CmdExecMsgDispatcher {
     private CmdExecMsgDispatcher() {
     }
 
+    public ExecMsgHandler getHandlerByJobId(String jobId) {
+        for (Map.Entry<String, ChannelEntity> chs : channels.entrySet()) {
+            for (Map.Entry<String, WsChannelHandler> hands : chs.getValue().getHandlers().entrySet()) {
+                if (((ExecMsgHandler) hands.getValue()).checkJobPipeExist(jobId)) {
+                    return (ExecMsgHandler) hands.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
     public void setChannels(Map<String, ChannelEntity> channels) {
         this.channels = channels;
     }
@@ -39,6 +50,7 @@ public class CmdExecMsgDispatcher {
         WssResponseEntity wre;
         int requestType = msg.getIntValue("rt");
         String appId = msg.getString("appId");
+        Map<String, WsChannelHandler> handlers = channels.get(ch.id().asShortText()).getHandlers();
         switch (ExecMsgType.getEnumType(requestType)) {
             default:
             case UNKNOWN:
@@ -52,8 +64,23 @@ public class CmdExecMsgDispatcher {
                 channels.get(ch.id().asShortText()).getHandlers().put(appId, execMsgHandler);
                 MsgBus.getIns().setChannelType(ChannelType.MONITOR, ch.id().asShortText());
                 break;
+            case EXEC_ADD:
+                for (Map.Entry<String, WsChannelHandler> entry : handlers.entrySet()) {
+                    if (entry.getKey().equals(appId)) {
+                        ExecMsgHandler handler = (ExecMsgHandler) entry.getValue();
+                        handler.addJobPipeline(msg);
+                    }
+                }
+                break;
+            case EXEC_REMOVE:
+                for (Map.Entry<String, WsChannelHandler> entry : handlers.entrySet()) {
+                    if (entry.getKey().equals(appId)) {
+                        ExecMsgHandler handler = (ExecMsgHandler) entry.getValue();
+                        handler.removeJobPipeline(msg);
+                    }
+                }
+                break;
             case EXEC_STOP:
-                Map<String, WsChannelHandler> handlers = channels.get(ch.id().asShortText()).getHandlers();
                 for (Map.Entry<String, WsChannelHandler> entry : handlers.entrySet()) {
                     if (entry.getKey().equals(appId)) {
                         entry.getValue().destroy();
