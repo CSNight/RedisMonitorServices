@@ -69,7 +69,6 @@ public class Job_CommandExec implements Job {
         }
         params.put("times", String.valueOf(times));
         jobDataMap.put("params", params);
-        System.out.println(times);
         //存在ID为空的 直接返回
         if (params.get("cid").equals("") || params.get("appId").equals("")) {
             response = null;
@@ -87,6 +86,7 @@ public class Job_CommandExec implements Job {
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("response", response == null ? "" : response);
         resultMap.put("times", times);
+        resultMap.put("jobId", jobKey.getName());
         WssResponseEntity wre = new WssResponseEntity(ResponseMsgType.RMS_EXEC, resultMap, end - start);
         wre.setAppId(params.get("appId"));
         WebSocketServer.getInstance().send(JSONObject.toJSONString(wre), che.getChannel());
