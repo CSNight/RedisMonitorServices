@@ -14,7 +14,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("indicator")
+@RequestMapping("quota")
 @Api(tags = "Redis监控指标API")
 public class RmsIndicatorController {
     @Resource
