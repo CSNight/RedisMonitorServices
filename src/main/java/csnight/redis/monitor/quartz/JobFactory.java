@@ -65,6 +65,41 @@ public class JobFactory {
         }
     }
 
+    public Object GetJobRule(String jobName, String jobGroup) {
+        JobKey jobKey = new JobKey(jobName, jobGroup);
+        try {
+            return scheduler.getJobDetail(jobKey).getJobDataMap().get("rules");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public boolean SetJobRule(String jobName, String jobGroup, Map<String, String> rules) {
+        TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
+        JobKey jobKey = new JobKey(jobName, jobGroup);
+        try {
+            if (scheduler.checkExists(jobKey) && scheduler.checkExists(triggerKey)) {
+                Trigger trigger = scheduler.getTrigger(triggerKey);
+                JobDetail detail = scheduler.getJobDetail(jobKey);
+                detail.getJobDataMap().put("rules", rules);
+                String state = GetJobState(jobName, jobGroup);
+                scheduler.pauseJob(jobKey);
+                scheduler.pauseTrigger(triggerKey);
+                scheduler.unscheduleJob(triggerKey);
+                scheduler.scheduleJob(detail, trigger);
+                if (state.equals("NORMAL")) {
+                    scheduler.resumeJob(jobKey);
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } catch (SchedulerException e) {
+            return false;
+        }
+    }
+
+
     public boolean SetJobData(String jobName, String jobGroup, Map<String, String> data) {
         TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
         JobKey jobKey = new JobKey(jobName, jobGroup);
