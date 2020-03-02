@@ -79,6 +79,7 @@ public class HttpsConfig {
             keyStore.load(stream, YamlUtils.getStrYmlVal("server.ssl.key-store-password").toCharArray());
             kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             kmf.init(keyStore, YamlUtils.getStrYmlVal("server.ssl.key-store-password").toCharArray());
+            stream.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
