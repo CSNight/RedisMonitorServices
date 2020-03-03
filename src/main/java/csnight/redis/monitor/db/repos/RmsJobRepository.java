@@ -12,4 +12,7 @@ public interface RmsJobRepository extends JpaRepository<RmsJobInfo, String> {
 
     @Query(value = "select * from rms_jobs_info where job_group=? and create_user like ?", nativeQuery = true)
     List<RmsJobInfo> findByJobGroupAndUser(String jobGroup, String jobName);
+
+    @Query(value = "select * from rms_jobs_info where job_name=?", nativeQuery = true)
+    RmsJobInfo findByJobName(String jobName);
 }
