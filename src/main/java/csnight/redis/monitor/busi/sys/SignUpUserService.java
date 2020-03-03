@@ -14,7 +14,6 @@ import java.util.HashSet;
 
 @Service
 public class SignUpUserService {
-
     private SysRoleRepository sysRoleRepository;
     private SysUserRepository userRepository;
 
@@ -30,16 +29,13 @@ public class SignUpUserService {
         return userRepository.save(user);
     }
 
-
     public SysUser findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-
     public SysUser findByName(String name) {
         return userRepository.findByUsername(name);
     }
-
 
     public boolean checkUserByName(String name) {
         SysUser user = findByName(name);

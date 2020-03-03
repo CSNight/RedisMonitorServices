@@ -17,36 +17,26 @@ public class SysUser implements UserDetails {
     @GeneratedValue(generator = "jpa-uuid")
     @Column(name = "id", length = 50)
     private String id;
-
     @Column(name = "username", length = 200, unique = true)
     private String username;
-
     @Column(name = "password", length = 200)
     private String password;
-
     @Column(name = "nick_name", length = 100)
     private String nick_name;
-
     @Column(name = "create_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date create_time;
-
     @Column(name = "enabled")
     private Boolean enabled;
-
     @Column(name = "email", length = 100)
     private String email;
-
     @Column(name = "phone", length = 11)
     private String phone;
-
     @Column(name = "last_login")
     @Temporal(TemporalType.TIMESTAMP)
     private Date last_login;
-
     @Column(name = "login_times")
     private int login_times;
-
     @Column(name = "lock_by")
     private String lock_by;
     @Column(name = "org_id")
@@ -54,7 +44,6 @@ public class SysUser implements UserDetails {
     @Lob
     @Column(name = "head_img")
     private byte[] head_img;
-
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "sys_role_user",
@@ -108,7 +97,6 @@ public class SysUser implements UserDetails {
     public boolean isEnabled() {
         return this.getEnabled();
     }
-
 
     public String getId() {
         return id;

@@ -37,13 +37,10 @@ public class SysMenu {
     private boolean hidden;
     @Column(name = "component_name")
     private String component_name;
-
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "pid")
     @OrderBy(value = "sort")
     private List<SysMenu> children = new ArrayList<>();
-
-
     @ManyToMany(mappedBy = "menus", fetch = FetchType.EAGER)
     @JsonIgnore
     @JSONField(serialize = false)

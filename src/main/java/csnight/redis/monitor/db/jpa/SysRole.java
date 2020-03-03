@@ -13,7 +13,6 @@ import java.util.Set;
 @Entity
 @Table(name = "sys_role")
 public class SysRole {
-
     @Id
     @GenericGenerator(name = "jpa-uuid", strategy = "org.hibernate.id.UUIDGenerator")
     @GeneratedValue(generator = "jpa-uuid")
@@ -42,12 +41,10 @@ public class SysRole {
             inverseJoinColumns = {@JoinColumn(name = "menu_id", referencedColumnName = "id")},
             joinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
     private Set<SysMenu> menus = new HashSet<>();
-
     @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
     @JsonIgnore
     @JSONField(serialize = false)
     private Set<SysUser> users = new HashSet<>();
-
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cmd_id")
     private SysCommands commands;
