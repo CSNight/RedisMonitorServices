@@ -35,6 +35,8 @@ public class RmsMonitorRule {
     private String contact;
     @Column(name = "subject")
     private String subject;
+    @Column(name = "enabled")
+    private boolean enabled;
     @Column(name = "create_user")
     private String create_user;
     @Column(name = "create_time")
@@ -135,6 +137,14 @@ public class RmsMonitorRule {
 
     public void setSubject(String subject) {
         this.subject = subject;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public String getCreate_user() {
