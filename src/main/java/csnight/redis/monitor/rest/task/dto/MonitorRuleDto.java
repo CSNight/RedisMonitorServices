@@ -3,6 +3,8 @@ package csnight.redis.monitor.rest.task.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -26,16 +28,16 @@ public class MonitorRuleDto {
     @NotEmpty
     private String indicator;
     @ApiModelProperty(notes = "周期", required = true)
-    @NotNull
-    @NotEmpty
+    @Min(1)
+    @Max(15)
     private int cycle;
     @ApiModelProperty(notes = "信号量", required = true)
     @NotNull
     @NotEmpty
     private String sign;
     @ApiModelProperty(notes = "持续时间", required = true)
-    @NotNull
-    @NotEmpty
+    @Min(1)
+    @Max(3600)
     private int duration;
     @ApiModelProperty(notes = "表达式", required = true)
     @NotNull
