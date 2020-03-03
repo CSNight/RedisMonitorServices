@@ -1,9 +1,14 @@
 package csnight.redis.monitor.busi.task;
 
+import com.alibaba.fastjson.JSONObject;
+import csnight.redis.monitor.db.jpa.RmsJobInfo;
 import csnight.redis.monitor.db.jpa.RmsMonitorRule;
-import csnight.redis.monitor.db.repos.RmsInsRepository;
+import csnight.redis.monitor.db.jpa.SysMailConfig;
 import csnight.redis.monitor.db.repos.RmsJobRepository;
 import csnight.redis.monitor.db.repos.RmsMonRuleRepository;
+import csnight.redis.monitor.db.repos.SysMailConfRepository;
+import csnight.redis.monitor.db.repos.SysUserRepository;
+import csnight.redis.monitor.monitor.MonitorBus;
 import csnight.redis.monitor.quartz.JobFactory;
 import csnight.redis.monitor.rest.task.dto.MonitorRuleDto;
 import csnight.redis.monitor.utils.BaseUtils;
@@ -12,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -19,7 +25,9 @@ public class MonitorRuleManagerImpl {
     @Resource
     private RmsJobRepository jobRepository;
     @Resource
-    private RmsInsRepository insRepository;
+    private SysUserRepository userRepository;
+    @Resource
+    private SysMailConfRepository mailConfRepository;
     @Resource
     private RmsMonRuleRepository ruleRepository;
     @Resource
@@ -35,6 +43,15 @@ public class MonitorRuleManagerImpl {
     }
 
     public RmsMonitorRule AddMonitorRule(MonitorRuleDto dto) {
+        RmsJobInfo jobInfo = checkStatJobExist(dto.getJob_id());
+        if (jobInfo == null) {
+            return null;
+        }
+        String user = BaseUtils.GetUserFromContext();
+        String userId = userRepository.findIdByUsername(user);
+        if (!checkEmailConf(userId)) {
+            return null;
+        }
         RmsMonitorRule rule = new RmsMonitorRule();
         rule.setIns(dto.getJob_id());
         rule.setName(dto.getName());
@@ -47,10 +64,11 @@ public class MonitorRuleManagerImpl {
         rule.setClazz(dto.getClazz());
         rule.setContact(dto.getContact());
         rule.setSubject(dto.getSubject());
+        rule.setEnabled(false);
         rule.setCreate_time(new Date());
-        rule.setCreate_user(BaseUtils.GetUserFromContext());
+        rule.setCreate_user(user);
         if (checkRuleConflict(rule)) {
-            ruleRepository.save(rule);
+            return ruleRepository.save(rule);
         }
         return rule;
     }
@@ -70,6 +88,7 @@ public class MonitorRuleManagerImpl {
             ruleOrigin.setClazz(dto.getClazz());
             ruleOrigin.setContact(dto.getContact());
             ruleOrigin.setSubject(dto.getSubject());
+            ruleOrigin.setEnabled(false);
             if (checkRuleConflict(ruleOrigin)) {
                 return ruleRepository.save(ruleOrigin);
             }
@@ -78,11 +97,24 @@ public class MonitorRuleManagerImpl {
     }
 
     public String DeleteMonitorRule(String id) {
-        if (ruleRepository.existsById(id)) {
+        Optional<RmsMonitorRule> optRule = ruleRepository.findById(id);
+        if (optRule.isPresent()) {
+            RmsMonitorRule rule = optRule.get();
+            MonitorBus.getIns().unregisterRuleForJob(rule.getIns(), rule.getId());
             ruleRepository.deleteById(id);
             return "success";
         }
         return "failed";
+    }
+
+    private boolean injectStatJob(RmsJobInfo jobInfo, RmsMonitorRule rule) {
+        Object ruleObj = jobFactory.GetJobRule(jobInfo.getJob_name(), jobInfo.getJob_group());
+        if (ruleObj instanceof Map) {
+            Map<String, String> rules = (Map<String, String>) ruleObj;
+            rules.put(rule.getId(), JSONObject.toJSONString(rule));
+            return jobFactory.SetJobRule(jobInfo.getJob_name(), jobInfo.getJob_group(), rules);
+        }
+        return false;
     }
 
     private boolean checkRuleConflict(RmsMonitorRule rule) {
@@ -92,5 +124,15 @@ public class MonitorRuleManagerImpl {
             isValid = false;
         }
         return isValid;
+    }
+
+    private boolean checkEmailConf(String userId) {
+        SysMailConfig mailConfig = mailConfRepository.findByUid(userId);
+        return mailConfig != null;
+
+    }
+
+    private RmsJobInfo checkStatJobExist(String jobId) {
+        return jobRepository.findByJobName(jobId);
     }
 }
