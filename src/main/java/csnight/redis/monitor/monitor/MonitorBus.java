@@ -17,11 +17,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class MonitorBus {
     private Logger _log = LoggerFactory.getLogger(MonitorBus.class);
     private LoadingCache<String, String> counter = CacheBuilder.newBuilder()
-            .expireAfterWrite(10 * 60, TimeUnit.SECONDS)
+            .expireAfterWrite(60 * 60 * 24, TimeUnit.SECONDS)
             .build(new CacheLoader<>() {
                 @Override
                 public String load(String s) throws Exception {
@@ -77,7 +78,7 @@ public class MonitorBus {
                     continue;
                 }
                 RmsMonitorRule rule = rules.get(rid);
-                if (!rule.isEnabled()) {
+                if (rule == null || !rule.isEnabled()) {
                     continue;
                 }
                 String r = rule.getId() + "|" + rule.getExpression() + "|" + rule.getClazz()
@@ -99,14 +100,17 @@ public class MonitorBus {
         }
     }
 
-    public void registerRuleToJob(String jobKey, String rid, RmsMonitorRule rule) {
-        if (!monitors.containsKey(jobKey)) {
+    public void registerRuleToJob(String jobKey, RmsMonitorRule rule) {
+        if (!relations.containsKey(jobKey)) {
             List<String> rs = new ArrayList<>();
-            rs.add(rid);
+            rs.add(rule.getId());
             relations.put(jobKey, rs);
+        } else {
+            relations.get(jobKey).add(rule.getId());
         }
+        //TODO 后续添加启动、禁用功能后 去掉该行
         rule.setEnabled(true);
-        rules.put(rid, rule);
+        rules.put(rule.getId(), rule);
         counter.refresh(jobKey);
     }
 
@@ -116,11 +120,39 @@ public class MonitorBus {
             if (monitors.containsKey(rid)) {
                 monitors.get(rid).destroy();
                 monitors.remove(rid);
-                rs.remove(rid);
             }
+            rs.remove(rid);
         }
         rules.remove(rid);
         counter.refresh(jobKey);
+    }
+
+    //注册统计任务关联的监控规则到监控总线，并启用已经存在的监控规则
+    public void registerJobRules(String jobKey) {
+        List<RmsMonitorRule> ruleList = ruleRepository.findByIns(jobKey);
+        List<String> rs = ruleList.stream().map(RmsMonitorRule::getId).collect(Collectors.toList());
+        relations.put(jobKey, rs);
+        for (RmsMonitorRule rule : ruleList) {
+            rule.setEnabled(true);
+        }
+        ruleRepository.saveAll(ruleList);
+        counter.refresh(jobKey);
+    }
+
+    //销毁统计任务关联的所有监控器并禁用监控规则
+    public void unregisterJobRules(String jobKey) {
+        if (relations.containsKey(jobKey)) {
+            List<String> rs = relations.get(jobKey);
+            for (String rid : rs) {
+                if (monitors.containsKey(rid)) {
+                    monitors.get(rid).destroy();
+                    monitors.remove(rid);
+                }
+            }
+            rs.clear();
+            relations.remove(jobKey);
+            counter.invalidate(jobKey);
+        }
     }
 
     public void destroy() {
@@ -136,6 +168,6 @@ public class MonitorBus {
         }
         ruleRepository.saveAll(rules.values());
         rules.clear();
-        counter.cleanUp();
+        counter.invalidateAll();
     }
 }
