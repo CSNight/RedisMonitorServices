@@ -147,8 +147,7 @@ public class MailSendServiceImpl {
     }
 
     public String SendMail(MailSendDto dto) {
-        String uid = userRepository.findIdByUsername(BaseUtils.GetUserFromContext());
-        SysMailConfig mailConfig = mailConfRepository.findByUid(uid);
+        SysMailConfig mailConfig = mailConfRepository.findByUid(dto.getUid());
         if (mailConfig != null) {
             SysMailRecord record = new SysMailRecord();
             record.setEmail(mailConfig.getEmail());
@@ -171,7 +170,7 @@ public class MailSendServiceImpl {
                         }
                         return mailRecRepository.save(sendRec);
                     });
-            return "success";
+            return sendRec.getId();
         }
         return "config not found";
     }
