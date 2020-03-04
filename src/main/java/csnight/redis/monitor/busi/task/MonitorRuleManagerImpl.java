@@ -68,7 +68,10 @@ public class MonitorRuleManagerImpl {
         rule.setCreate_time(new Date());
         rule.setCreate_user(user);
         if (checkRuleConflict(rule)) {
-            return ruleRepository.save(rule);
+            //监控规则新建并注册到监控总线
+            RmsMonitorRule newRule = ruleRepository.save(rule);
+            MonitorBus.getIns().registerRuleToJob(jobInfo.getJob_name(), newRule);
+            return newRule;
         }
         return rule;
     }
