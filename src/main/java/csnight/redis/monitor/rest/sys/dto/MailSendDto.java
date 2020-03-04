@@ -10,6 +10,10 @@ import java.util.Set;
 
 @ApiModel(value = "邮件发送模型")
 public class MailSendDto {
+    @ApiModelProperty(notes = "用户ID")
+    @NotEmpty
+    @NotNull
+    private String uid;
     @ApiModelProperty(notes = "主题")
     @NotEmpty
     @NotNull
@@ -21,6 +25,14 @@ public class MailSendDto {
     @ApiModelProperty(notes = "邮件内容")
     @NotNull
     private String content;
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
 
     public String getSubject() {
         return subject;
