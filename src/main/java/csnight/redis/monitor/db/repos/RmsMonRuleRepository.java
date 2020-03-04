@@ -10,5 +10,7 @@ public interface RmsMonRuleRepository extends JpaRepository<RmsMonitorRule, Stri
     @Query(value = "select * from rms_monitor_rule where create_user=?", nativeQuery = true)
     List<RmsMonitorRule> findByUser(String user);
 
+    List<RmsMonitorRule> findByIns(String ins);
+
     RmsMonitorRule findByExpressionAndIns(String expression, String ins);
 }
