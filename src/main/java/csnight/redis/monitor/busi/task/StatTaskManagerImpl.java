@@ -5,7 +5,9 @@ import csnight.redis.monitor.db.jpa.RmsInstance;
 import csnight.redis.monitor.db.jpa.RmsJobInfo;
 import csnight.redis.monitor.db.repos.RmsInsRepository;
 import csnight.redis.monitor.db.repos.RmsJobRepository;
+import csnight.redis.monitor.db.repos.RmsMonRuleRepository;
 import csnight.redis.monitor.exception.ValidateException;
+import csnight.redis.monitor.monitor.MonitorBus;
 import csnight.redis.monitor.quartz.JobFactory;
 import csnight.redis.monitor.quartz.config.JobConfig;
 import csnight.redis.monitor.quartz.config.JobGroup;
@@ -30,13 +32,14 @@ public class StatTaskManagerImpl {
     @Resource
     private RmsInsRepository insRepository;
     @Resource
+    private RmsMonRuleRepository ruleRepository;
+    @Resource
     private JobFactory jobFactory;
 
     public List<JSONObject> GetAllJob() {
         List<RmsJobInfo> jobs = jobRepository.findByJobGroupAndUser(JobGroup.STATISTIC.name(), "%");
         return GetJobState(jobs);
     }
-
 
     public List<JSONObject> GetUserJob() {
         List<RmsJobInfo> jobs = jobRepository.findByJobGroupAndUser(JobGroup.STATISTIC.name(), "%" + BaseUtils.GetUserFromContext() + "%");
@@ -103,6 +106,8 @@ public class StatTaskManagerImpl {
         Class<? extends Job> jobClazz = getJobByGroup(job.getJob_group());
         job.setJob_class(jobClazz.getName());
         if (jobFactory.AddJob(jobConfig, jobClazz).equals("success")) {
+            //注册监控规则到监控总线，并启用已经存在的监控规则
+            MonitorBus.getIns().registerJobRules(job.getJob_name());
             return jobRepository.save(job);
         }
         return null;
@@ -191,6 +196,10 @@ public class StatTaskManagerImpl {
         String jobName = IdentifyUtils.string2MD5(ins_id, "Stat_");
         String jobGroup = JobGroup.STATISTIC.name();
         RmsJobInfo jobInfo = jobRepository.findByJobGroupAndJobName(jobGroup, jobName);
+        //销毁所有监控器并禁用监控规则
+        if (jobInfo != null) {
+            MonitorBus.getIns().unregisterJobRules(jobInfo.getJob_name());
+        }
         boolean exists = jobFactory.ExistsJob(jobName, jobGroup);
         if (jobInfo != null && exists) {
             String pauseRes = jobFactory.PauseJob(jobName, jobGroup);
