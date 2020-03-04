@@ -1,6 +1,7 @@
 package csnight.redis.monitor.context;
 
 import csnight.redis.monitor.aop.LogAsyncPool;
+import csnight.redis.monitor.monitor.MonitorBus;
 import csnight.redis.monitor.msg.MsgBus;
 import csnight.redis.monitor.quartz.JobFactory;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
@@ -46,6 +47,7 @@ public class SpringContextEvent implements ApplicationListener<ApplicationEvent>
             } catch (SchedulerException e) {
                 e.printStackTrace();
             }
+            MonitorBus.getIns().destroy();
             _log.info("Shutting down Redis pools");
             MultiRedisPool.getInstance().shutdown();
             _log.info("All Redis pools have stopped!");
