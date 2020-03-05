@@ -45,11 +45,11 @@ public class RmsMonitorRuleController {
     }
 
     @LogAsync(module = "RULES", auth = "RULES_UPDATE")
-    @ApiOperation("修改监控规则")
+    @ApiOperation("修改监控规则状态")
     @PreAuthorize("hasAuthority('RULES_UPDATE')")
-    @RequestMapping(value = "/monitorRule", method = RequestMethod.PUT)
-    public RespTemplate UpdateRule(@Valid @RequestBody MonitorRuleDto dto) {
-        return new RespTemplate(HttpStatus.OK, ruleManager.UpdateMonitorRule(dto));
+    @RequestMapping(value = "/monitorRule/{id}/{state}", method = RequestMethod.PUT)
+    public RespTemplate UpdateRule(@PathVariable String id, @PathVariable boolean state) {
+        return new RespTemplate(HttpStatus.OK, ruleManager.ChangeRuleState(id, state));
     }
 
     @LogAsync(module = "RULES", auth = "RULES_DEL")

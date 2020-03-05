@@ -76,25 +76,13 @@ public class MonitorRuleManagerImpl {
         return rule;
     }
 
-    public RmsMonitorRule UpdateMonitorRule(MonitorRuleDto dto) {
-        Optional<RmsMonitorRule> optRule = ruleRepository.findById(dto.getId());
+    public RmsMonitorRule ChangeRuleState(String id, boolean state) {
+        Optional<RmsMonitorRule> optRule = ruleRepository.findById(id);
         if (optRule.isPresent()) {
             RmsMonitorRule ruleOrigin = optRule.get();
-            ruleOrigin.setIns(dto.getJob_id());
-            ruleOrigin.setName(dto.getName());
-            ruleOrigin.setDescription(dto.getDescription());
-            ruleOrigin.setIndicator(dto.getIndicator());
-            ruleOrigin.setCycle(dto.getCycle());
-            ruleOrigin.setDuration(dto.getDuration());
-            ruleOrigin.setSign(dto.getSign());
-            ruleOrigin.setExpression(dto.getExpression());
-            ruleOrigin.setClazz(dto.getClazz());
-            ruleOrigin.setContact(dto.getContact());
-            ruleOrigin.setSubject(dto.getSubject());
-            ruleOrigin.setEnabled(false);
-            if (checkRuleConflict(ruleOrigin)) {
-                return ruleRepository.save(ruleOrigin);
-            }
+            ruleOrigin.setEnabled(state);
+            MonitorBus.getIns().toggleRule(ruleOrigin.getIns(), ruleOrigin, state);
+            return ruleRepository.save(ruleOrigin);
         }
         return null;
     }
