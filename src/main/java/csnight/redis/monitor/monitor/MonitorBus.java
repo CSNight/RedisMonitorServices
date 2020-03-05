@@ -26,7 +26,7 @@ public class MonitorBus {
             .build(new CacheLoader<>() {
                 @Override
                 public String load(String s) throws Exception {
-                    _log.error("Job rule for " + s + " refresh");
+                    _log.warn("Job rule for " + s + " refresh");
                     return getEnableRule(s);
                 }
             });
@@ -108,9 +108,20 @@ public class MonitorBus {
         } else {
             relations.get(jobKey).add(rule.getId());
         }
-        //TODO 后续添加启动、禁用功能后 去掉该行
-        rule.setEnabled(true);
         rules.put(rule.getId(), rule);
+        counter.refresh(jobKey);
+    }
+
+    public void toggleRule(String jobKey, RmsMonitorRule rule, boolean state) {
+        if (rules.containsKey(rule.getId())) {
+            if (!state) {
+                if (monitors.containsKey(rule.getId())) {
+                    monitors.get(rule.getId()).destroy();
+                    monitors.remove(rule.getId());
+                }
+            }
+            rules.put(rule.getId(), rule);
+        }
         counter.refresh(jobKey);
     }
 
@@ -132,10 +143,6 @@ public class MonitorBus {
         List<RmsMonitorRule> ruleList = ruleRepository.findByIns(jobKey);
         List<String> rs = ruleList.stream().map(RmsMonitorRule::getId).collect(Collectors.toList());
         relations.put(jobKey, rs);
-        for (RmsMonitorRule rule : ruleList) {
-            rule.setEnabled(true);
-        }
-        ruleRepository.saveAll(ruleList);
         counter.refresh(jobKey);
     }
 
@@ -162,11 +169,6 @@ public class MonitorBus {
         }
         relations.clear();
         monitors.clear();
-        Set<String> rids = rules.keySet();
-        for (String rid : rids) {
-            rules.get(rid).setEnabled(false);
-        }
-        ruleRepository.saveAll(rules.values());
         rules.clear();
         counter.invalidateAll();
     }
