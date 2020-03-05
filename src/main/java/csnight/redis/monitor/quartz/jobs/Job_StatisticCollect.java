@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.csnight.jedisql.JediSQL;
 import csnight.redis.monitor.db.jpa.*;
+import csnight.redis.monitor.monitor.MonitorBus;
 import csnight.redis.monitor.msg.MsgBus;
 import csnight.redis.monitor.msg.entity.ChannelEntity;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
@@ -24,6 +25,9 @@ public class Job_StatisticCollect implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
+        JobKey jobKey = context.getJobDetail().getKey();
+        String rules = MonitorBus.getIns().GetEnableByCache(jobKey.getName());
+        System.out.println(rules);
         Map<String, String> params = (Map<String, String>) jobDataMap.get("params");
         RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(params.get("ins_id"));
         if (pool == null) {
@@ -87,6 +91,7 @@ public class Job_StatisticCollect implements Job {
         clients = null;
         params.put("tm", String.valueOf(tm));
         jobDataMap.put("params", params);
+        checkMonitorRule(rules, rpsLog, rcsLog, rksLog, rosLog);
         //存在ID为空的 直接返回
         if (params.get("cid").equals("") || params.get("appId").equals("")) {
             return;
@@ -254,6 +259,72 @@ public class Job_StatisticCollect implements Job {
         joDbs.clear();
         joDbs = null;
         return rksLog;
+    }
+
+    private void checkMonitorRule(String rules, RmsLog... logs) {
+        String[] ruleList = rules.split(";");
+        JSONObject jsonObject = new JSONObject();
+        for (RmsLog log : logs) {
+            jsonObject.putAll(JSONObject.parseObject(JSONObject.toJSONString(log)));
+        }
+        for (String rule : ruleList) {
+            if (rule.equals("")) {
+                continue;
+            }
+            String[] part = rule.split("\\|");
+            String indicator = part[1];
+            double value = getValueFromLogs(jsonObject, indicator);
+            if (Double.isNaN(value)) {
+                continue;
+            }
+            String unit = part[part.length - 4];
+            boolean needMonitor;
+            try {
+                if (part.length == 11) {
+                    String logic = part[5];
+                    double valf = unit.equals("percent") ? Double.parseDouble(part[6]) / 100.0 : Double.parseDouble(part[6]);
+                    needMonitor = isNeedMonitor(logic, value, valf);
+                } else {
+                    String logic = part[6];
+                    double valf = unit.equals("percent") ? Double.parseDouble(part[5]) / 100.0 : Double.parseDouble(part[5]);
+                    double vals = unit.equals("percent") ? Double.parseDouble(part[7]) / 100.0 : Double.parseDouble(part[7]);
+                    needMonitor = isNeedMonitor(logic, value, valf, vals);
+                }
+            } catch (Exception ex) {
+                needMonitor = false;
+            }
+            System.out.println(needMonitor);
+        }
+        jsonObject.clear();
+    }
+
+    private double getValueFromLogs(JSONObject maps, String indicator) {
+        if (maps.containsKey(indicator)) {
+            return maps.getDoubleValue(indicator);
+        }
+        return Double.NaN;
+    }
+
+    private boolean isNeedMonitor(String logic, double val, double... range) {
+        if (range.length == 2 && logic.equals("between")) {
+            return val >= range[0] && val <= range[1];
+        } else {
+            switch (logic) {
+                default:
+                case "=":
+                    return val == range[0];
+                case "<":
+                    return val < range[0];
+                case "<=":
+                    return val <= range[0];
+                case ">":
+                    return val > range[0];
+                case ">=":
+                    return val >= range[0];
+                case "!=":
+                    return val != range[0];
+            }
+        }
     }
 
     private String autoId() {
