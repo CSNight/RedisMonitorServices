@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.csnight.jedisql.JediSQL;
 import csnight.redis.monitor.db.jpa.*;
 import csnight.redis.monitor.monitor.MonitorBus;
+import csnight.redis.monitor.monitor.MonitorState;
 import csnight.redis.monitor.msg.MsgBus;
 import csnight.redis.monitor.msg.entity.ChannelEntity;
 import csnight.redis.monitor.msg.entity.WssResponseEntity;
@@ -27,7 +28,6 @@ public class Job_StatisticCollect implements Job {
         JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
         JobKey jobKey = context.getJobDetail().getKey();
         String rules = MonitorBus.getIns().GetEnableByCache(jobKey.getName());
-        System.out.println(rules);
         Map<String, String> params = (Map<String, String>) jobDataMap.get("params");
         RedisPoolInstance pool = MultiRedisPool.getInstance().getPool(params.get("ins_id"));
         if (pool == null) {
@@ -48,11 +48,21 @@ public class Job_StatisticCollect implements Job {
         if (jediSQL == null) {
             return;
         }
-        String infos = jediSQL.info();
-        String cmdInfos = jediSQL.info("commandstats");
+        String infos;
+        String cmdInfos;
+        String[] clients;
+        try {
+            infos = jediSQL.info();
+            cmdInfos = jediSQL.info("commandstats");
+            clients = jediSQL.clientList().split("\n");
+        } finally {
+            pool.close(clientId);
+        }
+        if (infos == null || cmdInfos == null || clients.length == 0) {
+            return;
+        }
         String[] sections = infos.replaceAll(" ", "").split("#");
         String[] cmd_stats = cmdInfos.replace("# Commandstats\r\n", "").split("\r\n");
-        String[] clients = jediSQL.clientList().split("\n");
         Map<String, Map<String, String>> parts = new HashMap<>();
         for (String section : sections) {
             if (section.equals("")) {
@@ -73,7 +83,6 @@ public class Job_StatisticCollect implements Job {
             }
             parts.put(sec[0], items);
         }
-        pool.close(clientId);
         long tm = System.currentTimeMillis();
         RmsRpsLog rpsLog = GetPhysicalStat(tm, params.get("ins_id"), parts, params);
         RmsRosLog rosLog = GetCommandStat(tm, params.get("ins_id"), parts, cmd_stats);
@@ -91,7 +100,7 @@ public class Job_StatisticCollect implements Job {
         clients = null;
         params.put("tm", String.valueOf(tm));
         jobDataMap.put("params", params);
-        checkMonitorRule(rules, rpsLog, rcsLog, rksLog, rosLog);
+        checkMonitorRule(rules, params.get("uid"), params.get("ins_id"), rpsLog, rcsLog, rksLog, rosLog);
         //存在ID为空的 直接返回
         if (params.get("cid").equals("") || params.get("appId").equals("")) {
             return;
@@ -261,7 +270,7 @@ public class Job_StatisticCollect implements Job {
         return rksLog;
     }
 
-    private void checkMonitorRule(String rules, RmsLog... logs) {
+    private void checkMonitorRule(String rules, String uid, String ins_id, RmsLog... logs) {
         String[] ruleList = rules.split(";");
         JSONObject jsonObject = new JSONObject();
         for (RmsLog log : logs) {
@@ -275,6 +284,17 @@ public class Job_StatisticCollect implements Job {
             String indicator = part[1];
             double value = getValueFromLogs(jsonObject, indicator);
             if (Double.isNaN(value)) {
+                continue;
+            }
+            MonitorState state = MonitorBus.getIns().getMonitorState(rule);
+            if (state.equals(MonitorState.COMPLETE)) {
+                MonitorBus.getIns().destroyMonitor(rule);
+                System.out.println("销毁");
+            } else if (state.equals(MonitorState.MONITORING)) {
+                System.out.println("设置值");
+                MonitorBus.getIns().getMonitor(rule).setSamples(value);
+            } else if (!state.equals(MonitorState.NOTFOUND)) {
+                System.out.println("发送通知中");
                 continue;
             }
             String unit = part[part.length - 4];
@@ -293,7 +313,9 @@ public class Job_StatisticCollect implements Job {
             } catch (Exception ex) {
                 needMonitor = false;
             }
-            System.out.println(needMonitor);
+            if (needMonitor) {
+                MonitorBus.getIns().addMonitor(rule, uid, ins_id);
+            }
         }
         jsonObject.clear();
     }
