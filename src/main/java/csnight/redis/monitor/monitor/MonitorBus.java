@@ -4,7 +4,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import csnight.redis.monitor.db.jpa.RmsMonitorRule;
-import csnight.redis.monitor.db.repos.RmsJobRepository;
 import csnight.redis.monitor.db.repos.RmsMonRuleRepository;
 import csnight.redis.monitor.utils.ReflectUtils;
 import org.slf4j.Logger;
@@ -31,7 +30,6 @@ public class MonitorBus {
                 }
             });
     private RmsMonRuleRepository ruleRepository;
-    private RmsJobRepository jobRepository;
     Map<String, List<String>> relations = new ConcurrentHashMap<>();
     Map<String, RedisMonitor> monitors = new ConcurrentHashMap<>();
     Map<String, RmsMonitorRule> rules = new ConcurrentHashMap<>();
@@ -50,7 +48,6 @@ public class MonitorBus {
 
     private MonitorBus() {
         ruleRepository = ReflectUtils.getBean(RmsMonRuleRepository.class);
-        jobRepository = ReflectUtils.getBean(RmsJobRepository.class);
         initialize();
     }
 
@@ -74,9 +71,6 @@ public class MonitorBus {
         if (relations.containsKey(jobKey)) {
             List<String> rs = relations.get(jobKey);
             for (String rid : rs) {
-                if (monitors.containsKey(rid)) {
-                    continue;
-                }
                 RmsMonitorRule rule = rules.get(rid);
                 if (rule == null || !rule.isEnabled()) {
                     continue;
@@ -112,19 +106,6 @@ public class MonitorBus {
         counter.refresh(jobKey);
     }
 
-    public void toggleRule(String jobKey, RmsMonitorRule rule, boolean state) {
-        if (rules.containsKey(rule.getId())) {
-            if (!state) {
-                if (monitors.containsKey(rule.getId())) {
-                    monitors.get(rule.getId()).destroy();
-                    monitors.remove(rule.getId());
-                }
-            }
-            rules.put(rule.getId(), rule);
-        }
-        counter.refresh(jobKey);
-    }
-
     public void unregisterRuleForJob(String jobKey, String rid) {
         if (relations.containsKey(jobKey)) {
             List<String> rs = relations.get(jobKey);
@@ -135,6 +116,19 @@ public class MonitorBus {
             rs.remove(rid);
         }
         rules.remove(rid);
+        counter.refresh(jobKey);
+    }
+
+    public void toggleRule(String jobKey, RmsMonitorRule rule, boolean state) {
+        if (rules.containsKey(rule.getId())) {
+            if (!state) {
+                if (monitors.containsKey(rule.getId())) {
+                    monitors.get(rule.getId()).destroy();
+                    monitors.remove(rule.getId());
+                }
+            }
+            rules.put(rule.getId(), rule);
+        }
         counter.refresh(jobKey);
     }
 
@@ -151,14 +145,60 @@ public class MonitorBus {
         if (relations.containsKey(jobKey)) {
             List<String> rs = relations.get(jobKey);
             for (String rid : rs) {
-                if (monitors.containsKey(rid)) {
-                    monitors.get(rid).destroy();
+                RedisMonitor monitor = monitors.get(rid);
+                if (monitor != null) {
+                    monitor.destroy();
                     monitors.remove(rid);
                 }
             }
             rs.clear();
             relations.remove(jobKey);
             counter.invalidate(jobKey);
+        }
+    }
+
+    public void addMonitor(String rule, String uid, String ins_id) {
+        String[] parts = rule.split("\\|");
+        if (!monitors.containsKey(parts[0])) {
+            RedisMonitor monitor = new RedisMonitorImpl(rule, uid, ins_id);
+            monitors.put(parts[0], monitor);
+        }
+    }
+
+    public RedisMonitor getMonitor(String rule) {
+        String[] parts = rule.split("\\|");
+        return monitors.get(parts[0]);
+    }
+
+    public MonitorState getMonitorState(String rule) {
+        String[] parts = rule.split("\\|");
+        RedisMonitor monitor = monitors.get(parts[0]);
+        if (monitor != null) {
+            return monitor.getState();
+        }
+        return MonitorState.NOTFOUND;
+    }
+
+    public void destroyMonitor(String rule) {
+        String[] parts = rule.split("\\|");
+        RedisMonitor monitor = monitors.get(parts[0]);
+        if (monitor != null) {
+            monitor.destroy();
+            monitors.remove(parts[0]);
+        }
+        System.gc();
+    }
+
+    public void destroyMonitorForJob(String jobKey) {
+        if (relations.containsKey(jobKey)) {
+            List<String> rs = relations.get(jobKey);
+            for (String rid : rs) {
+                RedisMonitor monitor = monitors.get(rid);
+                if (monitor != null) {
+                    monitor.destroy();
+                    monitors.remove(rid);
+                }
+            }
         }
     }
 
