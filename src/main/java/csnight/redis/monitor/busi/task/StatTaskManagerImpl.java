@@ -187,6 +187,7 @@ public class StatTaskManagerImpl {
         RmsJobInfo jobInfo = jobRepository.findByJobGroupAndJobName(jobGroup, jobName);
         boolean exists = jobFactory.ExistsJob(jobName, jobGroup);
         if (jobInfo != null && exists) {
+            MonitorBus.getIns().destroyMonitorForJob(jobInfo.getJob_name());
             return jobFactory.PauseJob(jobName, jobGroup);
         }
         return "failed";
