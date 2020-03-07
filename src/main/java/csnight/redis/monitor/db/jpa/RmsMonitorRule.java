@@ -21,12 +21,8 @@ public class RmsMonitorRule {
     private String description;
     @Column(name = "indicator")
     private String indicator;
-    @Column(name = "cycle")
-    private int cycle;
     @Column(name = "sign")
     private String sign;
-    @Column(name = "duration")
-    private int duration;
     @Column(name = "expression")
     private String expression;
     @Column(name = "clazz")
@@ -35,6 +31,8 @@ public class RmsMonitorRule {
     private String contact;
     @Column(name = "subject")
     private String subject;
+    @Column(name = "delay")
+    private int delay;
     @Column(name = "enabled")
     private boolean enabled;
     @Column(name = "create_user")
@@ -83,28 +81,12 @@ public class RmsMonitorRule {
         this.indicator = indicator;
     }
 
-    public int getCycle() {
-        return cycle;
-    }
-
-    public void setCycle(int cycle) {
-        this.cycle = cycle;
-    }
-
     public String getSign() {
         return sign;
     }
 
     public void setSign(String sign) {
         this.sign = sign;
-    }
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
     }
 
     public String getExpression() {
@@ -137,6 +119,14 @@ public class RmsMonitorRule {
 
     public void setSubject(String subject) {
         this.subject = subject;
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
     }
 
     public boolean isEnabled() {
