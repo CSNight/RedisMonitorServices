@@ -129,7 +129,6 @@ public class MonitorBus {
                 monitors.remove(rid);
             }
             blackList.remove(rid);
-            System.out.println(blackList.size());
             rs.remove(rid);
         }
         rules.remove(rid);
@@ -144,7 +143,6 @@ public class MonitorBus {
                     monitors.remove(rule.getId());
                 }
                 blackList.remove(rule.getId());
-                System.out.println(blackList.size());
             }
             rules.put(rule.getId(), rule);
         }
@@ -165,7 +163,6 @@ public class MonitorBus {
             List<String> rs = relations.get(jobKey);
             for (String rid : rs) {
                 blackList.remove(rid);
-                System.out.println(blackList.size());
                 RedisMonitor monitor = monitors.get(rid);
                 if (monitor != null) {
                     monitor.destroy();
@@ -226,7 +223,6 @@ public class MonitorBus {
             List<String> rs = relations.get(jobKey);
             for (String rid : rs) {
                 blackList.remove(rid);
-                System.out.println(blackList.size());
                 RedisMonitor monitor = monitors.get(rid);
                 if (monitor != null) {
                     monitor.destroy();
