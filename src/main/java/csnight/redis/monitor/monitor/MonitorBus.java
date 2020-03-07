@@ -9,13 +9,8 @@ import csnight.redis.monitor.utils.ReflectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class MonitorBus {
@@ -33,7 +28,9 @@ public class MonitorBus {
     Map<String, List<String>> relations = new ConcurrentHashMap<>();
     Map<String, RedisMonitor> monitors = new ConcurrentHashMap<>();
     Map<String, RmsMonitorRule> rules = new ConcurrentHashMap<>();
+    Map<String, String> blackList = new ConcurrentHashMap<>();
     private static MonitorBus ourInstance;
+    private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
 
     public static MonitorBus getIns() {
         if (ourInstance == null) {
@@ -63,10 +60,28 @@ public class MonitorBus {
             }
             rules.put(monitorRule.getId(), monitorRule);
         }
+        scheduledThreadPool.scheduleAtFixedRate(() -> {
+            long now = System.currentTimeMillis();
+            List<String> dels = new ArrayList<>();
+            Collection<String> keys = blackList.keySet();
+            for (String key : keys) {
+                String[] delayInfo = blackList.get(key).split(",");
+                long st = Long.parseLong(delayInfo[0]);
+                int delay = Integer.parseInt(delayInfo[1]);
+                if ((now - st) > delay) {
+                    dels.add(key);
+                }
+            }
+            for (String k : dels) {
+                blackList.remove(k);
+            }
+            dels.clear();
+            dels = null;
+        }, 1000, 5000, TimeUnit.MILLISECONDS);
     }
 
     public String getEnableRule(String jobKey) {
-        String ens = "";
+        String ens;
         List<String> enableRule = new ArrayList<>();
         if (relations.containsKey(jobKey)) {
             List<String> rs = relations.get(jobKey);
@@ -113,6 +128,8 @@ public class MonitorBus {
                 monitors.get(rid).destroy();
                 monitors.remove(rid);
             }
+            blackList.remove(rid);
+            System.out.println(blackList.size());
             rs.remove(rid);
         }
         rules.remove(rid);
@@ -126,6 +143,8 @@ public class MonitorBus {
                     monitors.get(rule.getId()).destroy();
                     monitors.remove(rule.getId());
                 }
+                blackList.remove(rule.getId());
+                System.out.println(blackList.size());
             }
             rules.put(rule.getId(), rule);
         }
@@ -145,6 +164,8 @@ public class MonitorBus {
         if (relations.containsKey(jobKey)) {
             List<String> rs = relations.get(jobKey);
             for (String rid : rs) {
+                blackList.remove(rid);
+                System.out.println(blackList.size());
                 RedisMonitor monitor = monitors.get(rid);
                 if (monitor != null) {
                     monitor.destroy();
@@ -160,7 +181,12 @@ public class MonitorBus {
     public void addMonitor(String rule, String uid, String ins_id) {
         String[] parts = rule.split("\\|");
         if (!monitors.containsKey(parts[0])) {
+            RmsMonitorRule ruleIns = rules.get(parts[0]);
+            if (ruleIns == null) {
+                return;
+            }
             RedisMonitor monitor = new RedisMonitorImpl(rule, uid, ins_id);
+            monitor.setDelay(ruleIns.getDelay());
             monitors.put(parts[0], monitor);
         }
     }
@@ -172,6 +198,9 @@ public class MonitorBus {
 
     public MonitorState getMonitorState(String rule) {
         String[] parts = rule.split("\\|");
+        if (blackList.containsKey(parts[0])) {
+            return MonitorState.JAILING;
+        }
         RedisMonitor monitor = monitors.get(parts[0]);
         if (monitor != null) {
             return monitor.getState();
@@ -183,6 +212,9 @@ public class MonitorBus {
         String[] parts = rule.split("\\|");
         RedisMonitor monitor = monitors.get(parts[0]);
         if (monitor != null) {
+            if (monitor.getDelay() != -1) {
+                blackList.put(parts[0], System.currentTimeMillis() + "," + monitor.getDelay() * 1000);
+            }
             monitor.destroy();
             monitors.remove(parts[0]);
         }
@@ -193,6 +225,8 @@ public class MonitorBus {
         if (relations.containsKey(jobKey)) {
             List<String> rs = relations.get(jobKey);
             for (String rid : rs) {
+                blackList.remove(rid);
+                System.out.println(blackList.size());
                 RedisMonitor monitor = monitors.get(rid);
                 if (monitor != null) {
                     monitor.destroy();
@@ -203,6 +237,7 @@ public class MonitorBus {
     }
 
     public void destroy() {
+        scheduledThreadPool.shutdownNow();
         Set<String> keys = monitors.keySet();
         for (String key : keys) {
             monitors.get(key).destroy();
@@ -210,6 +245,7 @@ public class MonitorBus {
         relations.clear();
         monitors.clear();
         rules.clear();
+        blackList.clear();
         counter.invalidateAll();
     }
 }
