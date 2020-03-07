@@ -57,13 +57,12 @@ public class MonitorRuleManagerImpl {
         rule.setName(dto.getName());
         rule.setDescription(dto.getDescription());
         rule.setIndicator(dto.getIndicator());
-        rule.setCycle(dto.getCycle());
-        rule.setDuration(dto.getDuration());
         rule.setSign(dto.getSign());
         rule.setExpression(dto.getExpression());
         rule.setClazz(dto.getClazz());
         rule.setContact(dto.getContact());
         rule.setSubject(dto.getSubject());
+        rule.setDelay(dto.getDelay());
         rule.setEnabled(false);
         rule.setCreate_time(new Date());
         rule.setCreate_user(user);
@@ -120,7 +119,6 @@ public class MonitorRuleManagerImpl {
     private boolean checkEmailConf(String userId) {
         SysMailConfig mailConfig = mailConfRepository.findByUid(userId);
         return mailConfig != null;
-
     }
 
     private RmsJobInfo checkStatJobExist(String jobId) {

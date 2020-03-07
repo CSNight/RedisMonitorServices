@@ -27,18 +27,10 @@ public class MonitorRuleDto {
     @NotNull
     @NotEmpty
     private String indicator;
-    @ApiModelProperty(notes = "周期", required = true)
-    @Min(1)
-    @Max(15)
-    private int cycle;
     @ApiModelProperty(notes = "信号量", required = true)
     @NotNull
     @NotEmpty
     private String sign;
-    @ApiModelProperty(notes = "持续时间", required = true)
-    @Min(1)
-    @Max(3600)
-    private int duration;
     @ApiModelProperty(notes = "表达式", required = true)
     @NotNull
     @NotEmpty
@@ -55,6 +47,10 @@ public class MonitorRuleDto {
     @NotNull
     @NotEmpty
     private String subject;
+    @ApiModelProperty(notes = "多次通知间隔", required = true)
+    @Min(-1)
+    @Max(3600 * 24)
+    private int delay;
 
     public String getId() {
         return id;
@@ -96,28 +92,12 @@ public class MonitorRuleDto {
         this.indicator = indicator;
     }
 
-    public int getCycle() {
-        return cycle;
-    }
-
-    public void setCycle(int cycle) {
-        this.cycle = cycle;
-    }
-
     public String getSign() {
         return sign;
     }
 
     public void setSign(String sign) {
         this.sign = sign;
-    }
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
     }
 
     public String getExpression() {
@@ -150,5 +130,13 @@ public class MonitorRuleDto {
 
     public void setSubject(String subject) {
         this.subject = subject;
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
     }
 }
