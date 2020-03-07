@@ -289,10 +289,13 @@ public class Job_StatisticCollect implements Job {
             MonitorState state = MonitorBus.getIns().getMonitorState(rule);
             if (state.equals(MonitorState.COMPLETE)) {
                 MonitorBus.getIns().destroyMonitor(rule);
-                System.out.println("销毁");
+                System.out.println("销毁监控器");
             } else if (state.equals(MonitorState.MONITORING)) {
-                System.out.println("设置值");
+                System.out.println("监控器采样");
                 MonitorBus.getIns().getMonitor(rule).setSamples(value);
+            } else if (state.equals(MonitorState.JAILING)) {
+                System.out.println("监控指标进入小黑屋");
+                continue;
             } else if (!state.equals(MonitorState.NOTFOUND)) {
                 System.out.println("发送通知中");
                 continue;
