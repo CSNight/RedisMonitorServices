@@ -40,6 +40,7 @@ public class RedisMonitorImpl implements RedisMonitor {
     private String contact;
     private String subject;
     private String uid;
+    private int delay = -1;
 
     public RedisMonitorImpl(String rule, String uid, String ins_id) {
         Initialize(rule, uid, ins_id);
@@ -80,6 +81,14 @@ public class RedisMonitorImpl implements RedisMonitor {
     public void setState(MonitorState state) {
         this.state = state;
     }
+    @Override
+    public int getDelay() {
+        return delay;
+    }
+    @Override
+    public void setDelay(int delay) {
+        this.delay = delay;
+    }
 
     @Override
     public void setSamples(double val) {
@@ -90,10 +99,8 @@ public class RedisMonitorImpl implements RedisMonitor {
             this.end = System.currentTimeMillis();
         }
         this.samples.put(this.end, val);
-        System.out.println(samples.size());
         if ((this.end - this.start) / 1000 >= this.range) {
             needNotify();
-            System.out.println("send ...............................");
         }
     }
 

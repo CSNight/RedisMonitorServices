@@ -7,5 +7,9 @@ public interface RedisMonitor {
 
     void setState(MonitorState state);
 
+    int getDelay();
+
+    void setDelay(int delay);
+
     void destroy();
 }
