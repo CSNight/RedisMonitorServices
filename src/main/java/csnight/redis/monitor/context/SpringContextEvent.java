@@ -6,6 +6,7 @@ import csnight.redis.monitor.msg.MsgBus;
 import csnight.redis.monitor.quartz.JobFactory;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.utils.ReflectUtils;
+import csnight.redis.monitor.utils.YamlUtils;
 import csnight.redis.monitor.websocket.WebSocketServer;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
@@ -26,8 +27,8 @@ public class SpringContextEvent implements ApplicationListener<ApplicationEvent>
     @Override
     public void onApplicationEvent(ApplicationEvent applicationEvent) {
         if (applicationEvent instanceof ApplicationStartedEvent) {
-            wss.setHost("127.0.0.1");
-            wss.setPort(13244);
+            wss.setHost(YamlUtils.getStrYmlVal("websocket.server"));
+            wss.setPort(YamlUtils.getIntegerYmlVal("websocket.port"));
             try {
                 wss.run();
             } catch (Exception e) {

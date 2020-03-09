@@ -9,9 +9,9 @@ server:
     key-store-password: myJ5h6ik
     key-store-type: PKCS12
 spring:
-  output:
-    ansi:
-      enabled: always
+#  output:
+#    ansi:
+#      enabled: always
   jpa:
     open-in-view: false
     properties:
@@ -72,6 +72,9 @@ spring:
       spec: initialCapacity=1000,maximumSize=2000,expireAfterWrite=60s,recordStats
 logging:
   config: classpath:logback-config.xml
+websocket:
+  server: 127.0.0.1
+  port: 13244
 dumpdir:
   conf-dir: tools/configs
   record-dir: tools/backups

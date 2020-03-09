@@ -25,10 +25,6 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServerHandler.class);
     private ChannelGroup channels;
 
-    WebSocketServerHandler(ChannelGroup channelGroup) {
-        channels = channelGroup;
-    }
-
     private static void sendHttpResponse(ChannelHandlerContext ctx, FullHttpRequest req, DefaultFullHttpResponse res) {
         HttpResponseStatus responseStatus = res.status();
         if (responseStatus.code() != 200) {

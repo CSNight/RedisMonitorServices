@@ -20,7 +20,7 @@ public class MonitorBus {
             .build(new CacheLoader<>() {
                 @Override
                 public String load(String s) throws Exception {
-                    _log.warn("Job rule for " + s + " refresh");
+                    _log.info("Job rule for " + s + " refresh");
                     return getEnableRule(s);
                 }
             });
@@ -233,6 +233,7 @@ public class MonitorBus {
     }
 
     public void destroy() {
+        _log.info("Shutting down Monitor bus...");
         scheduledThreadPool.shutdownNow();
         Set<String> keys = monitors.keySet();
         for (String key : keys) {
@@ -243,5 +244,6 @@ public class MonitorBus {
         rules.clear();
         blackList.clear();
         counter.invalidateAll();
+        _log.info("Monitor bus shutdown complete");
     }
 }

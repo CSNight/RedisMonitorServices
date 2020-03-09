@@ -3,7 +3,6 @@ package csnight.redis.monitor.websocket;
 import csnight.redis.monitor.utils.ReflectUtils;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
@@ -16,12 +15,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
 public class WebSocketInitializer extends ChannelInitializer<SocketChannel> {
-    private ChannelGroup channels;
-
-    WebSocketInitializer(ChannelGroup channelGroup) {
-        channels = channelGroup;
-    }
-
     @Override
     public void initChannel(final SocketChannel ch) throws Exception {
         SSLContext sslContext = CreateContext();
@@ -33,7 +26,7 @@ public class WebSocketInitializer extends ChannelInitializer<SocketChannel> {
         pipeline.addLast("aggregator", new HttpObjectAggregator(67108864));
         pipeline.addLast("http-response-encoder", new HttpResponseEncoder());
         pipeline.addLast("request-handler", new WebSocketServerProtocolHandler("/websocket_stream", true));
-        pipeline.addLast("handler", new WebSocketServerHandler(channels));
+        pipeline.addLast("handler", new WebSocketServerHandler());
     }
 
     private SSLContext CreateContext() throws Exception {

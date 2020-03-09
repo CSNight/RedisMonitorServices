@@ -34,10 +34,6 @@ public class WebSocketServer {
     private WebSocketServer() {
     }
 
-    public ChannelGroup getChannelGroup() {
-        return channelGroup;
-    }
-
     public String getHost() {
         return host;
     }
@@ -58,7 +54,7 @@ public class WebSocketServer {
     public void run() {
         try {
             final ServerBootstrap b = new ServerBootstrap();
-            b.group(workerGroup).channel(NioServerSocketChannel.class).childHandler(new WebSocketInitializer(channelGroup));
+            b.group(workerGroup).channel(NioServerSocketChannel.class).childHandler(new WebSocketInitializer());
             b.bind(host, port).sync();
             logger.info("WebSocketServer has started");
         } catch (Exception ex) {
