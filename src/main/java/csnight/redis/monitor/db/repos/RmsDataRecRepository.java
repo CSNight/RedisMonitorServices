@@ -18,6 +18,9 @@ public interface RmsDataRecRepository extends JpaRepository<RmsDataRecord, Strin
     @Query(value = "select * from rms_data_record  order by create_time,backup_type desc", nativeQuery = true)
     List<RmsDataRecord> findAllRecord();
 
+    @Query(value = "select id from rms_data_record where ins_id=?", nativeQuery = true)
+    List<String> findByInsId(String ins_id);
+
     @Query(value = "select * from rms_data_record where create_user=? order by create_time,backup_type desc", nativeQuery = true)
     List<RmsDataRecord> findByCreateUser(String usr);
 }

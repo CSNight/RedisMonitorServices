@@ -15,4 +15,8 @@ public interface RmsJobRepository extends JpaRepository<RmsJobInfo, String> {
 
     @Query(value = "select * from rms_jobs_info where job_name=?", nativeQuery = true)
     RmsJobInfo findByJobName(String jobName);
+
+    @Query(value = "select * from rms_jobs_info where ins_id=?", nativeQuery = true)
+    List<RmsJobInfo> findByInsId(String ins_id);
+
 }
