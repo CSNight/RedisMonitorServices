@@ -3,12 +3,8 @@ package csnight.redis.monitor.monitor;
 import com.sun.mail.util.MailSSLSocketFactory;
 import csnight.redis.monitor.db.jpa.SysMailConfig;
 import csnight.redis.monitor.db.jpa.SysMailRecord;
-import csnight.redis.monitor.db.repos.RmsIndicatorRepository;
-import csnight.redis.monitor.db.repos.RmsInsRepository;
-import csnight.redis.monitor.db.repos.SysMailConfRepository;
-import csnight.redis.monitor.db.repos.SysMailRecRepository;
+import csnight.redis.monitor.db.repos.*;
 import csnight.redis.monitor.rest.sys.dto.MailSendDto;
-import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.IdentifyUtils;
 import csnight.redis.monitor.utils.ReflectUtils;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -81,10 +77,12 @@ public class RedisMonitorImpl implements RedisMonitor {
     public void setState(MonitorState state) {
         this.state = state;
     }
+
     @Override
     public int getDelay() {
         return delay;
     }
+
     @Override
     public void setDelay(int delay) {
         this.delay = delay;
@@ -187,7 +185,7 @@ public class RedisMonitorImpl implements RedisMonitor {
             record.setMt("CUSTOM");
             record.setTos(String.join(";", dto.getToList().toArray(new String[]{})));
             record.setCt(new Date());
-            record.setCreate_user(BaseUtils.GetUserFromContext());
+            record.setCreate_user(ReflectUtils.getBean(SysUserRepository.class).findUsernameById(uid));
             record.setStatus("sending");
             SysMailRecord sendRec = mailRecRepository.save(record);
             CompletableFuture.supplyAsync(() -> send(mailConfig, dto))
