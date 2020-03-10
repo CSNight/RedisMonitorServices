@@ -58,7 +58,6 @@ public class SignOutHandler implements LogoutHandler {
                     }
                     insRepository.saveAll(instances);
                 }
-                //TODO 停止关联定时任务
             }
         } catch (Exception ex) {
             ex.printStackTrace();

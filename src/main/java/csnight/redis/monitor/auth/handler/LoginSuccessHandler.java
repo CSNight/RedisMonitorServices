@@ -70,8 +70,4 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
         jo_res.put("LoginTK", IdentifyUtils.getUUID());
         response.getWriter().write(JSONObject.toJSONString(new RespTemplate(200, HttpStatus.OK, jo_res, "/auth/sign", "Login")));
     }
-
-    private void InitializeRedisDbAndJobs() {
-        //TODO 增加用户数据库连接逻辑及定时任务初始化逻辑
-    }
 }
