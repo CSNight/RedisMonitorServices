@@ -3,23 +3,23 @@ package csnight.redis.monitor.busi.rms;
 import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.busi.rms.exp.InsQueryExp;
 import csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
-import csnight.redis.monitor.db.jpa.RmsInstance;
-import csnight.redis.monitor.db.jpa.SysRole;
-import csnight.redis.monitor.db.jpa.SysUser;
-import csnight.redis.monitor.db.repos.RmsInsRepository;
-import csnight.redis.monitor.db.repos.SysUserRepository;
+import csnight.redis.monitor.db.jpa.*;
+import csnight.redis.monitor.db.repos.*;
 import csnight.redis.monitor.exception.ConfigException;
 import csnight.redis.monitor.exception.ConflictsException;
 import csnight.redis.monitor.msg.MsgBus;
 import csnight.redis.monitor.msg.entity.ChannelEntity;
 import csnight.redis.monitor.msg.handler.WsChannelHandler;
+import csnight.redis.monitor.quartz.JobFactory;
 import csnight.redis.monitor.redis.data.InfoCmdParser;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.PoolConfig;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
+import csnight.redis.monitor.rest.rms.dto.RecordsDto;
 import csnight.redis.monitor.rest.rms.dto.RmsInsDto;
 import csnight.redis.monitor.utils.BaseUtils;
 import csnight.redis.monitor.utils.IdentifyUtils;
+import csnight.redis.monitor.utils.ReflectUtils;
 import csnight.redis.monitor.utils.RegexUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -194,8 +194,7 @@ public class RmsInsManageImpl {
             if (ins != null) {
                 //关闭实例关联channel handler
                 closeRelateChannelHandler(ins.getId());
-                //TODO 停止关联定时任务
-                //TODO 实例关联信息清除
+                cleanRelateResource(ins.getId());
                 rmsInsRepository.delete(ins);
                 boolean res = MultiRedisPool.getInstance().removePool(ins_id);
             }
@@ -251,7 +250,6 @@ public class RmsInsManageImpl {
                     return rmsInsRepository.save(oldIns);
                 }
                 //如果实例连接池存在，则关闭连接池并保存实例为关闭状态
-                //TODO 停止关联定时任务
                 closeRelateChannelHandler(oldIns.getId());
                 boolean isShutdown = MultiRedisPool.getInstance().removePool(oldIns.getId());
                 if (isShutdown) {
@@ -305,7 +303,6 @@ public class RmsInsManageImpl {
             oldIns.setUin(config_new.getUin());
             //如实例存在连接池，则关闭连接并保存为关闭状态
             if (oldIns.isState() && MultiRedisPool.getInstance().getPool(oldIns.getId()) != null) {
-                //TODO 停止关联定时任务
                 closeRelateChannelHandler(oldIns.getId());
                 boolean isShutdown = MultiRedisPool.getInstance().removePool(oldIns.getId());
                 if (isShutdown) {
@@ -471,5 +468,27 @@ public class RmsInsManageImpl {
                 }
             }
         }
+    }
+
+    private void cleanRelateResource(String ins_id) {
+        //清理任务
+        RmsJobRepository jobRepository = ReflectUtils.getBean(RmsJobRepository.class);
+        List<RmsJobInfo> jobs = jobRepository.findByInsId(ins_id);
+        JobFactory jobFactory = ReflectUtils.getBean(JobFactory.class);
+        for (RmsJobInfo job : jobs) {
+            jobFactory.PauseJob(job.getJob_name(), job.getJob_group());
+            jobFactory.DeleteJob(job.getJob_name(), job.getJob_group());
+        }
+        jobRepository.deleteInBatch(jobs);
+        //清理备份
+        RmsDataRecRepository recRepository = ReflectUtils.getBean(RmsDataRecRepository.class);
+        List<String> ids = recRepository.findByInsId(ins_id);
+        RecordsDto dto = new RecordsDto();
+        dto.setIds(new HashSet<>(ids));
+        ReflectUtils.getBean(RmsDataBackupImpl.class).DeleteMultiRecords(dto);
+        //清理监控规则
+        RmsMonRuleRepository ruleRepository = ReflectUtils.getBean(RmsMonRuleRepository.class);
+        List<RmsMonitorRule> rules = ruleRepository.findByIns(ins_id);
+        ruleRepository.deleteInBatch(rules);
     }
 }
