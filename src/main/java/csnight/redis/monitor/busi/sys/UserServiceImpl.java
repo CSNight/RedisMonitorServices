@@ -2,17 +2,25 @@ package csnight.redis.monitor.busi.sys;
 
 import com.alibaba.fastjson.JSONObject;
 import csnight.redis.monitor.auth.config.JdbcTokenRepositoryExt;
+import csnight.redis.monitor.busi.rms.RmsDataDumpImpl;
+import csnight.redis.monitor.busi.rms.RmsInsManageImpl;
 import csnight.redis.monitor.busi.sys.exp.UserQueryExp;
 import csnight.redis.monitor.db.blurry.QueryAnnotationProcess;
+import csnight.redis.monitor.db.jpa.RmsInstance;
+import csnight.redis.monitor.db.jpa.RmsShakeRecord;
 import csnight.redis.monitor.db.jpa.SysOrg;
 import csnight.redis.monitor.db.jpa.SysUser;
+import csnight.redis.monitor.db.repos.RmsInsRepository;
+import csnight.redis.monitor.db.repos.RmsShakeRepository;
 import csnight.redis.monitor.db.repos.SysOrgRepository;
 import csnight.redis.monitor.db.repos.SysUserRepository;
 import csnight.redis.monitor.exception.ConflictsException;
+import csnight.redis.monitor.rest.rms.dto.RecordsDto;
 import csnight.redis.monitor.rest.sys.dto.UserEditDto;
 import csnight.redis.monitor.rest.sys.dto.UserPassDto;
 import csnight.redis.monitor.rest.sys.vo.UserVo;
 import csnight.redis.monitor.utils.BaseUtils;
+import csnight.redis.monitor.utils.ReflectUtils;
 import csnight.redis.monitor.utils.RegexUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -327,11 +335,11 @@ public class UserServiceImpl {
      */
     @CacheEvict(value = "users", beforeInvocation = true, allEntries = true)
     public String DeleteUserById(String id) {
-        //TODO 删除用户资源
         try {
             SysUser user = sysUserRepository.findOnly(id);
             if (user != null) {
                 sysUserRepository.delete(user);
+                ClearUserResource(user);
                 return "success";
             }
         } catch (Exception e) {
@@ -350,11 +358,11 @@ public class UserServiceImpl {
      */
     @CacheEvict(value = "user_info", key = "#username")
     public String DeleteUserByName(String username) {
-        //TODO 删除用户资源
         try {
             SysUser user = sysUserRepository.findByUsername(username);
             if (user != null) {
                 sysUserRepository.delete(user);
+                ClearUserResource(user);
                 return "success";
             }
         } catch (Exception e) {
@@ -363,8 +371,24 @@ public class UserServiceImpl {
         return "failed";
     }
 
-    private void ClearUserResource(String user) {
-        mailService.DeleteUserMailResource(user);
+    private void ClearUserResource(SysUser user) {
+        //邮件清理
+        mailService.DeleteUserMailResource(user.getUsername());
+        //备份清理
+        RmsShakeRepository shakeRepository = ReflectUtils.getBean(RmsShakeRepository.class);
+        List<RmsShakeRecord> shakeRecords = shakeRepository.findByCreateUser(user.getUsername());
+        RecordsDto dto = new RecordsDto();
+        for (RmsShakeRecord record : shakeRecords) {
+            dto.getIds().add(record.getId());
+        }
+        ReflectUtils.getBean(RmsDataDumpImpl.class).DeleteMultiRecords(dto);
+        //清理实例
+        RmsInsRepository insRepository = ReflectUtils.getBean(RmsInsRepository.class);
+        List<RmsInstance> instances = insRepository.findByUserId(user.getId());
+        RmsInsManageImpl insManage = ReflectUtils.getBean(RmsInsManageImpl.class);
+        for (RmsInstance instance : instances) {
+            insManage.DeleteInstance(instance.getId());
+        }
     }
 
     /**
