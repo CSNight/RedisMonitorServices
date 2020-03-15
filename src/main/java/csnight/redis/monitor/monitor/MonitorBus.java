@@ -1,8 +1,7 @@
 package csnight.redis.monitor.monitor;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import csnight.redis.monitor.db.jpa.RmsMonitorRule;
 import csnight.redis.monitor.db.repos.RmsMonRuleRepository;
 import csnight.redis.monitor.utils.ReflectUtils;
@@ -10,19 +9,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class MonitorBus {
     private Logger _log = LoggerFactory.getLogger(MonitorBus.class);
-    private LoadingCache<String, String> counter = CacheBuilder.newBuilder()
+    private LoadingCache<String, String> counter = Caffeine.newBuilder()
+            .maximumSize(1000)
             .expireAfterWrite(60 * 60 * 24, TimeUnit.SECONDS)
-            .build(new CacheLoader<>() {
-                @Override
-                public String load(String s) throws Exception {
-                    _log.info("Job rule for " + s + " refresh");
-                    return getEnableRule(s);
-                }
+            .build(s -> {
+                _log.info("Job rule for " + s + " refresh");
+                return getEnableRule(s);
             });
     private RmsMonRuleRepository ruleRepository;
     Map<String, List<String>> relations = new ConcurrentHashMap<>();
@@ -102,11 +102,7 @@ public class MonitorBus {
     }
 
     public String GetEnableByCache(String jobKey) {
-        try {
-            return counter.get(jobKey);
-        } catch (ExecutionException e) {
-            return "";
-        }
+        return counter.get(jobKey);
     }
 
     public void registerRuleToJob(String jobKey, RmsMonitorRule rule) {

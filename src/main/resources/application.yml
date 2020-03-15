@@ -9,9 +9,9 @@ server:
     key-store-password: myJ5h6ik
     key-store-type: PKCS12
 spring:
-#  output:
-#    ansi:
-#      enabled: always
+  output:
+    ansi:
+      enabled: always
   jpa:
     open-in-view: false
     properties:
