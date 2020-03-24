@@ -287,6 +287,7 @@ public class UserServiceImpl {
                 if (match) {
                     //新密码加密存储
                     userExist.setPassword(passwordEncoder.encode(user.getPassword()));
+                    sysUserRepository.save(userExist);
                     return "success";
                 }
             }
