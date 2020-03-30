@@ -11,19 +11,18 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
 
 public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServerHandler.class);
-    private ChannelGroup channels;
 
     private static void sendHttpResponse(ChannelHandlerContext ctx, FullHttpRequest req, DefaultFullHttpResponse res) {
         HttpResponseStatus responseStatus = res.status();
@@ -65,6 +64,9 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
         if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
+            InetSocketAddress inSocket = (InetSocketAddress) ctx.channel().remoteAddress();
+            String clientIP = inSocket.getAddress().getHostAddress();
+            logger.info("Client from " + clientIP + " connect");
             WebSocketServerProtocolHandler.HandshakeComplete complete = (WebSocketServerProtocolHandler.HandshakeComplete) evt;
             Map<String, String> params = new HashMap<>();
             QueryStringDecoder decoder = new QueryStringDecoder(complete.requestUri());

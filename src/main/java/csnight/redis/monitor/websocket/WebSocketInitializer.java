@@ -21,7 +21,7 @@ public class WebSocketInitializer extends ChannelInitializer<SocketChannel> {
         SSLEngine engine = sslContext.createSSLEngine();
         engine.setUseClientMode(false);
         final ChannelPipeline pipeline = ch.pipeline();
-        pipeline.addLast(new SslHandler(engine));
+        pipeline.addLast("ssl", new SslHandler(engine));
         pipeline.addLast("http-request-decoder", new HttpRequestDecoder());
         pipeline.addLast("aggregator", new HttpObjectAggregator(67108864));
         pipeline.addLast("http-response-encoder", new HttpResponseEncoder());
