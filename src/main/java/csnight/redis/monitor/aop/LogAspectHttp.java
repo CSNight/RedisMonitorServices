@@ -92,8 +92,18 @@ public class LogAspectHttp {
                     rep.getStatus(), req.getRequestURI(), methodName, params, costTime, wrapRes);
         }
         try {
+            String ip = req.getHeader("x-forwarded-for");
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+                ip = req.getHeader("Proxy-Client-IP");
+            }
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+                ip = req.getHeader("WL-Proxy-Client-IP");
+            }
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+                ip = req.getRemoteAddr();
+            }
             String user = req.getUserPrincipal().getName();
-            SysOpLog opLog = new SysOpLog(user, op, req.getRemoteHost(), module, rep.getStatus(), auth, costTime);
+            SysOpLog opLog = new SysOpLog(user, op, ip, module, rep.getStatus(), auth, costTime);
             LogAsyncPool.getIns().offer(opLog);
         } catch (Exception ignored) {
         }
