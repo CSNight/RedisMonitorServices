@@ -105,7 +105,6 @@ public class StatTaskManagerImpl {
         Class<? extends Job> jobClazz = getJobByGroup(job.getJob_group());
         job.setJob_class(jobClazz.getName());
         if (jobFactory.AddJob(jobConfig, jobClazz).equals("success")) {
-            jobFactory.PauseJob(job.getJob_name(), job.getJob_group());
             //注册监控规则到监控总线，并启用已经存在的监控规则
             MonitorBus.getIns().registerJobRules(job.getJob_name());
             return jobRepository.save(job);

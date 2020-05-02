@@ -89,7 +89,6 @@ public class CETaskManagerImpl {
         Class<? extends Job> jobClazz = getJobByGroup(job.getJob_group());
         job.setJob_class(jobClazz.getName());
         if (jobFactory.AddJob(jobConfig, jobClazz).equals("success")) {
-            jobFactory.PauseJob(job.getJob_name(), job.getJob_group());
             return jobRepository.save(job);
         }
         return null;

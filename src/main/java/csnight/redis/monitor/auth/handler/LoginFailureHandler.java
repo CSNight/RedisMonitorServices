@@ -114,6 +114,7 @@ public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
         jobConfigBase.setTriggerConfig(jsonObject.toJSONString());
         jobConfigBase.setTriggerType(0);
         jobFactory.AddJob(jobConfigBase, Job_UnlockAccount.class);
+        jobFactory.ResumeJob(jobConfigBase.getJobName(), jobConfigBase.getJobGroup());
         lock_list.put(username, new Date().getTime() + 60000);
     }
 
