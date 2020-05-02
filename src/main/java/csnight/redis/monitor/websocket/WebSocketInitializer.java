@@ -13,6 +13,7 @@ import io.netty.handler.ssl.SslHandler;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import java.security.SecureRandom;
 
 public class WebSocketInitializer extends ChannelInitializer<SocketChannel> {
     @Override
@@ -32,7 +33,7 @@ public class WebSocketInitializer extends ChannelInitializer<SocketChannel> {
     private SSLContext CreateContext() throws Exception {
         KeyManagerFactory kmf = ReflectUtils.getBean(KeyManagerFactory.class);
         SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(kmf.getKeyManagers(), null, null);
+        sslContext.init(kmf.getKeyManagers(), null, new SecureRandom());
         return sslContext;
     }
 }
