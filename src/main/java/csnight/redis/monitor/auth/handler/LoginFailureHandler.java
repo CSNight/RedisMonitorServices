@@ -106,7 +106,7 @@ public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
         jobConfigBase.setInvokeParam(username);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("identity", jobConfigBase.getJobName());
-        jsonObject.put("description", "");
+        jsonObject.put("description", "unlock");
         jsonObject.put("triggerGroup", "unlock");
         jsonObject.put("interval", 10);
         jsonObject.put("repeatCount", 1);

@@ -12,7 +12,6 @@ import csnight.redis.monitor.quartz.JobFactory;
 import csnight.redis.monitor.quartz.config.JobConfig;
 import csnight.redis.monitor.quartz.config.JobGroup;
 import csnight.redis.monitor.quartz.jobs.Job_CommandExec;
-import csnight.redis.monitor.quartz.jobs.Job_ReportError;
 import csnight.redis.monitor.quartz.jobs.Job_StatisticCollect;
 import csnight.redis.monitor.redis.pool.MultiRedisPool;
 import csnight.redis.monitor.redis.pool.RedisPoolInstance;
@@ -106,6 +105,7 @@ public class StatTaskManagerImpl {
         Class<? extends Job> jobClazz = getJobByGroup(job.getJob_group());
         job.setJob_class(jobClazz.getName());
         if (jobFactory.AddJob(jobConfig, jobClazz).equals("success")) {
+            jobFactory.PauseJob(job.getJob_name(), job.getJob_group());
             //注册监控规则到监控总线，并启用已经存在的监控规则
             MonitorBus.getIns().registerJobRules(job.getJob_name());
             return jobRepository.save(job);
@@ -242,8 +242,6 @@ public class StatTaskManagerImpl {
                 return Job_StatisticCollect.class;
             case EXECUTION:
                 return Job_CommandExec.class;
-            case ERROR:
-                return Job_ReportError.class;
         }
     }
 }
